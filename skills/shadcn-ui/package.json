@@ -1,0 +1,12 @@
+{
+  "name": "shadcn-ui-skill-runner",
+  "version": "1.0.0",
+  "description": "Isolated runner and dependencies for shadcn/ui skill",
+  "dependencies": {
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0",
+    "lucide-react": "^0.469.0",
+    "@radix-ui/react-slot": "^1.1.0"
+  }
+}

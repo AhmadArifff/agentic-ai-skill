@@ -1,0 +1,11 @@
+{
+  "name": "magic-ui-skill-runner",
+  "version": "1.0.0",
+  "description": "Isolated runner and dependencies for Magic UI skill",
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "tailwind-merge": "^2.6.0",
+    "lucide-react": "^0.469.0",
+    "motion": "^12.4.7"
+  }
+}
