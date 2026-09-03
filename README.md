@@ -178,33 +178,33 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 
 | Skill | Path Direktori | Peran yang Diberdayakan | Kapabilitas & Panduan Pendukung |
 |---|---|---|---|
-| **backend** | [`.agents/skills/backend/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/backend) | `backend-engineer` | API design guide, clean architecture, auth patterns, database patterns, guard clauses, dan result pattern (10 referensi teknis). |
-| **frontend** | [`.agents/skills/frontend/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/frontend) | `frontend-engineer`, `ui-ux-designer` | UI/UX Pro Max Intelligence, accessibility WCAG AA, component patterns, performance, enterprise Vue & Nuxt 3 (12 referensi). |
-| **pm** | [`.agents/skills/pm/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/pm) | `product-manager`, `problem-decomposer` | PRD templates, roadmap planning, feature breakdown, dan metodologi software agile/scrum (9 referensi). |
-| **qa** | [`.agents/skills/qa/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/qa) | `qa-engineer`, `security-engineer` | Comprehensive testing strategies, security checklists, code review patterns, dan audit boundary (7 referensi). |
-| **motion** | [`.agents/skills/motion/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion) | `frontend-engineer`, `ui-ux-designer` | Animasi 120fps GPU-accelerated (Motion/Framer Motion v12+), gestures, spring physics, layout transitions (`layoutId`), dan reduced-motion a11y (3 referensi). |
-| **shadcn-ui** | [`.agents/skills/shadcn-ui/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui) | `frontend-engineer`, `ui-ux-designer`, `qa-engineer` | Arsitektur komponen open-code berbasis Radix UI headless, CVA variant system, token CSS HSL, dan WAI-ARIA compliance (2 referensi). |
-| **magic-ui** | [`.agents/skills/magic-ui/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/magic-ui) | `frontend-engineer`, `ui-ux-designer` | 50+ komponen animasi kelas dunia untuk Design Engineer: Bento Grid, Marquee, Border Beam, Particles, Shimmer Button via Shadcn Registry (2 referensi). |
-| **cast** | [`.agents/skills/cast/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/cast) | `ui-ux-designer`, `frontend-engineer` | The Illusionist: creative coding untuk motion, mikro-interaksi, gestur visual, dan wow-factor (Genjutsu). |
-| **design-dna** | [`.agents/skills/design-dna/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/design-dna) | `ui-ux-designer`, `frontend-engineer` | Ekstraksi profil desain 3D: Design Tokens JSON, qualitative feel, visual effects dari gambar/URL referensi. |
-| **motion-design-skill** | [`.agents/skills/motion-design-skill/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion-design-skill) | `ui-ux-designer`, `frontend-engineer` | Standarisasi kurva easing, koreografi transisi, layer gerak, dan prinsip animasi UI emosional (LottieFiles). |
-| **paint** | [`.agents/skills/paint/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/paint) | `ui-ux-designer`, `frontend-engineer` | The Master Painter: visual universe bootstrap, design system creation, dan audit desain anti-AI-slop. |
-| **playwright-skill** | [`.agents/skills/playwright-skill/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright-skill) | `qa-engineer`, `frontend-engineer` | Penulisan kode otomatisasi Playwright mandiri on-the-fly, deteksi dev-server otomatis, runner `run.js`, dan API reference progresif. |
-| **threejs-animation** | [`.agents/skills/threejs-animation/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-animation) | `frontend-engineer`, `ui-ux-designer` | Animasi 3D keyframe, skeletal animation/rigging, morph targets, dan animation mixing. |
-| **threejs-fundamentals** | [`.agents/skills/threejs-fundamentals/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-fundamentals) | `frontend-engineer`, `ui-ux-designer` | Pengaturan scene dasar, perspektif & orthographic cameras, WebGLRenderer, Object3D hierarchy. |
-| **threejs-geometry** | [`.agents/skills/threejs-geometry/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-geometry) | `frontend-engineer`, `ui-ux-designer` | Pembuatan bentuk 3D bawaan, BufferGeometry kustom, manipulasi vertices, dan instanced meshes. |
-| **threejs-interaction** | [`.agents/skills/threejs-interaction/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-interaction) | `frontend-engineer`, `ui-ux-designer` | Raycasting 3D, OrbitControls, drag controls, seleksi objek, dan input kursor/sentuh. |
-| **threejs-lighting** | [`.agents/skills/threejs-lighting/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-lighting) | `frontend-engineer`, `ui-ux-designer` | Pencahayaan realistis: Directional, Point, Spot, Ambient, shadow mapping, dan environment HDRI lighting. |
-| **threejs-loaders** | [`.agents/skills/threejs-loaders/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-loaders) | `frontend-engineer`, `ui-ux-designer` | Pemuatan aset 3D GLTF/GLB, OBJ/FBX, texture loading asinkron, Draco compression, dan asset caching. |
-| **threejs-materials** | [`.agents/skills/threejs-materials/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-materials) | `frontend-engineer`, `ui-ux-designer` | Material PBR (MeshStandardMaterial, MeshPhysicalMaterial), roughness/metalness maps, dan shader materials. |
-| **threejs-postprocessing** | [`.agents/skills/threejs-postprocessing/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-postprocessing) | `frontend-engineer`, `ui-ux-designer` | Efek pasca-proses EffectComposer: UnrealBloom, depth of field (DOF), glitch, vignette, dan film grain. |
-| **threejs-shaders** | [`.agents/skills/threejs-shaders/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-shaders) | `frontend-engineer`, `ui-ux-designer` | Pemrograman GLSL ShaderMaterial kustom, uniform timing, per-vertex deformation, dan procedural noise. |
-| **threejs-textures** | [`.agents/skills/threejs-textures/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-textures) | `frontend-engineer`, `ui-ux-designer` | Manajemen tekstur (albedo, normal, bump, roughness, displacement), UV mapping, dan render targets. |
-| **_jutsu** | [`.agents/skills/_jutsu/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/_jutsu) | `frontend-engineer`, `ui-ux-designer` | 15 sub-keahlian kreatif modular (canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native). |
-| **playwright** | [`.agents/skills/playwright/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright) | `qa-engineer`, `user-test-professional` | Otomatisasi browser interaktif via Playwright MCP (24 tool), AXTree snapshots, visual screenshots, console & network monitoring. |
-| **graphify** | [`.agents/skills/graphify/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
-| **goal-tracker** | [`.agents/skills/goal-tracker/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/goal-tracker) | `goal-tracker` | Single Source of Truth, OODA session state management, constraint locking, dan deteksi konflik/scope-creep. |
-| **tech-critic** | [`.agents/skills/tech-critic/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/tech-critic) | `tech-critic` | Prinsip steelman, checklist deteksi logical fallacy & bias, audit halusinasi faktual/versi, dan gerbang Dual-Approval Case-Bank. |
+| **backend** | [`skills/backend/`](./skills/backend) | `backend-engineer` | API design guide, clean architecture, auth patterns, database patterns, guard clauses, dan result pattern (10 referensi teknis). |
+| **frontend** | [`skills/frontend/`](./skills/frontend) | `frontend-engineer`, `ui-ux-designer` | UI/UX Pro Max Intelligence, accessibility WCAG AA, component patterns, performance, enterprise Vue & Nuxt 3 (12 referensi). |
+| **pm** | [`skills/pm/`](./skills/pm) | `product-manager`, `problem-decomposer` | PRD templates, roadmap planning, feature breakdown, dan metodologi software agile/scrum (9 referensi). |
+| **qa** | [`skills/qa/`](./skills/qa) | `qa-engineer`, `security-engineer` | Comprehensive testing strategies, security checklists, code review patterns, dan audit boundary (7 referensi). |
+| **motion** | [`skills/motion/`](./skills/motion) | `frontend-engineer`, `ui-ux-designer` | Animasi 120fps GPU-accelerated (Motion/Framer Motion v12+), gestures, spring physics, layout transitions (`layoutId`), dan reduced-motion a11y (3 referensi). |
+| **shadcn-ui** | [`skills/shadcn-ui/`](./skills/shadcn-ui) | `frontend-engineer`, `ui-ux-designer`, `qa-engineer` | Arsitektur komponen open-code berbasis Radix UI headless, CVA variant system, token CSS HSL, dan WAI-ARIA compliance (2 referensi). |
+| **magic-ui** | [`skills/magic-ui/`](./skills/magic-ui) | `frontend-engineer`, `ui-ux-designer` | 50+ komponen animasi kelas dunia untuk Design Engineer: Bento Grid, Marquee, Border Beam, Particles, Shimmer Button via Shadcn Registry (2 referensi). |
+| **cast** | [`skills/cast/`](./skills/cast) | `ui-ux-designer`, `frontend-engineer` | The Illusionist: creative coding untuk motion, mikro-interaksi, gestur visual, dan wow-factor (Genjutsu). |
+| **design-dna** | [`skills/design-dna/`](./skills/design-dna) | `ui-ux-designer`, `frontend-engineer` | Ekstraksi profil desain 3D: Design Tokens JSON, qualitative feel, visual effects dari gambar/URL referensi. |
+| **motion-design-skill** | [`skills/motion-design-skill/`](./skills/motion-design-skill) | `ui-ux-designer`, `frontend-engineer` | Standarisasi kurva easing, koreografi transisi, layer gerak, dan prinsip animasi UI emosional (LottieFiles). |
+| **paint** | [`skills/paint/`](./skills/paint) | `ui-ux-designer`, `frontend-engineer` | The Master Painter: visual universe bootstrap, design system creation, dan audit desain anti-AI-slop. |
+| **playwright-skill** | [`skills/playwright-skill/`](./skills/playwright-skill) | `qa-engineer`, `frontend-engineer` | Penulisan kode otomatisasi Playwright mandiri on-the-fly, deteksi dev-server otomatis, runner `run.js`, dan API reference progresif. |
+| **threejs-animation** | [`skills/threejs-animation/`](./skills/threejs-animation) | `frontend-engineer`, `ui-ux-designer` | Animasi 3D keyframe, skeletal animation/rigging, morph targets, dan animation mixing. |
+| **threejs-fundamentals** | [`skills/threejs-fundamentals/`](./skills/threejs-fundamentals) | `frontend-engineer`, `ui-ux-designer` | Pengaturan scene dasar, perspektif & orthographic cameras, WebGLRenderer, Object3D hierarchy. |
+| **threejs-geometry** | [`skills/threejs-geometry/`](./skills/threejs-geometry) | `frontend-engineer`, `ui-ux-designer` | Pembuatan bentuk 3D bawaan, BufferGeometry kustom, manipulasi vertices, dan instanced meshes. |
+| **threejs-interaction** | [`skills/threejs-interaction/`](./skills/threejs-interaction) | `frontend-engineer`, `ui-ux-designer` | Raycasting 3D, OrbitControls, drag controls, seleksi objek, dan input kursor/sentuh. |
+| **threejs-lighting** | [`skills/threejs-lighting/`](./skills/threejs-lighting) | `frontend-engineer`, `ui-ux-designer` | Pencahayaan realistis: Directional, Point, Spot, Ambient, shadow mapping, dan environment HDRI lighting. |
+| **threejs-loaders** | [`skills/threejs-loaders/`](./skills/threejs-loaders) | `frontend-engineer`, `ui-ux-designer` | Pemuatan aset 3D GLTF/GLB, OBJ/FBX, texture loading asinkron, Draco compression, dan asset caching. |
+| **threejs-materials** | [`skills/threejs-materials/`](./skills/threejs-materials) | `frontend-engineer`, `ui-ux-designer` | Material PBR (MeshStandardMaterial, MeshPhysicalMaterial), roughness/metalness maps, dan shader materials. |
+| **threejs-postprocessing** | [`skills/threejs-postprocessing/`](./skills/threejs-postprocessing) | `frontend-engineer`, `ui-ux-designer` | Efek pasca-proses EffectComposer: UnrealBloom, depth of field (DOF), glitch, vignette, dan film grain. |
+| **threejs-shaders** | [`skills/threejs-shaders/`](./skills/threejs-shaders) | `frontend-engineer`, `ui-ux-designer` | Pemrograman GLSL ShaderMaterial kustom, uniform timing, per-vertex deformation, dan procedural noise. |
+| **threejs-textures** | [`skills/threejs-textures/`](./skills/threejs-textures) | `frontend-engineer`, `ui-ux-designer` | Manajemen tekstur (albedo, normal, bump, roughness, displacement), UV mapping, dan render targets. |
+| **_jutsu** | [`skills/_jutsu/`](./skills/_jutsu) | `frontend-engineer`, `ui-ux-designer` | 15 sub-keahlian kreatif modular (canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native). |
+| **playwright** | [`skills/playwright/`](./skills/playwright) | `qa-engineer`, `user-test-professional` | Otomatisasi browser interaktif via Playwright MCP (24 tool), AXTree snapshots, visual screenshots, console & network monitoring. |
+| **graphify** | [`skills/graphify/`](./skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
+| **goal-tracker** | [`skills/goal-tracker/`](./skills/goal-tracker) | `goal-tracker` | Single Source of Truth, OODA session state management, constraint locking, dan deteksi konflik/scope-creep. |
+| **tech-critic** | [`skills/tech-critic/`](./skills/tech-critic) | `tech-critic` | Prinsip steelman, checklist deteksi logical fallacy & bias, audit halusinasi faktual/versi, dan gerbang Dual-Approval Case-Bank. |
 
 ---
 
@@ -216,24 +216,24 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    Agen cukup menjalankan bootstrap script mandiri di perangkat baru:
    ```bash
    # 1. Otomasi Browser Playwright
-   node .agents/skills/playwright-skill/bootstrap.js
+   node skills/playwright-skill/bootstrap.js
    
    # 2. Pustaka Animasi Motion
-   node .agents/skills/motion/bootstrap.js
+   node skills/motion/bootstrap.js
    
    # 3. Arsitektur Komponen Enterprise shadcn/ui
-   node .agents/skills/shadcn-ui/bootstrap.js
+   node skills/shadcn-ui/bootstrap.js
    
    # 4. Komponen Desain Magic UI & Helper cn()
-   node .agents/skills/magic-ui/bootstrap.js
+   node skills/magic-ui/bootstrap.js
    ```
    Script ini secara otomatis memeriksa runtime Node.js, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
 2. **Panduan Operasional Mandiri**:
    Agen dapat membaca panduan lengkap di:
-   - [`.agents/skills/playwright-skill/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright-skill/DEVICE_BOOTSTRAP.md)
-   - [`.agents/skills/motion/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion/DEVICE_BOOTSTRAP.md)
-   - [`.agents/skills/shadcn-ui/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui/DEVICE_BOOTSTRAP.md)
-   - [`.agents/skills/magic-ui/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/magic-ui/DEVICE_BOOTSTRAP.md)
+   - [`skills/playwright-skill/DEVICE_BOOTSTRAP.md`](./skills/playwright-skill/DEVICE_BOOTSTRAP.md)
+   - [`skills/motion/DEVICE_BOOTSTRAP.md`](./skills/motion/DEVICE_BOOTSTRAP.md)
+   - [`skills/shadcn-ui/DEVICE_BOOTSTRAP.md`](./skills/shadcn-ui/DEVICE_BOOTSTRAP.md)
+   - [`skills/magic-ui/DEVICE_BOOTSTRAP.md`](./skills/magic-ui/DEVICE_BOOTSTRAP.md)
 3. **Pembelajaran Progresif (*Progressive Disclosure*)**:
    Agen baru mempelajari dasar melalui `SKILL.md`, mendalami helpers/pola di folder `references/`, dan hanya membuka referensi API lengkap saat menangani kasus tingkat lanjut.
 

@@ -4,11 +4,11 @@
 - **Nama Peran**: `qa-engineer`
 - **Klasifikasi**: Specific Tier — Reviewer (Penguji Kualitas & Ketahanan)
 - **Skill Pendukung**:
-  - [`.agents/skills/qa/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/qa/SKILL.md) (testing guide, security checklist, dan 7 panduan referensi)
-  - [`.agents/skills/playwright/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright/SKILL.md) (otomatisasi browser interaktif berbasis Playwright MCP)
-  - [`.agents/skills/playwright-skill/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright-skill/SKILL.md) (penulisan kode otomatisasi Playwright mandiri, dev-server detector, dan executor `run.js`)
-  - [`.agents/skills/playwright-skill/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright-skill/DEVICE_BOOTSTRAP.md) (panduan instalasi mandiri & self-healing lintas-perangkat: Windows/Linux/macOS)
-  - [`.agents/skills/shadcn-ui/references/accessible-primitives-guide.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui/references/accessible-primitives-guide.md) (panduan audit aksesibilitas WAI-ARIA, keyboard navigation, focus trap modal)
+  - [`skills/qa/SKILL.md`](../../skills/qa/SKILL.md) (testing guide, security checklist, dan 7 panduan referensi)
+  - [`skills/playwright/SKILL.md`](../../skills/playwright/SKILL.md) (otomatisasi browser interaktif berbasis Playwright MCP)
+  - [`skills/playwright-skill/SKILL.md`](../../skills/playwright-skill/SKILL.md) (penulisan kode otomatisasi Playwright mandiri, dev-server detector, dan executor `run.js`)
+  - [`skills/playwright-skill/DEVICE_BOOTSTRAP.md`](../../skills/playwright-skill/DEVICE_BOOTSTRAP.md) (panduan instalasi mandiri & self-healing lintas-perangkat: Windows/Linux/macOS)
+  - [`skills/shadcn-ui/references/accessible-primitives-guide.md`](../../skills/shadcn-ui/references/accessible-primitives-guide.md) (panduan audit aksesibilitas WAI-ARIA, keyboard navigation, focus trap modal)
 - **Tujuan**: Menguji hasil kerja Builder secara fungsional, memetakan skenario batas (*boundary testing*), merancang kasus uji regresi, dan memberikan vonis resmi yang mengikat terhadap kelayakan artifact.
 
 ---

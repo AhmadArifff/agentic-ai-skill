@@ -4,16 +4,16 @@
 - **Nama Peran**: `ui-ux-designer`
 - **Klasifikasi**: Specific Tier — Builder (Eksekutor)
 - **Skill Pendukung**:
-  - [`.agents/skills/frontend/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/frontend/SKILL.md) (UI/UX Pro Max Intelligence, color palettes, font pairings, 99 UX guidelines)
-  - [`.agents/skills/design-dna/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/design-dna/SKILL.md) (ekstraksi profil desain 3-dimensi: tokens JSON, qualitative feel, visual effects)
-  - [`.agents/skills/motion-design-skill/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion-design-skill/SKILL.md) (prinsip animasi gerak UI, kurva easing, timing, dan choreografi emosional)
-  - [`.agents/skills/cast/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/cast) (The Illusionist: creative coding untuk motion, micro-interactions, dan wow-factor)
-  - [`.agents/skills/paint/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/paint) (The Master Painter: art direction brainstorm, design system, dan anti-AI-slop audit)
-  - [`.agents/skills/_jutsu/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/_jutsu) (15 sub-keahlian kreatif: canvas, compose, swiftui, threejs-r3f, gsap, design-audit)
-  - [`.agents/skills/shadcn-ui/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui/SKILL.md) (tokenisasi tema HSL, radius kontrol, tata letak dialog modal, dan sistem form)
-  - [`.agents/skills/motion/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion/SKILL.md) (spesifikasi mikro-interaksi, kurva easing pegas, dan transisi layout)
-  - [`.agents/skills/magic-ui/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/magic-ui/SKILL.md) (katalog efek visual Design Engineer: Bento Grid, Marquee, Border Beam, Particles, Shimmer Button)
-  - [`.agents/skills/threejs-fundamentals/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-fundamentals/SKILL.md) (spesifikasi visual 3D/WebGL, pencahayaan panggung, dan komposisi shader)
+  - [`skills/frontend/SKILL.md`](../../skills/frontend/SKILL.md) (UI/UX Pro Max Intelligence, color palettes, font pairings, 99 UX guidelines)
+  - [`skills/design-dna/SKILL.md`](../../skills/design-dna/SKILL.md) (ekstraksi profil desain 3-dimensi: tokens JSON, qualitative feel, visual effects)
+  - [`skills/motion-design-skill/SKILL.md`](../../skills/motion-design-skill/SKILL.md) (prinsip animasi gerak UI, kurva easing, timing, dan choreografi emosional)
+  - [`skills/cast/SKILL.md`](../../skills/cast) (The Illusionist: creative coding untuk motion, micro-interactions, dan wow-factor)
+  - [`skills/paint/SKILL.md`](../../skills/paint) (The Master Painter: art direction brainstorm, design system, dan anti-AI-slop audit)
+  - [`skills/_jutsu/`](../../skills/_jutsu) (15 sub-keahlian kreatif: canvas, compose, swiftui, threejs-r3f, gsap, design-audit)
+  - [`skills/shadcn-ui/SKILL.md`](../../skills/shadcn-ui/SKILL.md) (tokenisasi tema HSL, radius kontrol, tata letak dialog modal, dan sistem form)
+  - [`skills/motion/SKILL.md`](../../skills/motion/SKILL.md) (spesifikasi mikro-interaksi, kurva easing pegas, dan transisi layout)
+  - [`skills/magic-ui/SKILL.md`](../../skills/magic-ui/SKILL.md) (katalog efek visual Design Engineer: Bento Grid, Marquee, Border Beam, Particles, Shimmer Button)
+  - [`skills/threejs-fundamentals/SKILL.md`](../../skills/threejs-fundamentals/SKILL.md) (spesifikasi visual 3D/WebGL, pencahayaan panggung, dan komposisi shader)
 - **Tujuan**: Merancang alur interaksi pengguna (*user journey*), hierarki visual, wireframe arsitektural, dan spesifikasi ergonomi antarmuka sebelum kode frontend dibangun.
 
 ---

@@ -3,7 +3,7 @@
 ## 1. Identitas & Peran
 - **Nama Peran**: `backend-engineer`
 - **Klasifikasi**: Specific Tier — Builder (Eksekutor)
-- **Skill Pendukung**: [`.agents/skills/backend/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/backend/SKILL.md) (dilengkapi 10 panduan teknis referensi di folder `references/`)
+- **Skill Pendukung**: [`skills/backend/SKILL.md`](../../skills/backend/SKILL.md) (dilengkapi 10 panduan teknis referensi di folder `references/`)
 - **Tujuan**: Merancang dan mengimplementasikan arsitektur server, skema database, endpoint API, kontrak data, dan logika bisnis dengan standar industri yang tinggi, aman, dan dapat diskalakan.
 
 ---

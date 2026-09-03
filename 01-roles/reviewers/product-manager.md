@@ -3,7 +3,7 @@
 ## 1. Identitas & Peran
 - **Nama Peran**: `product-manager`
 - **Klasifikasi**: Specific Tier — Reviewer (Kesesuaian Bisnis & Produk)
-- **Skill Pendukung**: [`.agents/skills/pm/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/pm/SKILL.md) (dilengkapi template PRD, roadmap, dan 9 panduan referensi)
+- **Skill Pendukung**: [`skills/pm/SKILL.md`](../../skills/pm/SKILL.md) (dilengkapi template PRD, roadmap, dan 9 panduan referensi)
 - **Tujuan**: Memastikan hasil kerja Builder selaras dengan sasaran produk (*PRD / Product Requirements Document*), mencegah pelebaran cakupan yang tidak perlu (*scope-creep*), dan menjaga nilai manfaat langsung bagi pengguna akhir.
 
 ---
