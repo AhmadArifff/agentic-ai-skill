@@ -1,0 +1,44 @@
+# Template Case Bank Entry
+# Status yang diizinkan: hypothesis | verified_case | deprecated
+
+case_id: "case-YYYYMMDD-unique-slug"
+title: "Judul Singkat Pola Arsitektur / Keputusan"
+status: "hypothesis" # berubah menjadi 'verified_case' setelah dual-approval
+category: "pattern | anti_pattern | heuristic"
+created_at: "2026-09-03T12:00:00Z"
+last_validated: "2026-09-03T12:00:00Z"
+
+domain_tags:
+  - "backend"
+  - "security"
+  - "database"
+
+context_and_problem:
+  description: "Jelaskan konteks masalah teknis atau bisnis yang dihadapi secara spesifik."
+  symptoms_or_triggers:
+    - "Gejala 1 yang menunjukkan pola ini relevan"
+    - "Gejala 2"
+
+proposed_solution:
+  summary: "Ringkasan arsitektur atau pola yang diterapkan."
+  key_mechanisms:
+    - "Mekanisme utama 1"
+    - "Mekanisme utama 2"
+  trade_offs:
+    advantages:
+      - "Keuntungan 1"
+    drawbacks:
+      - "Kekurangan / biaya yang harus ditanggung"
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "pending | approved | rework"
+    approved_at: null
+    test_evidence: "Ringkasan uji boundary atau hasil stress-test"
+  tech_critic:
+    verdict: "pending | approved | rework"
+    approved_at: null
+    fallacy_check_notes: "Evaluasi asumsi, blindspots, dan ketahanan logika"
+
+code_reference_or_snippet: |
+  // Contoh kode atau konfigurasi implementasi standar

@@ -1,0 +1,54 @@
+flowchart TD
+    %% Styling & Classes
+    classDef general fill:#1e293b,stroke:#3b82f6,stroke-width:2px,color:#f8fafc;
+    classDef builder fill:#064e3b,stroke:#10b981,stroke-width:2px,color:#f8fafc;
+    classDef reviewer fill:#4c1d95,stroke:#8b5cf6,stroke-width:2px,color:#f8fafc;
+    classDef critic fill:#7c2d12,stroke:#f97316,stroke-width:2px,color:#f8fafc;
+    classDef governance fill:#831843,stroke:#ec4899,stroke-width:2px,color:#f8fafc;
+    classDef human fill:#701a75,stroke:#d946ef,stroke-width:3px,color:#f8fafc;
+
+    %% 1. Inisialisasi & General Orchestration
+    UserInput["Pengguna (Prompt / Permintaan)"] --> TriageRouter["Triage & Router"]:::general
+    TriageRouter -->|"Kompleks (Tier 3)"| ProblemDecomposer["Problem Decomposer"]:::general
+    TriageRouter -->|"Standar (Tier 2)"| GoalTracker["Goal Tracker & Session State"]:::general
+    ProblemDecomposer --> GoalTracker
+
+    %% 2. Context Pruner
+    GoalTracker <-->|"Optimasi Context Window"| ContextPruner["Context & State Pruner"]:::general
+
+    %% 3. Builder Swarm
+    GoalTracker -->|"Dispatch Subtask"| BuilderSwarm{{"Builder Swarm Execution"}}:::builder
+    BuilderSwarm --> BackendEng["Backend Engineer"]:::builder
+    BuilderSwarm --> FrontendEng["Frontend Engineer"]:::builder
+    BuilderSwarm --> UIUXDes["UI/UX Designer"]:::builder
+    BuilderSwarm --> CopywriterAgent["Copywriter"]:::builder
+    BuilderSwarm --> AIEng["AI Engineer"]:::builder
+    BuilderSwarm --> DomainRetriever["Domain Retriever"]:::builder
+
+    %% 4. Reviewer Swarm
+    BackendEng & FrontendEng & UIUXDes & CopywriterAgent & AIEng & DomainRetriever --> ReviewerSwarm{{"Domain Reviewer Swarm"}}:::reviewer
+    ReviewerSwarm --> QAEng["QA Engineer"]:::reviewer
+    ReviewerSwarm --> SecEng["Security Engineer"]:::reviewer
+    ReviewerSwarm --> PMReview["Product Manager"]:::reviewer
+    ReviewerSwarm --> SalesReview["Business/Sales Manager"]:::reviewer
+    ReviewerSwarm --> UserTest["User Test Professional"]:::reviewer
+    ReviewerSwarm --> DataVerifier["Data Cross-Verifier"]:::reviewer
+
+    %% 5. Rework Loop dari Domain Reviewer
+    QAEng & SecEng & PMReview & SalesReview & UserTest & DataVerifier -->|"Verdict: rework (Iterasi < 3)"| ReworkRouting["Goal Tracker: Update Rework State"]:::general
+    ReworkRouting --> BuilderSwarm
+
+    %% 6. Tech Critic Gate
+    QAEng & SecEng & PMReview & SalesReview & UserTest & DataVerifier -->|"Semua Verdict: approved"| TechCritic["Tech Critic / Devil's Advocate"]:::critic
+    TechCritic -->|"Verdict: rework (Deteksi Fallacy / Bias)"| ReworkRouting
+
+    %% 7. Circuit Breaker / Deadlock Resolver
+    QAEng & SecEng & TechCritic -->|"Verdict: rework (Iterasi >= 3)"| DeadlockResolver["Deadlock & Fallback Resolver"]:::governance
+    DeadlockResolver -->|"Circuit Breaker Tripped / Aksi Destruktif"| EscalationGate["Escalation Gate"]:::governance
+    EscalationGate --> HumanUser["Human in the Loop (Konfirmasi Pengguna)"]:::human
+    HumanUser -->|"Instruksi Konfirmasi"| GoalTracker
+
+    %% 8. Governance & Synthesis
+    TechCritic -->|"Verdict: approved"| PolicyEnforcer["Policy & Schema Enforcer"]:::governance
+    PolicyEnforcer -->|"Format JSON/YAML Valid & Token Budget Aman"| SynthesisVoice["Synthesis & Voice Agent"]:::general
+    SynthesisVoice --> FinalOutput["Respons Padu & Final ke Pengguna"]

@@ -1,0 +1,8 @@
+{
+  "name": "motion-skill-runner",
+  "version": "1.0.0",
+  "description": "Isolated runner and dependencies for Motion animation skill",
+  "dependencies": {
+    "motion": "^12.4.7"
+  }
+}

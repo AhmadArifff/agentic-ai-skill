@@ -1,0 +1,42 @@
+# Node & Dependency Directories
+node_modules/
+**/node_modules/
+.pnpm-store/
+
+# Environment Variables & Credentials
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Logs & Temporary Files
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.system_generated/
+temp/
+tmp/
+scratch/
+
+# Playwright Browser Binaries & Test Artifacts
+.playwright/
+test-results/
+playwright-report/
+blob-report/
+playwright/.cache/
+
+# Build & Cache Directories
+dist/
+build/
+.cache/
+.next/
+out/

@@ -1,0 +1,211 @@
+# Schema Definisi Session State & Goal Tracking
+# Versi: 1.0.0
+# Standard: OpenAPI/JSON-Schema compatible YAML
+
+$schema: "http://json-schema.org/draft-07/schema#"
+title: "AgenticSessionState"
+description: "Skema resmi penyimpanan status sesi percakapan, pelacakan sub-tugas, penguncian batasan, dan audit trail multi-agent."
+type: "object"
+required:
+  - "session_id"
+  - "version"
+  - "primary_goal"
+  - "decomposed_subtasks"
+  - "established_constraints"
+properties:
+  session_id:
+    type: "string"
+    description: "Identifier unik untuk sesi percakapan (UUIDv4)"
+    example: "sess-8f3b29c1-4b72-4d22-9011-8a90192e"
+  
+  version:
+    type: "string"
+    description: "Versi skema state"
+    default: "1.0.0"
+
+  created_at:
+    type: "string"
+    format: "date-time"
+    description: "Waktu inisialisasi sesi"
+
+  last_updated:
+    type: "string"
+    format: "date-time"
+    description: "Waktu pembaruan state terakhir"
+
+  primary_goal:
+    type: "string"
+    description: "Ringkasan tujuan akhir pengguna yang telah diselaraskan oleh Triage Router dan Decomposer."
+    example: "Membangun sistem autentikasi aman dengan Cookie HttpOnly dan dashboard ringkasan kasir."
+
+  current_stage:
+    type: "string"
+    enum:
+      - "triage"
+      - "decomposition"
+      - "building"
+      - "reviewing"
+      - "criticism"
+      - "governance"
+      - "synthesis"
+      - "escalated"
+      - "completed"
+    description: "Tahap eksekusi aktif saat ini dalam pipeline."
+
+  decomposed_subtasks:
+    type: "array"
+    description: "Daftar sub-tugas terurai yang dilacak progresnya."
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "title"
+        - "owner_role"
+        - "status"
+      properties:
+        id:
+          type: "string"
+          example: "task-001"
+        title:
+          type: "string"
+          example: "Desain Skema Database & Migrasi"
+        owner_role:
+          type: "string"
+          description: "Role builder yang bertanggung jawab"
+          enum:
+            - "backend-engineer"
+            - "frontend-engineer"
+            - "ui-ux-designer"
+            - "copywriter"
+            - "ai-engineer"
+            - "domain-retriever"
+        depends_on:
+          type: "array"
+          items:
+            type: "string"
+          description: "Daftar task_id yang harus berstatus 'done' sebelum tugas ini dapat dimulai."
+        status:
+          type: "string"
+          enum:
+            - "pending"
+            - "in_progress"
+            - "done"
+            - "blocked"
+          default: "pending"
+        rework_iteration_count:
+          type: "integer"
+          minimum: 0
+          default: 0
+          description: "Jumlah siklus rework yang telah dilalui subtask ini (maksimal 3 sebelum trip circuit breaker)."
+        acceptance_criteria:
+          type: "array"
+          items:
+            type: "string"
+        reviewed_by:
+          type: "array"
+          description: "Daftar reviewer yang telah memeriksa hasil kerja subtask ini beserta vonisnya."
+          items:
+            type: "object"
+            required:
+              - "reviewer_role"
+              - "verdict"
+            properties:
+              reviewer_role:
+                type: "string"
+                enum:
+                  - "qa-engineer"
+                  - "security-engineer"
+                  - "product-manager"
+                  - "business-sales-manager"
+                  - "user-test-professional"
+                  - "data-cross-verifier"
+                  - "tech-critic"
+              verdict:
+                type: "string"
+                enum:
+                  - "approved"
+                  - "rework"
+                  - "blocked-escalate"
+              timestamp:
+                type: "string"
+                format: "date-time"
+              notes:
+                type: "string"
+
+  established_constraints:
+    type: "array"
+    description: "Daftar keputusan arsitektural dan teknis yang sudah dikunci. Tidak boleh diubah tanpa izin pengguna eksplisit."
+    items:
+      type: "object"
+      required:
+        - "id"
+        - "category"
+        - "constraint"
+        - "locked_by_task"
+      properties:
+        id:
+          type: "string"
+          example: "const-001"
+        category:
+          type: "string"
+          enum:
+            - "tech_stack"
+            - "database"
+            - "security"
+            - "ui_styling"
+            - "business_rule"
+        constraint:
+          type: "string"
+          example: "Wajib menggunakan PostgreSQL v16 dengan skema relasional, dilarang NoSQL."
+        locked_by_task:
+          type: "string"
+          example: "task-001"
+        locked_at:
+          type: "string"
+          format: "date-time"
+
+  open_questions:
+    type: "array"
+    description: "Pertanyaan klarifikasi yang masih menggantung dan butuh jawaban pengguna."
+    items:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+        question:
+          type: "string"
+        impact_area:
+          type: "string"
+
+  pruned_log:
+    type: "array"
+    description: "Jejak audit apa saja yang telah dipotong/dipadatkan oleh Context Pruner beserta alasannya."
+    items:
+      type: "object"
+      properties:
+        pruned_at:
+          type: "string"
+          format: "date-time"
+        item_pruned:
+          type: "string"
+        reason:
+          type: "string"
+        tokens_saved_estimate:
+          type: "integer"
+
+  last_reviewer_verdict:
+    type: "object"
+    description: "Snapshot hasil evaluasi reviewer paling akhir yang sedang diproses oleh pipeline."
+    properties:
+      task_id:
+        type: "string"
+      reviewer_role:
+        type: "string"
+      verdict:
+        type: "string"
+        enum:
+          - "approved"
+          - "rework"
+          - "blocked-escalate"
+      rework_instructions:
+        type: "string"

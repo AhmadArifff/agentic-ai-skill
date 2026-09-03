@@ -1,0 +1,52 @@
+case_id: "case-20260903-httponly-cookie-auth"
+title: "Autentikasi Aman Sesi Web Menggunakan Cookie HttpOnly SameSite Strict"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-03T11:40:00Z"
+last_validated: "2026-09-03T12:00:00Z"
+
+domain_tags:
+  - "backend"
+  - "security"
+  - "auth"
+  - "frontend"
+
+context_and_problem:
+  description: "Aplikasi Single Page App (SPA) membutuhkan metode penyimpanan token otentikasi yang tahan terhadap serangan Cross-Site Scripting (XSS) dan Cross-Site Request Forgery (CSRF)."
+  symptoms_or_triggers:
+    - "Pengembang frontend menyimpan token JWT di LocalStorage yang dapat dicuri jika terjadi kebocoran script pihak ketiga."
+    - "Penggunaan cookie tanpa flag SameSite memicu kerentanan CSRF pada endpoint sensitif."
+
+proposed_solution:
+  summary: "Simpan refresh token di Cookie HttpOnly Secure SameSite=Strict, sementara access token jangka pendek (15 menit) disimpan di memori klien JavaScript."
+  key_mechanisms:
+    - "Flag HttpOnly mencegah JavaScript membaca cookie, memitigasi pencurian via XSS."
+    - "Flag SameSite=Strict mencegah browser menyertakan cookie pada request cross-site, memitigasi CSRF."
+    - "Rotasi refresh token di sisi database untuk mendeteksi token reuse."
+  trade_offs:
+    advantages:
+      - "Proteksi XSS maksimal untuk kredensial jangka panjang."
+      - "Otomatis dikirimkan oleh browser pada domain yang sama tanpa header Authorization manual."
+    drawbacks:
+      - "Memerlukan konfigurasi CORS yang ketat (credentials: true, whitelist domain eksplisit)."
+      - "Klien mobile native memerlukan penanganan CookieJar secara khusus."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-03T11:55:00Z"
+    test_evidence: "Diuji dengan skenario injeksi script <script>document.cookie</script>; nilai token tidak terbaca. Request cross-origin dari domain penyerang gagal menyertakan cookie."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-03T11:58:00Z"
+    fallacy_check_notes: "Solusi ini menghindari Golden Hammer (tidak memaksakan enkripsi asimetris RSA yang rumit ketika symmetric HMAC-SHA256 pada backend terpusat sudah mencukupi). Trade-off CORS telah terdokumentasi dengan transparan."
+
+code_reference_or_snippet: |
+  // Contoh Express.js Cookie Setup
+  res.cookie('refreshToken', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 hari
+    path: '/api/auth/refresh'
+  });

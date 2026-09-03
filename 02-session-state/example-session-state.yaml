@@ -1,0 +1,122 @@
+session_id: "sess-9a41b6c0-781a-4d43-9821-4f112e8b091a"
+version: "1.0.0"
+created_at: "2026-09-03T11:45:00Z"
+last_updated: "2026-09-03T12:05:00Z"
+current_stage: "building"
+
+primary_goal: "Membangun sistem autentikasi aman berbasis Cookie HttpOnly dengan dashboard ringkasan penjualan kasir."
+
+decomposed_subtasks:
+  - id: "task-001"
+    title: "Desain Skema Database & Migrasi Pengguna"
+    owner_role: "backend-engineer"
+    depends_on: []
+    status: "done"
+    rework_iteration_count: 1
+    acceptance_criteria:
+      - "Tabel users memiliki kolom id (UUID), email (unique), password_hash, role, created_at"
+      - "Indeks dibuat pada kolom email"
+      - "Password hash menggunakan Argon2id atau bcrypt 12 rounds"
+    reviewed_by:
+      - reviewer_role: "qa-engineer"
+        verdict: "approved"
+        timestamp: "2026-09-03T11:52:00Z"
+        notes: "Uji integritas unik lolos. Case-insensitive email query terverifikasi."
+      - reviewer_role: "security-engineer"
+        verdict: "approved"
+        timestamp: "2026-09-03T11:54:00Z"
+        notes: "Argon2id parameter terkonfigurasi dengan baik. Salt acak 16 byte."
+      - reviewer_role: "tech-critic"
+        verdict: "approved"
+        timestamp: "2026-09-03T11:55:00Z"
+        notes: "Tidak ada overengineering. Skema relasional standar PostgreSQL."
+
+  - id: "task-002"
+    title: "Desain Wireframe & Hierarki Dashboard Kasir"
+    owner_role: "ui-ux-designer"
+    depends_on: []
+    status: "done"
+    rework_iteration_count: 0
+    acceptance_criteria:
+      - "Alur navigasi kasir maksimal 2 klik untuk melihat ringkasan shift"
+      - "Hierarki metrik pendapatan, total transaksi, dan produk terlaris jelas"
+    reviewed_by:
+      - reviewer_role: "user-test-professional"
+        verdict: "approved"
+        timestamp: "2026-09-03T11:58:00Z"
+        notes: "Beban kognitif rendah. Kontras teks terbaca jelas di lingkungan pencahayaan toko."
+      - reviewer_role: "product-manager"
+        verdict: "approved"
+        timestamp: "2026-09-03T11:59:00Z"
+        notes: "Selaras dengan kebutuhan MVP rilis 1."
+      - reviewer_role: "tech-critic"
+        verdict: "approved"
+        timestamp: "2026-09-03T12:00:00Z"
+        notes: "Tata letak praktis dan tidak membebani performa rendering."
+
+  - id: "task-003"
+    title: "Implementasi Komponen UI Dashboard & Tabel Kasir"
+    owner_role: "frontend-engineer"
+    depends_on:
+      - "task-002"
+    status: "in_progress"
+    rework_iteration_count: 0
+    acceptance_criteria:
+      - "Komponen dibangun menggunakan Vanilla CSS dan HTML5 semantik"
+      - "Responsif dari layar tablet (768px) hingga desktop kasir (1920px)"
+      - "Mendukung navigasi keyboard penuh (Tab & Arrow keys)"
+    reviewed_by: []
+
+  - id: "task-004"
+    title: "Implementasi API Endpoint Auth & Session Handler"
+    owner_role: "backend-engineer"
+    depends_on:
+      - "task-001"
+    status: "in_progress"
+    rework_iteration_count: 1
+    acceptance_criteria:
+      - "Endpoint POST /api/auth/login dan POST /api/auth/logout"
+      - "Session token dikirim melalui HttpOnly Secure SameSite Cookie"
+      - "Rate limiting 5 percobaan per menit per IP"
+    reviewed_by:
+      - reviewer_role: "security-engineer"
+        verdict: "rework"
+        timestamp: "2026-09-03T12:04:00Z"
+        notes: "Header SameSite masih diset ke 'None', wajib diubah menjadi 'Strict' atau 'Lax' untuk mitigasi CSRF."
+
+established_constraints:
+  - id: "const-001"
+    category: "database"
+    constraint: "Wajib menggunakan PostgreSQL v16 dengan skema relasional terindeks, dilarang NoSQL."
+    locked_by_task: "task-001"
+    locked_at: "2026-09-03T11:46:00Z"
+
+  - id: "const-002"
+    category: "security"
+    constraint: "Autentikasi wajib menggunakan Cookie HttpOnly; SameSite=Strict; Secure. Dilarang menyimpan token di LocalStorage."
+    locked_by_task: "task-001"
+    locked_at: "2026-09-03T11:54:00Z"
+
+  - id: "const-003"
+    category: "ui_styling"
+    constraint: "Desain menggunakan Vanilla CSS modern berbasis Custom Properties (Design Tokens), dilarang TailwindCSS."
+    locked_by_task: "task-002"
+    locked_at: "2026-09-03T11:57:00Z"
+
+open_questions: []
+
+pruned_log:
+  - pruned_at: "2026-09-03T11:50:00Z"
+    item_pruned: "Log instalasi pustaka Docker lokal dan warning npm 45 baris"
+    reason: "Pustaka bcrypt dan pg telah terpasang sukses, log tidak lagi relevan"
+    tokens_saved_estimate: 420
+  - pruned_at: "2026-09-03T12:01:00Z"
+    item_pruned: "Diskusi brainstorming pemilihan warna tema antara biru dongker vs hijau zamrud"
+    reason: "Palet warna final telah dikunci ke dalam constraint const-003"
+    tokens_saved_estimate: 680
+
+last_reviewer_verdict:
+  task_id: "task-004"
+  reviewer_role: "security-engineer"
+  verdict: "rework"
+  rework_instructions: "Ganti baris Set-Cookie dengan flag SameSite=Strict dan pastikan Secure aktif pada environment production."

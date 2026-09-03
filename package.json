@@ -1,0 +1,24 @@
+{
+  "name": "agentic-ai",
+  "version": "1.0.0",
+  "description": "Multi-Agent Orchestration & Governance System based on OODA Loop",
+  "main": "setup.js",
+  "scripts": {
+    "setup": "node setup.js",
+    "bootstrap": "node setup.js",
+    "test:system": "node test-system.js"
+  },
+  "keywords": [
+    "agentic-ai",
+    "multi-agent",
+    "ooda-loop",
+    "playwright",
+    "motion",
+    "shadcn-ui",
+    "magic-ui",
+    "governance",
+    "autonomous-agents"
+  ],
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}
