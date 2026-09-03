@@ -9,8 +9,8 @@ Sistem arsitektur multi-agent terdistribusi berbasis siklus **OODA (Observe, Ori
 Saat melakukan clone repositori ini ke komputer baru, server, container, atau CI/CD (Windows, macOS, Linux):
 ```bash
 # 1. Clone repositori
-git clone https://github.com/AhmadArifff/agentic-ai.git
-cd agentic-ai
+git clone https://github.com/AhmadArifff/agentic-ai-skill.git
+cd agentic-ai-skill
 
 # 2. Jalankan instalasi otonom seluruh skill & dependensi
 npm run setup

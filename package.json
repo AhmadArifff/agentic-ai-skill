@@ -1,5 +1,5 @@
 {
-  "name": "agentic-ai",
+  "name": "agentic-ai-skill",
   "version": "1.0.0",
   "description": "Multi-Agent Orchestration & Governance System based on OODA Loop",
   "main": "setup.js",
