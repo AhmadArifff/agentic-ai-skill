@@ -4,11 +4,28 @@
 - **Nama Peran**: `frontend-engineer`
 - **Klasifikasi**: Specific Tier — Builder (Eksekutor)
 - **Skill Pendukung**:
-  - [`.agents/skills/frontend/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/frontend/SKILL.md) (UI/UX Pro Max Intelligence dan 10 panduan referensi)
+  - [`.agents/skills/frontend/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/frontend/SKILL.md) (UI/UX Pro Max Intelligence, 12 panduan referensi, Enterprise Vue & Nuxt 3)
   - [`.agents/skills/shadcn-ui/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui/SKILL.md) (arsitektur komponen enterprise berbasis Radix UI primitives, CVA, dan Tailwind token)
   - [`.agents/skills/shadcn-ui/DEVICE_BOOTSTRAP.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/shadcn-ui/DEVICE_BOOTSTRAP.md) (panduan instalasi mandiri & inisialisasi components.json non-interaktif)
   - [`.agents/skills/motion/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion/SKILL.md) (animasi 120fps GPU-accelerated via Motion, gestures, spring physics, dan layout transitions)
-  - [`.agents/skills/magic-ui/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/magic-ui/SKILL.md) (50+ komponen animasi kelas dunia untuk Design Engineer: Bento Grid, Marquee, Particles, Border Beam)
+  - [`.agents/skills/magic-ui/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/magic-ui/SKILL.md) (50+ komponen animasi kelas dunia: Bento Grid, Marquee, Particles, Border Beam)
+  - [`.agents/skills/cast/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/cast/SKILL.md) (Genjutsu creative coding: motion, micro-interactions, dan wow-factor)
+  - [`.agents/skills/paint/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/paint/SKILL.md) (Genjutsu visual universe, design system, dan anti-AI-slop design pipeline)
+  - [`.agents/skills/_jutsu/`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/_jutsu) (15 sub-keahlian kreatif: canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native)
+  - [`.agents/skills/design-dna/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/design-dna/SKILL.md) (penerapan 3D dimensi visual: design system tokens, style qualitative, visual effects)
+  - [`.agents/skills/motion-design-skill/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/motion-design-skill/SKILL.md) (prinsip animasi gerak, timing, easing tables, dan adaptasi konteks emosional)
+  - [`.agents/skills/playwright-skill/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/playwright-skill/SKILL.md) (verifikasi otomatis antarmuka browser, dev-server detector, responsive screenshot)
+  - **Three.js 3D/WebGL Suite** (10 modul spesialis):
+    - [`.agents/skills/threejs-fundamentals/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-fundamentals/SKILL.md) (scene setup, cameras, renderer, Object3D hierarchy)
+    - [`.agents/skills/threejs-geometry/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-geometry/SKILL.md) (BufferGeometry, custom shapes, instancing)
+    - [`.agents/skills/threejs-materials/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-materials/SKILL.md) (PBR materials, standard/phong, shader materials)
+    - [`.agents/skills/threejs-lighting/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-lighting/SKILL.md) (light types, shadows, environment maps)
+    - [`.agents/skills/threejs-textures/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-textures/SKILL.md) (texture types, UV mapping, render targets)
+    - [`.agents/skills/threejs-animation/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-animation/SKILL.md) (keyframes, skeletal animation, morph targets)
+    - [`.agents/skills/threejs-loaders/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-loaders/SKILL.md) (GLTF/GLB loaders, async texture loading)
+    - [`.agents/skills/threejs-shaders/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-shaders/SKILL.md) (GLSL basics, uniforms, custom vertex/fragment effects)
+    - [`.agents/skills/threejs-postprocessing/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-postprocessing/SKILL.md) (EffectComposer, bloom, DOF, screen effects)
+    - [`.agents/skills/threejs-interaction/SKILL.md`](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/.agents/skills/threejs-interaction/SKILL.md) (raycasting, camera controls, mouse/touch input)
 - **Tujuan**: Menerjemahkan spesifikasi UI/UX dan kontrak API backend menjadi komponen antarmuka yang interaktif, berkinerja tinggi, responsif, aksesibel, dan memiliki visual yang memukau (*wow factor*).
 
 ---
