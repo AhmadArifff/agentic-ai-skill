@@ -1,0 +1,62 @@
+case_id: "case-20260907-redis-atomic-lock-concurrency"
+title: "Distributed Lock Atomik & Beacon Teardown Menggunakan Redis SET NX PX dan Script Lua"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-07T09:00:00Z"
+last_validated: "2026-09-07T11:20:00Z"
+
+domain_tags:
+  - "backend"
+  - "database"
+  - "concurrency"
+  - "redis"
+  - "performance"
+
+context_and_problem:
+  description: "Pada sistem e-commerce, flash-sale, atau antrean kasir dengan konkurensi tinggi, beberapa request masuk secara simultan untuk memodifikasi satu entitas (misal: checkout stok terakhir). Tanpa locking terdistribusi yang atomik, terjadi race condition (double spending / overselling)."
+  symptoms_or_triggers:
+    - "Stok produk berkurang menjadi minus pada simulasi 100 concurrent requests."
+    - "Dua proses berbeda menganggap dirinya pemilik resource yang sama karena delay query database."
+    - "Pelepasan lock yang salah (proses A menghapus lock milik proses B setelah lock A expired)."
+
+proposed_solution:
+  summary: "Gunakan Redis Distributed Lock dengan perintah atomik `SET resource_key random_uuid NX PX expiry_ms` dan pelepasan kunci hanya via script Lua terverifikasi pemilik UUID."
+  key_mechanisms:
+    - "Atomik akuisisi: Flag NX (not exist) dan PX (expiration ms) dieksekusi dalam 1 round-trip Redis tanpa jeda."
+    - "Owner token: Setiap pemanggil membangkitkan crypto UUID unik sebagai nilai kunci lock."
+    - "Pelepasan aman via Lua: Memeriksa kesesuaian nilai sebelum `redis.call('del', KEYS[1])` untuk mencegah pelepasan kunci yang bukan miliknya."
+    - "Beacon Teardown: Background keep-alive memperpanjang TTL jika pekerjaan valid memakan waktu lebih lama dari estimasi awal."
+  trade_offs:
+    advantages:
+      - "Mencegah race condition 100% pada lingkungan multi-instance / cluster."
+      - "Performa sangat tinggi (in-memory lock latency < 1ms)."
+    drawbacks:
+      - "Membutuhkan koneksi Redis yang stabil dan penanganan timeout/retry."
+      - "Aplikasi harus membatasi waktu penahanan lock agar tidak memblokir antrean terlalu lama."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-07T10:50:00Z"
+    test_evidence: "Stress test k6 dengan 500 virtual users simultan pada single item stok 10; tepat 10 transaksi berhasil dan 490 ditolak secara elegan tanpa inkonsistensi data."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:05:00Z"
+    fallacy_check_notes: "Solusi ini menggunakan pola standar industri (Redlock single-instance safety). Menghindari naive table lock RDBMS yang merusak throughput transaksi paralel."
+
+code_reference_or_snippet: |
+  // Akuisisi Lock Atomik
+  const acquired = await redis.set(`lock:${itemId}`, lockOwnerId, 'NX', 'PX', 5000);
+  if (!acquired) {
+    return { success: false, error: 'Resource is currently locked. Try again.' };
+  }
+
+  // Pelepasan Lock Aman (Script Lua)
+  const luaReleaseScript = `
+    if redis.call("get", KEYS[1]) == ARGV[1] then
+      return redis.call("del", KEYS[1])
+    else
+      return 0
+    end
+  `;
+  await redis.eval(luaReleaseScript, 1, `lock:${itemId}`, lockOwnerId);

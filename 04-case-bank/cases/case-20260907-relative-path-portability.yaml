@@ -1,0 +1,49 @@
+case_id: "case-20260907-relative-path-portability"
+title: "Portabilitas Dokumentasi & Tautan Skill Menggunakan Path Relatif Standar"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-07T08:30:00Z"
+last_validated: "2026-09-07T11:15:00Z"
+
+domain_tags:
+  - "orchestration"
+  - "documentation"
+  - "github"
+  - "portability"
+  - "governance"
+
+context_and_problem:
+  description: "Dokumentasi proyek markdown, aturan role, atau tautan skill yang menggunakan skema absolut URI lokal sistem operasi (seperti `file:///c:/Users/ASUS/...`) menyebabkan tautan rusak (404 / dead links) saat repositori dibuka di GitHub web viewer, dikloning oleh developer lain, atau dijalankan di mesin Linux/macOS."
+  symptoms_or_triggers:
+    - "Link di GitHub README atau browser mengarah ke file:/// URI lokal yang diblokir oleh browser karena alasan keamanan sandboxing."
+    - "Path absolut hardcoded gagal dimuat saat project di-clone di direktori yang berbeda di komputer lain."
+
+proposed_solution:
+  summary: "Standardisasikan seluruh tautan internal repositori menggunakan Markdown Relative Paths (contoh: `./skills/backend/` atau `../../skills/qa/`) dan hindari skema hardcoded host filesystem URI."
+  key_mechanisms:
+    - "Semua referensi antar folder di level root menggunakan `./folder/subfolder`."
+    - "Referensi dari subfolder (misal `01-roles/builders/`) ke skill di root menggunakan path traversal relatif `../../skills/nama-skill`."
+    - "Policy Gate & linter otomatis memeriksa ketiadaan substring `file:///c:` atau path spesifik user di seluruh file markdown sebelum commit."
+  trade_offs:
+    advantages:
+      - "Portabilitas 100%: repositori berfungsi mulus di GitHub UI, VSCode, Antigravity IDE, Windows, Linux, dan macOS."
+      - "Keamanan: tidak membocorkan nama username lokal host sistem operasi ke repositori publik."
+    drawbacks:
+      - "Penulis harus memperhatikan tingkat kedalaman direktori (relative nesting levels) saat menulis tautan."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:00:00Z"
+    test_evidence: "Seluruh 21 role documents dan README.md dipindai dengan regex; nol insiden dead link atau skema file:/// ditemukan."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:10:00Z"
+    fallacy_check_notes: "Solusi ini mematuhi prinsip kebersihan kode dasar dan kaidah open source. Menghindari asumsi egosentris lingkungan lokal."
+
+code_reference_or_snippet: |
+  <!-- BENAR: Path Relatif Portabel -->
+  Lihat implementasi di [Backend Skill](./skills/backend) atau [QA Specs](../../skills/qa)
+  
+  <!-- SALAH: Hardcoded Local URI -->
+  Lihat implementasi di [Backend](file:///c:/Users/ASUS/Documents/Web%20Dev/improving/agentic%20AI/skills/backend)

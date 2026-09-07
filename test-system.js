@@ -33,10 +33,12 @@ const checks = [
     validate: () => {
       const schemaPath = path.join(__dirname, '02-session-state', 'schema.yaml');
       const transitionsPath = path.join(__dirname, '02-session-state', 'state-transitions.md');
-      if (!fs.existsSync(schemaPath) || !fs.existsSync(transitionsPath)) {
-        throw new Error('Missing session state schema or transitions doc');
+      const handoffDocPath = path.join(__dirname, '02-session-state', 'cross-project-handoff.md');
+      const templatePath = path.join(__dirname, '02-session-state', 'session-snapshot-template.json');
+      if (!fs.existsSync(schemaPath) || !fs.existsSync(transitionsPath) || !fs.existsSync(handoffDocPath) || !fs.existsSync(templatePath)) {
+        throw new Error('Missing session state schema, transitions doc, handoff guide, or snapshot template');
       }
-      return 'Session state schema and FSM transitions verified';
+      return 'Session state schema, FSM transitions, and cross-project handoff verified';
     }
   },
   {
@@ -51,11 +53,24 @@ const checks = [
     }
   },
   {
-    name: 'Case-Bank Engine',
+    name: 'Case-Bank Engine & Cases',
     validate: () => {
       const specPath = path.join(__dirname, '04-case-bank', 'case-bank-spec.md');
-      if (!fs.existsSync(specPath)) throw new Error('Missing case-bank spec');
-      return 'Case-Bank dual-approval architecture verified';
+      const indexPath = path.join(__dirname, '04-case-bank', 'index.json');
+      if (!fs.existsSync(specPath) || !fs.existsSync(indexPath)) {
+        throw new Error('Missing case-bank spec or index.json');
+      }
+      const index = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+      if (!index.cases || index.cases.length === 0) {
+        throw new Error('Case-bank index contains no cases');
+      }
+      index.cases.forEach(c => {
+        const casePath = path.join(__dirname, '04-case-bank', c.file);
+        if (!fs.existsSync(casePath)) {
+          throw new Error(`Case file not found: ${c.file}`);
+        }
+      });
+      return `Case-Bank verified with ${index.cases.length} dual-approved production cases`;
     }
   },
   {

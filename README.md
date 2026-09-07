@@ -239,6 +239,60 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
 
 ---
 
-## 8. Lisensi
+## 8. Manajemen State Sesi & Migrasi Antar-Chat Project (`02-session-state/`)
+
+Untuk mencegah fenomena *context drift* dan kehilangan memori keputusan pada percakapan panjang atau saat berpindah antar-jendela chat project:
+
+1. **Struktur State Terpadu (`session-state.yaml`)**:
+   Menyimpan `active_goal`, `locked_constraints`, dan daftar `subtasks` dengan dependensi eksplisit serta riwayat perbaikan (*rework history*).
+2. **Snapshot & Cross-Chat Migration**:
+   Konteks tugas aktif dapat diekspor menjadi file snapshot JSON dan diimpor ke sesi percakapan chat baru atau repositori proyek turunan:
+   ```bash
+   # Melihat status tugas aktif dan locked constraints
+   npm run session:status
+
+   # Mengekspor snapshot sesi untuk dipindahkan ke chat session lain
+   npm run session:export
+
+   # Mengimpor snapshot ke sesi aktif
+   node 02-session-state/session-manager.js import --file ./session-snapshot.json
+   ```
+3. **Panduan Lengkap**:
+   Pelajari protokol transisi state dan siklus migrasi di [`02-session-state/cross-project-handoff.md`](./02-session-state/cross-project-handoff.md) dan [`02-session-state/state-transitions.md`](./02-session-state/state-transitions.md).
+
+---
+
+## 9. Basis Pengetahuan Terverifikasi & Case-Bank (`04-case-bank/`)
+
+Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organizational memory*) yang menyimpan pola arsitektur terbaik (*proven patterns*) dan pantangan kesalahan masa lalu (*anti-patterns*):
+
+1. **Dual-Approval Promotion Policy**:
+   Setiap solusi baru wajib berstatus `hypothesis` dan hanya dapat dipromosikan menjadi `verified_case` setelah disetujui secara independen oleh `qa-engineer` (uji fungsional/batas) dan `tech-critic` (uji fallacy/asumsi).
+2. **Pencarian Cepat Semantik & Validasi**:
+   Agen dan developer dapat mencari solusi tervalidasi secara instan:
+   ```bash
+   # Menampilkan katalog seluruh case tervalidasi
+   npm run case:list
+
+   # Mencari case berdasarkan kata kunci / domain
+   node 04-case-bank/case-bank-cli.js search redis
+   node 04-case-bank/case-bank-cli.js search websocket
+
+   # Memvalidasi integritas katalog case-bank
+   npm run case:validate
+   ```
+3. **Katalog Kasus Terverifikasi Saat Ini**:
+   - `case-20260903-httponly-cookie-auth`: Autentikasi aman via Cookie HttpOnly SameSite=Strict.
+   - `case-20260907-cross-device-autonomous-bootstrap`: Pemasangan mandiri skill lintas OS.
+   - `case-20260907-relative-path-portability`: Portabilitas tautan relatif untuk repositori GitHub.
+   - `case-20260907-redis-atomic-lock-concurrency`: Distributed lock & beacon teardown via Redis Lua script.
+   - `case-20260907-resilient-websocket-dual-ecosystem`: Resiliensi socket realtime Vue 3 & Next.js.
+   - `case-20260907-circuit-breaker-rework-loop`: Circuit breaker penghentian infinite rework loop.
+   - `case-20260907-anti-pattern-hardcoded-credentials`: Larangan keras secret token di source code.
+
+---
+
+## 10. Lisensi
 
 Proyek ini dilisensikan di bawah lisensi [MIT License](LICENSE) &copy; 2026 Ahmad Arif.
+

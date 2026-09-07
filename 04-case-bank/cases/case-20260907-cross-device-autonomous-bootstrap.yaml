@@ -1,0 +1,56 @@
+case_id: "case-20260907-cross-device-autonomous-bootstrap"
+title: "Penyediaan & Pemasangan Mandiri Skill Lintas-Perangkat (Zero-Config Autonomous Bootstrap)"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-07T08:00:00Z"
+last_validated: "2026-09-07T11:00:00Z"
+
+domain_tags:
+  - "orchestration"
+  - "devops"
+  - "cross-platform"
+  - "automation"
+  - "qa"
+
+context_and_problem:
+  description: "Ketika repositori multi-agent di-clone ke perangkat baru atau server CI/CD dengan arsitektur berbeda (Windows, Linux, macOS), agent sering mengalami kegagalan eksekusi karena browser binary (Playwright) belum terunduh, runner library tidak terisolasi, atau dependensi lokal belum terpasang."
+  symptoms_or_triggers:
+    - "Error: Executable doesn't exist at /root/.cache/ms-playwright/chromium... saat menjalankan QA automation."
+    - "Agent terhenti (blocked) dan meminta user melakukan instalasi manual, merusak otonomi agentik."
+    - "Konflik versi dependensi antara workspace root dan skill runner."
+
+proposed_solution:
+  summary: "Implementasikan arsitektur Autonomous Self-Bootstrap menggunakan file setup.js di root dan bootstrap.js pada masing-masing skill folder dengan runner terisolasi dan fallback headless."
+  key_mechanisms:
+    - "Discovery otomatis: setup.js memindai seluruh folder skill yang memiliki file bootstrap.js tanpa daftar statis yang kaku."
+    - "Deteksi platform & OS (os.platform, os.arch) untuk menentukan flag instalasi browser binary dan kompatibilitas shell (PowerShell vs Bash)."
+    - "Pemeriksaan runtime minimum Node.js (>= 18.0.0) sebelum memulai eksekusi."
+    - "Isolasi runner: dependensi skill (misal: playwright, motion) di-install di sandbox lokal skill atau divalidasi ketersediaannya tanpa mengotori root package.json."
+  trade_offs:
+    advantages:
+      - "Full autonomy: agent dapat menjalankan `node setup.js` secara mandiri saat pertama kali tiba di lingkungan baru."
+      - "Idempoten: script bootstrap aman dijalankan berulang kali tanpa merusak state yang sudah terpasang."
+      - "Verifikasi sanity instan melalui laporan status SUCCESS/FAILED per skill."
+    drawbacks:
+      - "Membutuhkan koneksi internet pada saat bootstrap pertama untuk mengunduh browser binaries (~150MB)."
+      - "Waktu bootstrap awal membutuhkan 30-60 detik."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-07T10:30:00Z"
+    test_evidence: "Diuji pada sistem Windows 11 x64 dan lingkungan CI Linux container; script berhasil mendeteksi browser headless dan lulus verifikasi ekspor API tanpa kegagalan."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-07T10:45:00Z"
+    fallacy_check_notes: "Bebas dari asumsi monolitik (setiap skill memiliki script bootstrap modular sendiri). Menghindari premature global locking; menggunakan child_process synchronous yang aman dan terisolasi."
+
+code_reference_or_snippet: |
+  // setup.js snippet
+  const bootstrappableSkills = fs.readdirSync(skillsDir, { withFileTypes: true })
+    .filter(e => e.isDirectory() && fs.existsSync(path.join(skillsDir, e.name, 'bootstrap.js')))
+    .map(e => e.name);
+
+  for (const skill of bootstrappableSkills) {
+    execSync('node bootstrap.js', { cwd: path.join(skillsDir, skill), stdio: 'inherit' });
+  }

@@ -1,0 +1,96 @@
+{
+  "version": "1.0.0",
+  "updated_at": "2026-09-07T11:45:00Z",
+  "total_cases": 6,
+  "categories": {
+    "pattern": 4,
+    "anti_pattern": 1,
+    "heuristic": 1
+  },
+  "cases": [
+    {
+      "case_id": "case-20260903-httponly-cookie-auth",
+      "title": "Autentikasi Aman Sesi Web Menggunakan Cookie HttpOnly SameSite Strict",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/sample-case.yaml",
+      "domain_tags": ["backend", "security", "auth", "frontend"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-cross-device-autonomous-bootstrap",
+      "title": "Penyediaan & Pemasangan Mandiri Skill Lintas-Perangkat (Zero-Config Autonomous Bootstrap)",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260907-cross-device-autonomous-bootstrap.yaml",
+      "domain_tags": ["orchestration", "devops", "cross-platform", "automation", "qa"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-relative-path-portability",
+      "title": "Portabilitas Dokumentasi & Tautan Skill Menggunakan Path Relatif Standar",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260907-relative-path-portability.yaml",
+      "domain_tags": ["orchestration", "documentation", "github", "portability", "governance"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-redis-atomic-lock-concurrency",
+      "title": "Distributed Lock Atomik & Beacon Teardown Menggunakan Redis SET NX PX dan Script Lua",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260907-redis-atomic-lock-concurrency.yaml",
+      "domain_tags": ["backend", "database", "concurrency", "redis", "performance"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-resilient-websocket-dual-ecosystem",
+      "title": "Resiliensi Real-Time WebSocket dengan Jittered Exponential Backoff & Offline Queue (Next.js & Vue 3)",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260907-resilient-websocket-dual-ecosystem.yaml",
+      "domain_tags": ["frontend", "backend", "realtime", "vue", "nextjs", "network"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-circuit-breaker-rework-loop",
+      "title": "Pencegahan Infinite Rework Loop Multi-Agent Menggunakan Circuit Breaker & Human Escalation",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260907-circuit-breaker-rework-loop.yaml",
+      "domain_tags": ["orchestration", "governance", "lifecycle", "circuit-breaker", "human-in-the-loop"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260907-anti-pattern-hardcoded-credentials",
+      "title": "Larangan Keras Meletakkan Kredensial & Secret Token Langsung di Kode Sumber (Hardcoded Secrets Anti-Pattern)",
+      "status": "verified_case",
+      "category": "anti_pattern",
+      "file": "cases/case-20260907-anti-pattern-hardcoded-credentials.yaml",
+      "domain_tags": ["security", "backend", "frontend", "governance", "git"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    }
+  ]
+}

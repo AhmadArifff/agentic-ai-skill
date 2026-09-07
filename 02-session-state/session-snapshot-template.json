@@ -1,0 +1,35 @@
+{
+  "$schema": "./schema.yaml",
+  "session_id": "sess-snapshot-template",
+  "project_name": "agentic-ai-project",
+  "exported_at": "2026-09-07T12:00:00Z",
+  "primary_goal": "Deskripsi tujuan utama proyek / sesi pengembangan",
+  "current_stage": "building",
+  "locked_constraints": [
+    "Semua path dokumen wajib menggunakan relative path",
+    "Dual-approval wajib lolos dari qa-engineer dan tech-critic",
+    "Circuit breaker aktif pada batas 3x revisi berturut-turut"
+  ],
+  "subtasks": [
+    {
+      "id": "task-001",
+      "title": "Inisialisasi Skema & Arsitektur",
+      "owner_role": "backend-engineer",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-002",
+      "title": "Implementasi Komponen Inti",
+      "owner_role": "frontend-engineer",
+      "status": "in_progress",
+      "rework_iteration_count": 0
+    }
+  ],
+  "handoff_chain": [
+    "triage-router -> problem-decomposer",
+    "problem-decomposer -> backend-engineer",
+    "backend-engineer -> qa-engineer",
+    "qa-engineer -> frontend-engineer"
+  ]
+}

@@ -1,0 +1,57 @@
+case_id: "case-20260907-circuit-breaker-rework-loop"
+title: "Pencegahan Infinite Rework Loop Multi-Agent Menggunakan Circuit Breaker & Human Escalation"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-07T10:00:00Z"
+last_validated: "2026-09-07T11:30:00Z"
+
+domain_tags:
+  - "orchestration"
+  - "governance"
+  - "lifecycle"
+  - "circuit-breaker"
+  - "human-in-the-loop"
+
+context_and_problem:
+  description: "Dalam sistem multi-agent di mana Reviewer (QA/Security) menolak hasil kerja Builder dan meminta revisi (rework), sering terjadi fenomena 'echo-chamber deadlock' di mana agent terus memperbaiki kode secara berulang-ulang tanpa konvergensi, menghabiskan batas kuota token dan membuang waktu."
+  symptoms_or_triggers:
+    - "Builder mencoba memperbaiki error tipe TypeScript, namun review QA menemukan regresi lain, berulang hingga 5-10 siklus."
+    - "Dua agent memiliki pemahaman kontradiktif atas suatu acceptance criteria yang ambigu."
+    - "Konteks percakapan membesar drastis (token bloat) karena log error revisi yang berulang."
+
+proposed_solution:
+  summary: "Terapkan Counter Rework dan Circuit Breaker otomatis pada dokumen session state: jika sub-tugas mengalami penolakan (verdict: rework) >= 3 kali berturut-turut, kunci eksekusi otomatis dan lakukan eskalasi langsung ke pengguna (Human-in-the-Loop)."
+  key_mechanisms:
+    - "Pencatatan rework_iteration_count pada setiap decomposed_subtask di session state."
+    - "Setiap kali reviewer memberikan verdict 'rework', inkremen nilai `rework_iteration_count`."
+    - "Threshold Rule: jika `rework_iteration_count >= 3`, status sub-tugas berubah menjadi `escalated` atau `blocked`."
+    - "Notifikasi Terstruktur: Agent menghentikan loop, menyajikan ringkasan 3 upaya perbaikan yang gagal, akar dilema/kontradiksi, dan opsi pilihan solusi konkret untuk dipilih oleh manusia."
+  trade_offs:
+    advantages:
+      - "Menghentikan pemborosan token dan loop tak terbatas secara deterministik."
+      - "Melibatkan manusia tepat waktu pada saat terjadi ambiguitas arsitektural."
+    drawbacks:
+      - "Memerlukan intervensi manual pengguna untuk melanjutkan sub-tugas yang tereskalasi."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:15:00Z"
+    test_evidence: "Disimulasikan dengan skenario pengujian unit yang sengaja dibuat gagal; tepat pada percobaan ke-3 proses berhenti dan beralih ke stage 'escalated' tanpa melanjutkan ke subtask berikutnya."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:20:00Z"
+    fallacy_check_notes: "Menghilangkan Sunk Cost Fallacy pada agent (keengganan agen untuk berhenti saat algoritma perbaikan tidak konvergen). Mematuhi kaidah sistem kendali tertutup (closed-loop control)."
+
+code_reference_or_snippet: |
+  // Evaluasi Circuit Breaker di Handoff Handler
+  if (reviewResult.verdict === 'rework') {
+    subtask.rework_iteration_count += 1;
+    if (subtask.rework_iteration_count >= 3) {
+      subtask.status = 'escalated';
+      sessionState.current_stage = 'escalated';
+      triggerHumanIntervention(subtask.id, subtask.rework_history);
+      return;
+    }
+    subtask.status = 'in_progress'; // Kembalikan ke builder untuk iterasi
+  }

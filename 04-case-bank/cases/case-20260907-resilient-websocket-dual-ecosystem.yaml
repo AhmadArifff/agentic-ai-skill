@@ -1,0 +1,55 @@
+case_id: "case-20260907-resilient-websocket-dual-ecosystem"
+title: "Resiliensi Real-Time WebSocket dengan Jittered Exponential Backoff & Offline Queue (Next.js & Vue 3)"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-07T09:30:00Z"
+last_validated: "2026-09-07T11:25:00Z"
+
+domain_tags:
+  - "frontend"
+  - "backend"
+  - "realtime"
+  - "vue"
+  - "nextjs"
+  - "network"
+
+context_and_problem:
+  description: "Koneksi WebSocket pada aplikasi web (Next.js atau Vue 3/Nuxt 3) sering terputus akibat fluktuasi sinyal pengguna mobile, sleep mode laptop, atau restart server backend. Tanpa strategi resiliensi, UI macet, pesan yang dikirim saat offline hilang, dan reconnection yang simultan menimbulkan 'thundering herd problem'."
+  symptoms_or_triggers:
+    - "Indikator koneksi tetap 'connected' padahal backend telah memutus socket (dead socket / ghost connection)."
+    - "Pengguna kehilangan event update harga atau notifikasi kasir tanpa disadari."
+    - "Ribuan klien mencoba reconnect di detik yang sama saat server restart, menumbangkan gateway."
+
+proposed_solution:
+  summary: "Bangun WebSocket client wrapper dengan heartbeat proaktif (ping/pong 30 detik), reconnection otomatis dengan jittered exponential backoff, antrean pesan lokal (offline queue), dan integrasi state reaktif (Pinia untuk Vue 3 / Zustand untuk Next.js)."
+  key_mechanisms:
+    - "Dead Socket Detection: Kirim ping setiap 30 detik; jika pong tidak diterima dalam 5 detik, trigger force close & reconnect."
+    - "Jittered Exponential Backoff: delay = Math.min(maxDelay, baseDelay * 2^attempts + Math.random() * 1000)."
+    - "Offline Action Queue: Pesan yang dikirim saat status 'connecting' atau 'offline' disimpan di memory buffer dan di-flush otomatis saat socket 'open'."
+    - "Penyelarasan State: Update status koneksi `CONNECTING | OPEN | CLOSING | CLOSED` ke reactive store global."
+  trade_offs:
+    advantages:
+      - "Pengalaman pengguna mulus tanpa perlu refresh manual browser."
+      - "Server terlindungi dari lonjakan beban koneksi serentak (thundering herd mitigated)."
+    drawbacks:
+      - "Memerlukan penanganan idempotensi di sisi server jika pesan dalam antrean offline terkirim ganda."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:05:00Z"
+    test_evidence: "Diuji dengan mematikan interface jaringan lokal selama 20 detik; klien mendeteksi offline, menampung 3 event kirim, dan sukses reconnect serta me-replay event setelah jaringan aktif kembali."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-07T11:15:00Z"
+    fallacy_check_notes: "Penggunaan full jitter randomisasi adalah best-practice ketahanan jaringan. Tidak mengasumsikan koneksi internet selalu stabil (fallacy of reliable network)."
+
+code_reference_or_snippet: |
+  // Jittered Backoff Reconnect Calculation
+  function getReconnectDelay(attempt) {
+    const base = 1000;
+    const max = 30000;
+    const exponential = Math.min(max, base * Math.pow(2, attempt));
+    const jitter = Math.random() * 1000;
+    return exponential + jitter;
+  }

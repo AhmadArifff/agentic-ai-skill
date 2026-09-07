@@ -6,7 +6,11 @@
   "scripts": {
     "setup": "node setup.js",
     "bootstrap": "node setup.js",
-    "test:system": "node test-system.js"
+    "test:system": "node test-system.js",
+    "case:list": "node 04-case-bank/case-bank-cli.js list",
+    "case:validate": "node 04-case-bank/case-bank-cli.js validate",
+    "session:status": "node 02-session-state/session-manager.js status",
+    "session:export": "node 02-session-state/session-manager.js export"
   },
   "keywords": [
     "agentic-ai",
