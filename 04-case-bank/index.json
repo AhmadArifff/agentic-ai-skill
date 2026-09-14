@@ -1,11 +1,10 @@
 {
-  "version": "1.0.0",
-  "updated_at": "2026-09-07T11:45:00Z",
-  "total_cases": 6,
+  "version": "1.1.0",
+  "updated_at": "2026-09-14T11:30:00Z",
+  "total_cases": 11,
   "categories": {
-    "pattern": 4,
-    "anti_pattern": 1,
-    "heuristic": 1
+    "pattern": 10,
+    "anti_pattern": 1
   },
   "cases": [
     {
@@ -87,6 +86,54 @@
       "category": "anti_pattern",
       "file": "cases/case-20260907-anti-pattern-hardcoded-credentials.yaml",
       "domain_tags": ["security", "backend", "frontend", "governance", "git"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260914-session-state-consistency-goal-tracking",
+      "title": "Konsistensi Session State & Goal Tracking untuk Eliminasi Context Drift pada Percakapan Panjang",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260914-session-state-consistency-goal-tracking.yaml",
+      "domain_tags": ["orchestration", "session", "governance", "goal-tracking", "memory"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260914-single-door-triage-routing",
+      "title": "Single Door Policy & Routing Semantik Instruksi Alami Multi-Agent",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260914-single-door-triage-routing.yaml",
+      "domain_tags": ["orchestration", "triage", "routing", "ux", "natural-language"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260914-reviewer-independence-anti-hallucination",
+      "title": "Pemisahan Independen Peran Builder dan Reviewer Guna Mencegah Echo-Chamber Hallucination",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260914-reviewer-independence-anti-hallucination.yaml",
+      "domain_tags": ["governance", "qa", "security", "tech-critic", "anti-hallucination"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20260914-ml-cv-edge-web-inference-pipeline",
+      "title": "Pipeline Inferensi Machine Learning & Computer Vision: Hybrid Backend FastAPI vs In-Browser ONNX WebGPU",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20260914-ml-cv-edge-web-inference-pipeline.yaml",
+      "domain_tags": ["machine-learning", "deep-learning", "computer-vision", "fastapi", "onnx", "webgpu", "mobile"],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"

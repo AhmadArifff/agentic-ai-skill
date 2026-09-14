@@ -1,0 +1,52 @@
+{
+  "$schema": "./schema.yaml",
+  "session_id": "sess-agentic-ai-master-dev",
+  "project_name": "agentic-ai-skill",
+  "exported_at": "2026-09-14T11:30:00Z",
+  "primary_goal": "Pengembangan Ekosistem Multi-Agent Orchestration, Case-Bank Governance, dan Integrasi Spesialis ML/CV",
+  "current_stage": "building",
+  "locked_constraints": [
+    "Wajib menggunakan relative path di seluruh dokumentasi dan skill links",
+    "Dual-approval promotion wajib lolos dari qa-engineer dan tech-critic",
+    "Circuit breaker aktif pada batas maksimum 3x siklus perbaikan (rework loop)",
+    "Pemisahan independen peran Builder dan Reviewer (anti echo-chamber hallucination)",
+    "Single door policy dengan triage router menangani instruksi alami tanpa manual role tagging"
+  ],
+  "subtasks": [
+    {
+      "id": "task-001",
+      "title": "Struktur 4-Tier Hirarki Peran & Hand-off Pipeline",
+      "owner_role": "problem-decomposer",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-002",
+      "title": "Pengaturan 27 Skill Global dan Workspace Runners Mandiri",
+      "owner_role": "backend-engineer",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-003",
+      "title": "Implementasi Case-Bank Engine & Cross-Project Session Migration",
+      "owner_role": "goal-tracker",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-004",
+      "title": "Integrasi Peran ML/Deep Learning/Computer Vision Specialist (ml-vision-engineer)",
+      "owner_role": "ml-vision-engineer",
+      "status": "in_progress",
+      "rework_iteration_count": 0
+    }
+  ],
+  "handoff_chain": [
+    "triage-router -> problem-decomposer",
+    "problem-decomposer -> backend-engineer",
+    "backend-engineer -> qa-engineer",
+    "qa-engineer -> goal-tracker",
+    "goal-tracker -> ml-vision-engineer"
+  ]
+}

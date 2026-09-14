@@ -24,8 +24,8 @@ const checks = [
         const files = fs.readdirSync(tierPath).filter(f => f.endsWith('.md'));
         roleCount += files.length;
       });
-      if (roleCount !== 21) throw new Error(`Expected 21 roles, found ${roleCount}`);
-      return `21 roles across 4 tiers verified`;
+      if (roleCount !== 22) throw new Error(`Expected 22 roles, found ${roleCount}`);
+      return `22 roles across 4 tiers verified (including ml-vision-engineer)`;
     }
   },
   {

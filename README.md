@@ -112,6 +112,7 @@ Pola solusi baru diklasifikasikan sebagai `hypothesis`. Sebuah case hanya dapat 
 | | Builder | `copywriter` | Nada bicara, UX microcopy, pesan kesalahan | Copy Deck & Localization Map |
 | | Builder | `ai-engineer` | Desain prompt, model config, parameter agent | Prompt Artifacts & Schemas |
 | | Builder | `domain-retriever` | Penarikan fakta mentah (RAG/API/Docs) | Structured Raw Facts (No bias) |
+| | Builder | `ml-vision-engineer` | Machine Learning, Deep Learning, Computer Vision, ONNX & Edge Deploy | Trained Models, ONNX & Inference Code |
 | **Specific** | Reviewer | `qa-engineer` | Uji fungsional, skenario ekstrem, boundary check| QA Test Matrix & Verdict |
 | | Reviewer | `security-engineer` | Threat analysis, OWASP, sanitasi data, izin akses| Security Audit & Verdict |
 | | Reviewer | `product-manager` | Keselarasan dengan PRD dan target objektif | Value Alignment & Verdict |
@@ -200,6 +201,7 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 | **threejs-postprocessing** | [`skills/threejs-postprocessing/`](./skills/threejs-postprocessing) | `frontend-engineer`, `ui-ux-designer` | Efek pasca-proses EffectComposer: UnrealBloom, depth of field (DOF), glitch, vignette, dan film grain. |
 | **threejs-shaders** | [`skills/threejs-shaders/`](./skills/threejs-shaders) | `frontend-engineer`, `ui-ux-designer` | Pemrograman GLSL ShaderMaterial kustom, uniform timing, per-vertex deformation, dan procedural noise. |
 | **threejs-textures** | [`skills/threejs-textures/`](./skills/threejs-textures) | `frontend-engineer`, `ui-ux-designer` | Manajemen tekstur (albedo, normal, bump, roughness, displacement), UV mapping, dan render targets. |
+| **ml-vision** | [`skills/ml-vision/`](./skills/ml-vision) | `ml-vision-engineer` | Machine Learning, Deep Learning & Vision: clustering (K-Means, DBSCAN), classification (LightGBM, XGBoost), PyTorch, YOLOv8/v11, ONNX INT8, FastAPI & WebGPU in-browser (4 referensi). |
 | **_jutsu** | [`skills/_jutsu/`](./skills/_jutsu) | `frontend-engineer`, `ui-ux-designer` | 15 sub-keahlian kreatif modular (canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native). |
 | **playwright** | [`skills/playwright/`](./skills/playwright) | `qa-engineer`, `user-test-professional` | Otomatisasi browser interaktif via Playwright MCP (24 tool), AXTree snapshots, visual screenshots, console & network monitoring. |
 | **graphify** | [`skills/graphify/`](./skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
@@ -212,8 +214,8 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 
 Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, server CI/CD, Linux, atau macOS), agen-agen AI dalam sistem ini dapat **menginstal dan mempelajari skill secara otonom**:
 
-1. **Self-Bootstrap Otomasi Browser & Komponen Visual**:
-   Agen cukup menjalankan bootstrap script mandiri di perangkat baru:
+1. **Self-Bootstrap Otomasi Browser, Komponen Visual & ML Engine**:
+   Agen cukup menjalankan bootstrap script mandiri di perangkat baru (atau sekali via `npm run setup`):
    ```bash
    # 1. Otomasi Browser Playwright
    node skills/playwright-skill/bootstrap.js
@@ -226,14 +228,18 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    
    # 4. Komponen Desain Magic UI & Helper cn()
    node skills/magic-ui/bootstrap.js
+
+   # 5. Machine Learning, Deep Learning & Vision Engine
+   node skills/ml-vision/bootstrap.js
    ```
-   Script ini secara otomatis memeriksa runtime Node.js, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
+   Script ini secara otomatis memeriksa runtime Node.js dan Python, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
 2. **Panduan Operasional Mandiri**:
    Agen dapat membaca panduan lengkap di:
    - [`skills/playwright-skill/DEVICE_BOOTSTRAP.md`](./skills/playwright-skill/DEVICE_BOOTSTRAP.md)
    - [`skills/motion/DEVICE_BOOTSTRAP.md`](./skills/motion/DEVICE_BOOTSTRAP.md)
    - [`skills/shadcn-ui/DEVICE_BOOTSTRAP.md`](./skills/shadcn-ui/DEVICE_BOOTSTRAP.md)
    - [`skills/magic-ui/DEVICE_BOOTSTRAP.md`](./skills/magic-ui/DEVICE_BOOTSTRAP.md)
+   - [`skills/ml-vision/DEVICE_BOOTSTRAP.md`](./skills/ml-vision/DEVICE_BOOTSTRAP.md)
 3. **Pembelajaran Progresif (*Progressive Disclosure*)**:
    Agen baru mempelajari dasar melalui `SKILL.md`, mendalami helpers/pola di folder `references/`, dan hanya membuka referensi API lengkap saat menangani kasus tingkat lanjut.
 
@@ -281,14 +287,18 @@ Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organiz
    # Memvalidasi integritas katalog case-bank
    npm run case:validate
    ```
-3. **Katalog Kasus Terverifikasi Saat Ini**:
+3. **Katalog Kasus Terverifikasi Saat Ini (11 Verified Cases)**:
    - `case-20260903-httponly-cookie-auth`: Autentikasi aman via Cookie HttpOnly SameSite=Strict.
-   - `case-20260907-cross-device-autonomous-bootstrap`: Pemasangan mandiri skill lintas OS.
+   - `case-20260907-cross-device-autonomous-bootstrap`: Pemasangan mandiri skill lintas OS (zero-config).
    - `case-20260907-relative-path-portability`: Portabilitas tautan relatif untuk repositori GitHub.
    - `case-20260907-redis-atomic-lock-concurrency`: Distributed lock & beacon teardown via Redis Lua script.
    - `case-20260907-resilient-websocket-dual-ecosystem`: Resiliensi socket realtime Vue 3 & Next.js.
-   - `case-20260907-circuit-breaker-rework-loop`: Circuit breaker penghentian infinite rework loop.
+   - `case-20260907-circuit-breaker-rework-loop`: Circuit breaker penghentian infinite rework loop (max 3x).
    - `case-20260907-anti-pattern-hardcoded-credentials`: Larangan keras secret token di source code.
+   - `case-20260914-session-state-consistency-goal-tracking`: Eliminasi context drift pada chat panjang via Goal Tracker.
+   - `case-20260914-single-door-triage-routing`: Single Door Policy routing semantik tanpa tagging manual.
+   - `case-20260914-reviewer-independence-anti-hallucination`: Pemisahan peran Builder dan Reviewer (anti echo-chamber).
+   - `case-20260914-ml-cv-edge-web-inference-pipeline`: Inferensi hibrida FastAPI backend vs in-browser ONNX WebGPU.
 
 ---
 

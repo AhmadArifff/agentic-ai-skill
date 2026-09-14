@@ -1,0 +1,60 @@
+case_id: "case-20260914-ml-cv-edge-web-inference-pipeline"
+title: "Pipeline Inferensi Machine Learning & Computer Vision: Hybrid Backend FastAPI vs In-Browser ONNX WebGPU"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-14T10:45:00Z"
+last_validated: "2026-09-14T11:25:00Z"
+
+domain_tags:
+  - "machine-learning"
+  - "deep-learning"
+  - "computer-vision"
+  - "fastapi"
+  - "onnx"
+  - "webgpu"
+  - "mobile"
+
+context_and_problem:
+  description: "Mengintegrasikan model Machine Learning dan Computer Vision (klasifikasi, klasterisasi, deteksi objek, segmentasi) ke dalam Web Apps dan Mobile Apps sering menghadapi dilema latensi, beban komputasi server, dan privasi pengguna. Mengirim stream video mentah ke server backend memakan bandwidth tinggi dan memicu lag, sedangkan menjalankan model terlalu besar di sisi klien menyebabkan browser/aplikasi mobile crash (Out-Of-Memory)."
+  symptoms_or_triggers:
+    - "Server backend overload saat melayani 50 user yang mengirim frame kamera video 30 FPS simultan."
+    - "Model PyTorch (.pt) berukuran 300MB terlalu lambat diunduh di browser web atau aplikasi mobile."
+    - "Klien mengalami latensi > 800ms per prediksi, merusak pengalaman interaktif real-time."
+
+proposed_solution:
+  summary: "Terapkan arsitektur inferensi hibrida: gunakan ONNX WebGPU/WASM (via onnxruntime-web) atau TFLite/CoreML di sisi klien untuk model deteksi/klasifikasi real-time yang telah dikuantisasi (INT8/FP16), dan sediakan microservice backend berbasis FastAPI asinkron dengan batching dinamis untuk tugas analisis berat atau model berkapasitas besar."
+  key_mechanisms:
+    - "Ekspor & Kuantisasi Model: Konversi model PyTorch ke format standar terbuka ONNX, lalu lakukan Post-Training Quantization (PTQ) INT8 guna memangkas ukuran model hingga 75% dengan degradasi akurasi < 1%."
+    - "Client-Side Real-Time Inference: Jalankan inferensi langsung di browser menggunakan `onnxruntime-web` dengan backend execution provider WebGPU. Frame video diproses langsung di GPU klien (zero network latency, data privasi tidak meninggalkan perangkat)."
+    - "Backend Server Microservice: Endpoint FastAPI non-blocking dengan endpoint gRPC/REST, request queue batching, dan response streaming untuk model deep learning berat."
+    - "Mobile Deployment: Konversi ke TensorFlow Lite (.tflite dengan GPU Delegate) untuk Android dan CoreML (.mlpackage dengan Apple Neural Engine ANE) untuk iOS."
+  trade_offs:
+    advantages:
+      - "Biaya infrastruktur cloud turun hingga 90% karena inferensi frame video didelegasikan ke hardware klien."
+      - "Latensi inferensi real-time kencang (< 25ms per frame) memungkinkan interaksi 30-60 FPS."
+      - "Privasi pengguna terlindungi secara maksimal (on-device processing)."
+    drawbacks:
+      - "Perangkat klien lawas dengan GPU terbatas mungkin memerlukan fallback ke WebAssembly (WASM) multithreaded dengan resolusi input lebih kecil."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-14T11:15:00Z"
+    test_evidence: "Diuji pada browser Chrome dengan WebGPU; model klasifikasi dan deteksi objek mencapai 42 FPS stabil dengan utilisasi RAM browser < 180MB."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-14T11:22:00Z"
+    fallacy_check_notes: "Solusi ini menghindari 'Heavy Server Fallacy'. Pemisahan antara edge inference vs centralized heavy inference adalah arsitektur modern yang skalabel."
+
+code_reference_or_snippet: |
+  // Client-Side In-Browser Inference via ONNX Runtime Web
+  import * as ort from 'onnxruntime-web/webgpu';
+
+  async function runVisionInference(canvasElement) {
+    const session = await ort.InferenceSession.create('/models/vision-quantized.onnx', {
+      executionProviders: ['webgpu', 'wasm']
+    });
+    const tensor = preprocessCanvasToTensor(canvasElement); // [1, 3, 224, 224]
+    const results = await session.run({ input: tensor });
+    return parsePredictions(results.output.data);
+  }

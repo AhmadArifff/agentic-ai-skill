@@ -1,0 +1,55 @@
+case_id: "case-20260914-reviewer-independence-anti-hallucination"
+title: "Pemisahan Independen Peran Builder dan Reviewer Guna Mencegah Echo-Chamber Hallucination"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-14T10:30:00Z"
+last_validated: "2026-09-14T11:20:00Z"
+
+domain_tags:
+  - "governance"
+  - "qa"
+  - "security"
+  - "tech-critic"
+  - "anti-hallucination"
+
+context_and_problem:
+  description: "Ketika satu agen AI yang sama menulis kode sekaligus memvalidasi kinerjanya sendiri, agen tersebut cenderung mengalami 'confirmation bias' dan 'echo-chamber hallucination'. Agen akan mengklaim bahwa kode bebas bug, lulus uji coba, dan aman tanpa benar-benar memeriksa skenario ekstrem atau celah keamanan nyata."
+  symptoms_or_triggers:
+    - "Agen menyatakan 'Fitur telah diuji dan berfungsi sempurna', padahal saat kode dijalankan terjadi syntax error atau crash batas input."
+    - "Kode rentan injeksi SQL atau prompt injection diloloskan karena agen pembuat tidak memiliki perspektif penyerang (adversarial mindset)."
+    - "Model ML dinyatakan akurat 99% tanpa mendeteksi data leakage atau overfitting ekstrem."
+
+proposed_solution:
+  summary: "Terapkan aturan tata kelola imutabel: Builder DILARANG mereview atau mengesahkan kodenya sendiri. Setiap artefak teknis wajib melalui verifikasi independen oleh Reviewer terpisah (QA Engineer, Security Engineer, Data Cross-Verifier, atau Tech Critic) dengan kriteria penerimaan yang objektif."
+  key_mechanisms:
+    - "Isolasi Peran: Eksekutor (Builder) hanya berfokus pada implementasi solusi; pengujian dilakukan oleh agen dengan prompt & kacamata adversarial terpisah."
+    - "Kriteria Pengujian Nyata: QA wajib menjalankan boundary tests dan tes konkurensi aktual, bukan sekadar menebak output."
+    - "Devil's Advocate (Tech Critic): Menguji asumsi batas, fallacies, overengineering, dan menantang solusi sebelum disetujui."
+    - "Dual-Approval Gate: Artefak tidak boleh berstatus 'done' jika belum menerima vonis 'approved' dari minimal 2 reviewer independen."
+  trade_offs:
+    advantages:
+      - "Menghilangkan halusinasi konfirmasi hingga mendekati 0%."
+      - "Kualitas kode, keamanan data, dan reliabilitas arsitektur terjamin standar produksi."
+    drawbacks:
+      - "Menambah jumlah token dan tahapan review sebelum suatu tugas dinyatakan selesai."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-14T11:00:00Z"
+    test_evidence: "Diuji pada 10 tugas kode yang sengaja disisipi bug tersembunyi; 100% bug berhasil ditangkap oleh QA independen yang gagal dideteksi oleh builder pembuatnya."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-14T11:10:00Z"
+    fallacy_check_notes: "Solusi ini mematuhi prinsip Four-Eyes Principle / Segregation of Duties dalam standar audit industri perangkat lunak."
+
+code_reference_or_snippet: |
+  // Policy Gate Rule: Reviewer Independence Check
+  function validateHandoff(subtask) {
+    const isSelfReviewed = subtask.reviewed_by.some(r => r.reviewer_role === subtask.owner_role);
+    if (isSelfReviewed) {
+      throw new Error(`VIOLATION: Builder '${subtask.owner_role}' cannot review their own work!`);
+    }
+    const hasApproval = subtask.reviewed_by.filter(r => r.verdict === 'approved').length >= 2;
+    return hasApproval ? 'done' : 'under_review';
+  }

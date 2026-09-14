@@ -1,0 +1,20 @@
+{
+  "name": "ml-vision-skill-runner",
+  "version": "1.0.0",
+  "description": "Isolated runner and dependencies for Machine Learning, Deep Learning, and Computer Vision skill",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "keywords": [
+    "machine-learning",
+    "deep-learning",
+    "computer-vision",
+    "clustering",
+    "classification",
+    "onnx",
+    "yolo"
+  ],
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}

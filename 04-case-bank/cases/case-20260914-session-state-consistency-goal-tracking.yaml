@@ -1,0 +1,58 @@
+case_id: "case-20260914-session-state-consistency-goal-tracking"
+title: "Konsistensi Session State & Goal Tracking untuk Eliminasi Context Drift pada Percakapan Panjang"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-09-14T10:00:00Z"
+last_validated: "2026-09-14T11:00:00Z"
+
+domain_tags:
+  - "orchestration"
+  - "session"
+  - "governance"
+  - "goal-tracking"
+  - "memory"
+
+context_and_problem:
+  description: "Dalam percakapan multi-turn yang panjang atau kompleks, agen LLM sering mengalami fenomena 'context drift', yaitu melupakan batasan arsitektur awal (locked constraints), memodifikasi keputusan yang sudah disepakati pengguna tanpa konfirmasi, atau mengerjakan sub-tugas yang menyimpang dari primary goal."
+  symptoms_or_triggers:
+    - "Agen tiba-tiba mengganti library atau arsitektur di tengah sesi padahal sebelumnya sudah dilarang."
+    - "Agen menganggap tugas sudah selesai padahal ada acceptance criteria yang belum teruji."
+    - "Token window membengkak dan agen kehilangan konteks hand-off dari langkah sebelumnya."
+
+proposed_solution:
+  summary: "Terapkan Single Source of Truth berbasis dokumen session state terstruktur (YAML/JSON) yang dikelola oleh Goal Tracker dengan penguncian batasan mutlak (locked_constraints), status FSM sub-tugas, dan riwayat handoff chain."
+  key_mechanisms:
+    - "Pencatatan Imutabel: Batasan yang sudah disetujui pengguna (misal: 'wajib relative path', 'max 3x rework loop') dikunci di array locked_constraints dan tidak boleh diubah tanpa konfirmasi pengguna eksplisit."
+    - "Pelacakan Status FSM: Setiap subtask memiliki siklus status ketat (pending -> in_progress -> under_review -> done / blocked)."
+    - "Snapshot Portable: Konteks sesi dapat diekspor menjadi session-snapshot.json dan diimpor ke sesi chat atau proyek baru tanpa kehilangan progres."
+    - "Pruning Konteks Proaktif: Riwayat percakapan yang redundant dipangkas, sementara fakta keputusan disimpan permanen di dokumen state."
+  trade_offs:
+    advantages:
+      - "Eliminasi context drift 100% pada percakapan berdurasi panjang."
+      - "Pekerjaan dapat dilanjutkan kapan saja antar-device atau antar-sesi chat secara instan."
+    drawbacks:
+      - "Membutuhkan pembaruan state berkala setiap kali sub-tugas selesai atau berubah status."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-09-14T10:30:00Z"
+    test_evidence: "Diuji pada simulasi 15-turn task complex; tidak ada batasan terkunci yang dilanggar dan seluruh subtask terverifikasi lolos acceptance criteria."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-09-14T10:45:00Z"
+    fallacy_check_notes: "Solusi ini mematuhi prinsip State Machine deterministik. Menghilangkan asumsi bahwa LLM memiliki ingatan kontekstual tak terbatas tanpa eksternalisasi state."
+
+code_reference_or_snippet: |
+  // session-state schema snippet
+  {
+    "session_id": "sess-active-001",
+    "primary_goal": "Integrasi pipeline ML/CV ke Web & Mobile Apps",
+    "locked_constraints": [
+      "Reviewer independence wajib ditegakkan",
+      "Model export wajib menyertakan verifikasi ONNX & INT8 quantization"
+    ],
+    "subtasks": [
+      { "id": "task-001", "owner_role": "ml-vision-engineer", "status": "done" }
+    ]
+  }

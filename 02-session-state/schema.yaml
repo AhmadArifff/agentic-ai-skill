@@ -79,6 +79,7 @@ properties:
             - "copywriter"
             - "ai-engineer"
             - "domain-retriever"
+            - "ml-vision-engineer"
         depends_on:
           type: "array"
           items:
