@@ -1,0 +1,11 @@
+{
+  "name": "animejs-skill-runner",
+  "version": "1.0.0",
+  "description": "Animation engine runner for Anime.js",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}

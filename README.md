@@ -227,6 +227,11 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 | **threejs-shaders** | [`skills/threejs-shaders/`](./skills/threejs-shaders) | `frontend-engineer`, `ui-ux-designer` | Pemrograman GLSL ShaderMaterial kustom, uniform timing, per-vertex deformation, dan procedural noise. |
 | **threejs-textures** | [`skills/threejs-textures/`](./skills/threejs-textures) | `frontend-engineer`, `ui-ux-designer` | Manajemen tekstur (albedo, normal, bump, roughness, displacement), UV mapping, dan render targets. |
 | **ml-vision** | [`skills/ml-vision/`](./skills/ml-vision) | `ml-vision-engineer` | Machine Learning, Deep Learning & Vision: clustering (K-Means, DBSCAN), classification (LightGBM, XGBoost), PyTorch, YOLOv8/v11, ONNX INT8, FastAPI & WebGPU in-browser (4 referensi). |
+| **21st-dev** | [`skills/21st-dev/`](./skills/21st-dev) | `frontend-engineer`, `ui-ux-designer` | Open-source component registry for Design Engineers dari 21st.dev: spotlight cards, magnetic buttons, dock nav, noise grain overlay via `npx shadcn add "https://21st.dev/r/..."`. |
+| **react-bits** | [`skills/react-bits/`](./skills/react-bits) | `frontend-engineer`, `ui-ux-designer` | 100+ komponen animasi kreatif React & GSAP dari reactbits.dev: DecryptedText, ShinyText, Aurora/Hyperspeed backgrounds, card tilt, dan timeline GSAP (`npm install gsap @gsap/react`). |
+| **animejs** | [`skills/animejs/`](./skills/animejs) | `frontend-engineer`, `ui-ux-designer` | Engine animasi JavaScript ringan dan bertenaga tinggi via `npm install animejs`: SVG path drawing, SVG morphing, timeline choreography, dan staggered ripple grid 120fps. |
+| **untitled-ui** | [`skills/untitled-ui/`](./skills/untitled-ui) | `frontend-engineer`, `ui-ux-designer` | Arsitektur UI enterprise berbasis Untitled UI via `npx untitledui@latest init untitled-ui --nextjs --yes`: metric stat KPI cards, application shell, accessible data tables & SaaS dashboards. |
+| **animate-ui** | [`skills/animate-ui/`](./skills/animate-ui) | `frontend-engineer`, `ui-ux-designer` | Komponen interaktif modern Animate UI & shadcn via `npx shadcn@latest init -d --yes`: glowing pulse buttons, animated sliding tabs (`layoutId`), expandable accordion cards. |
 | **_jutsu** | [`skills/_jutsu/`](./skills/_jutsu) | `frontend-engineer`, `ui-ux-designer` | 15 sub-keahlian kreatif modular (canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native). |
 | **playwright** | [`skills/playwright/`](./skills/playwright) | `qa-engineer`, `user-test-professional` | Otomatisasi browser interaktif via Playwright MCP (24 tool), AXTree snapshots, visual screenshots, console & network monitoring. |
 | **graphify** | [`skills/graphify/`](./skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
@@ -256,6 +261,13 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
 
    # 5. Machine Learning, Deep Learning & Vision Engine
    node skills/ml-vision/bootstrap.js
+
+   # 6. Creative UI, Registry & Animation Suite
+   node skills/21st-dev/bootstrap.js
+   node skills/react-bits/bootstrap.js
+   node skills/animejs/bootstrap.js
+   node skills/untitled-ui/bootstrap.js
+   node skills/animate-ui/bootstrap.js
    ```
    Script ini secara otomatis memeriksa runtime Node.js dan Python, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
 2. **Panduan Operasional Mandiri**:
@@ -265,6 +277,11 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    - [`skills/shadcn-ui/DEVICE_BOOTSTRAP.md`](./skills/shadcn-ui/DEVICE_BOOTSTRAP.md)
    - [`skills/magic-ui/DEVICE_BOOTSTRAP.md`](./skills/magic-ui/DEVICE_BOOTSTRAP.md)
    - [`skills/ml-vision/DEVICE_BOOTSTRAP.md`](./skills/ml-vision/DEVICE_BOOTSTRAP.md)
+   - [`skills/21st-dev/SKILL.md`](./skills/21st-dev/SKILL.md)
+   - [`skills/react-bits/SKILL.md`](./skills/react-bits/SKILL.md)
+   - [`skills/animejs/SKILL.md`](./skills/animejs/SKILL.md)
+   - [`skills/untitled-ui/SKILL.md`](./skills/untitled-ui/SKILL.md)
+   - [`skills/animate-ui/SKILL.md`](./skills/animate-ui/SKILL.md)
 3. **Pembelajaran Progresif (*Progressive Disclosure*)**:
    Agen baru mempelajari dasar melalui `SKILL.md`, mendalami helpers/pola di folder `references/`, dan hanya membuka referensi API lengkap saat menangani kasus tingkat lanjut.
 

@@ -1,0 +1,11 @@
+{
+  "name": "untitled-ui-skill-runner",
+  "version": "1.0.0",
+  "description": "Design system and component runner for Untitled UI React & Next.js",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}

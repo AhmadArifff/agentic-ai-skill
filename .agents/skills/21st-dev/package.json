@@ -1,0 +1,11 @@
+{
+  "name": "21st-dev-skill-runner",
+  "version": "1.0.0",
+  "description": "Component registry runner and patterns for 21st.dev",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}

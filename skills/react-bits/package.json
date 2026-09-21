@@ -1,0 +1,11 @@
+{
+  "name": "react-bits-skill-runner",
+  "version": "1.0.0",
+  "description": "Component runner for React Bits and GSAP animations",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}

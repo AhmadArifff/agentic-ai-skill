@@ -1,0 +1,11 @@
+{
+  "name": "animate-ui-skill-runner",
+  "version": "1.0.0",
+  "description": "Component runner for Animate UI and animated shadcn primitives",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "author": "Ahmad Arif",
+  "license": "MIT"
+}
