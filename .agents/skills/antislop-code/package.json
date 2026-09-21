@@ -1,0 +1,15 @@
+{
+  "name": "@agentic/skill-antislop-code",
+  "version": "3.2.11",
+  "description": "Code comment hygiene for AI coding agents: remove generic AI comments, preserve architectural reasons.",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "keywords": [
+    "antislop-code",
+    "code-hygiene",
+    "clean-comments"
+  ],
+  "license": "MIT"
+}

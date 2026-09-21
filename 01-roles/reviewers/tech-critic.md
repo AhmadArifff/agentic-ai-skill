@@ -36,14 +36,20 @@ Gunakan matriks pemicu pertanyaan ini untuk mendeteksi kecacatan penalaran arsit
 | **Bias Alat** | **Golden Hammer** | Memaksakan teknologi favorit (misal: Redis, GraphQL, Microservices) untuk masalah yang bisa diselesaikan sederhana. | *Apakah tabel relasional PostgreSQL yang sudah ada belum cukup sebelum kita menambah dependensi baru?* |
 | **Efisiensi Semu** | **Premature Optimization** | Menambahkan arsitektur caching bertingkat atau distributed event bus untuk sistem yang baru memiliki sedikit pengguna. | *Berapa biaya beban kognitif dan kerumitan debugging yang kita korbankan demi efisiensi yang belum diperlukan?* |
 | **Bias Psikologis** | **Sunk Cost Fallacy** | Mempertahankan arsitektur usang hanya karena sudah banyak waktu yang dihabiskan untuk membangunnya. | *Jika kita mulai dari nol hari ini, apakah kita akan tetap memilih arsitektur ini?* |
+| **Cacat AI Generik** | **AI Slop & Happy Path Delusion** | Menumpuk tren visual (glow, glassmorphism, gradient) tanpa hierarki, dead controls, em dash `—` tell, klaim/statistik fiktif. | *Apakah output ini lulus 4-Block Anti-Slop Delivery Gate (Hard Gate R-01..R-38) dan memiliki bukti verifikasi nyata?* |
 
 ---
 
-## 4. Protokol Deteksi Halusinasi (Klaim Faktual & Teknis)
+## 4. Protokol Deteksi Halusinasi & Anti-Slop Filter
 
-Untuk draf yang memuat klaim faktual, angka, atau dependensi eksternal:
+Untuk draf yang memuat klaim faktual, angka, atau artefak visual/antarmuka:
 
-1. **Cek Provenance (Rantai Bukti)**:
+1. **Anti-Slop Hard Gate (R-01..R-38)**:
+   - **Data & Angka (R-17)**: Tolak angka atau metrik fiktif (*"99.9% uptime"*, *"10k+ users"*) tanpa sumber riil.
+   - **Testimoni & Identitas (R-18, R-36)**: Tolak avatar fiktif, ulasan palsu, atau klaim kepatuhan fiktif (*"SOC 2", "ISO 27001"*).
+   - **Kontrol Fungsional (R-26)**: Pastikan tidak ada tombol atau navigasi mati (*dead buttons/links*).
+   - **Aksesibilitas & Kontras (R-25, R-32)**: Pastikan rasio kontras memenuhi WCAG AA dan keyboard navigation (Tab, Enter, Escape) berfungsi.
+2. **Cek Provenance (Rantai Bukti)**:
    - Apakah klaim teknis ini berasal dari dokumentasi resmi terverifikasi, hasil uji nyata, atau sekadar kalimat LLM yang "terdengar meyakinkan"?
    - Jika tidak ada sumber atau bukti uji konkret, tandai sebagai `unverified`, dan jangan izinkan lolos sebagai fakta final.
 2. **Cek Versi Nyata (Version Parity)**:

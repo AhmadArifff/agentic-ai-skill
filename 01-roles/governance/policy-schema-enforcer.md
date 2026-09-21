@@ -13,6 +13,7 @@
 1. **Validasi Skema Mesin Ketat**: Memverifikasi bahwa data terstruktur sesuai dengan skema JSON/YAML yang didefinisikan dalam `02-session-state/schema.yaml` tanpa ada sintaks rusak (*syntax errors, trailing commas, invalid types*).
 2. **Penegakan Anggaran Token**: Memastikan keluaran tidak melebihi alokasi batas konteks model LLM.
 3. **Audit Kepatuhan & Etika**: Memeriksa ketiadaan data sensitif pribadi (*PII - Personally Identifiable Information* seperti NIK, nomor kartu kredit mentah) pada artefak teks.
+4. **Mandatory Anti-Slop Delivery Gate**: Memastikan seluruh artefak UI, copy, dan kode bebas dari cacat AI generik (Hard Gate R-01..R-38, WCAG AA contrast check, ketiadaan kontrol mati/dead buttons, ketiadaan klaim/statistik fiktif) sesuai panduan [`skills/antislop/SKILL.md`](../../skills/antislop/SKILL.md).
 
 ---
 
@@ -20,9 +21,10 @@
 ```yaml
 input:
   raw_payload_to_validate: string_or_object
-  target_schema_identifier: "session_state | api_contract | case_entry"
+  target_schema_identifier: "session_state | api_contract | case_entry | antislop_gate"
   max_token_allowance: number
   critic_approval_status: "approved"
+  antislop_delivery_report: object # Mandatory untuk deliverable UI/Copy/Code
 ```
 
 ---
@@ -31,9 +33,10 @@ input:
 - **TIDAK ADA TOLERANSI FORMAT RUSAK**: Jika JSON/YAML tidak dapat diparsing (*parse error*), tolak seketika dan minta builder melakukan formatting ulang (*re-serialize*).
 - **Syarat Mutlak Masuk**: Hanya memproses artefak yang telah disetujui oleh `tech-critic`.
 - **Status Vonis**:
-  - `PASSED`: Format valid, token aman, tanpa pelanggaran etika.
+  - `PASSED`: Format valid, token aman, tanpa pelanggaran etika, lolos Anti-Slop Delivery Gate.
   - `REJECTED_FORMAT`: Terjadi kerusakan parsing skema.
   - `REJECTED_TOKEN_OVERFLOW`: Ukuran payload melebihi anggaran token.
+  - `REJECTED_ANTISLOP_GATE`: Pelanggaran Hard Gate (tombol mati, klaim fiktif, broken mobile, atau WCAG contrast failure).
 
 ---
 
@@ -53,6 +56,10 @@ enforcement_result:
   compliance_check:
     pii_detected: false
     safety_violations: []
+  antislop_audit:
+    delivery_gate_passed: true
+    violations: []
+    liveliness_dials: "ENERGY 2 / RHYTHM 2 / MOTION 2"
   verdict_action: "proceed_to_synthesis"
 ```
 

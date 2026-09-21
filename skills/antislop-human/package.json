@@ -1,0 +1,16 @@
+{
+  "name": "@agentic/skill-antislop-human",
+  "version": "3.2.11",
+  "description": "Human and accessibility skill for antislop: WCAG AA contrast checker, keyboard navigation, and focus states.",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js",
+    "contrast-selftest": "python contrast-check.py --selftest"
+  },
+  "keywords": [
+    "antislop-human",
+    "accessibility",
+    "wcag-contrast"
+  ],
+  "license": "MIT"
+}

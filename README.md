@@ -232,6 +232,12 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 | **animejs** | [`skills/animejs/`](./skills/animejs) | `frontend-engineer`, `ui-ux-designer` | Engine animasi JavaScript ringan dan bertenaga tinggi via `npm install animejs`: SVG path drawing, SVG morphing, timeline choreography, dan staggered ripple grid 120fps. |
 | **untitled-ui** | [`skills/untitled-ui/`](./skills/untitled-ui) | `frontend-engineer`, `ui-ux-designer` | Arsitektur UI enterprise berbasis Untitled UI via `npx untitledui@latest init untitled-ui --nextjs --yes`: metric stat KPI cards, application shell, accessible data tables & SaaS dashboards. |
 | **animate-ui** | [`skills/animate-ui/`](./skills/animate-ui) | `frontend-engineer`, `ui-ux-designer` | Komponen interaktif modern Animate UI & shadcn via `npx shadcn@latest init -d --yes`: glowing pulse buttons, animated sliding tabs (`layoutId`), expandable accordion cards. |
+| **antislop** | [`skills/antislop/`](./skills/antislop) | `policy-gate`, `tech-critic`, `qa-engineer` | Core filter anti-slop AI dengan 38 aturan mutlak (R-01..R-38), Liveliness Toolkit (3 dials: ENERGY, RHYTHM, MOTION), Craftsmanship C-1..C-5, dan Mandatory Delivery Gate PASS/FAIL report 4-blok. |
+| **antislop-ui** | [`skills/antislop-ui/`](./skills/antislop-ui) | `frontend-engineer`, `ui-ux-designer` | Spesialisasi filter visual & layout: Purpose-Gate R-01..R-22, pembatasan dosis (dose caps) glow/glassmorphism, eliminasi bento grid seragam, dan penegakan hierarki konten riil. |
+| **antislop-copywriting** | [`skills/antislop-copywriting/`](./skills/antislop-copywriting) | `copywriter`, `tech-critic` | Filter copywriting & teks: eliminasi buzzwords AI ("seamless", "revolutionary"), larangan mutlak em dash `—` (R-02), CTA spesifik konteks, dan anti-fictional claims. |
+| **antislop-human** | [`skills/antislop-human/`](./skills/antislop-human) | `qa-engineer`, `user-test-professional` | Aksesibilitas manusia & uji kontras: skrip kalkulator kontras matematis `contrast-check.py` (WCAG AA 4.5:1 / 3:1), keyboard navigation (Tab/Escape), dan kelengkapan state (empty, loading, error). |
+| **antislop-layoutmobile** | [`skills/antislop-layoutmobile/`](./skills/antislop-layoutmobile) | `frontend-engineer`, `qa-engineer` | Tata letak responsif ponsel & multi-breakpoint: eliminasi kebocoran overflow horizontal (R-03), pembatasan tap target minimum 44px, dan adaptasi fluid grid. |
+| **antislop-code** | [`skills/antislop-code/`](./skills/antislop-code) | `code-reviewer`, `tech-critic` | Higienitas komentar kode: menghapus komentar AI redundan dan hampa, serta mempertahankan komentar arsitektural esensial (*why, not what*). |
 | **_jutsu** | [`skills/_jutsu/`](./skills/_jutsu) | `frontend-engineer`, `ui-ux-designer` | 15 sub-keahlian kreatif modular (canvas-generative, compose-motion, swiftui-motion, threejs-r3f, gsap, css-native). |
 | **playwright** | [`skills/playwright/`](./skills/playwright) | `qa-engineer`, `user-test-professional` | Otomatisasi browser interaktif via Playwright MCP (24 tool), AXTree snapshots, visual screenshots, console & network monitoring. |
 | **graphify** | [`skills/graphify/`](./skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
@@ -268,6 +274,14 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    node skills/animejs/bootstrap.js
    node skills/untitled-ui/bootstrap.js
    node skills/animate-ui/bootstrap.js
+
+   # 7. Anti-Slop Filter & Delivery Gate Suite
+   node skills/antislop/bootstrap.js
+   node skills/antislop-ui/bootstrap.js
+   node skills/antislop-copywriting/bootstrap.js
+   node skills/antislop-human/bootstrap.js
+   node skills/antislop-layoutmobile/bootstrap.js
+   node skills/antislop-code/bootstrap.js
    ```
    Script ini secara otomatis memeriksa runtime Node.js dan Python, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
 2. **Panduan Operasional Mandiri**:
@@ -282,6 +296,12 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    - [`skills/animejs/SKILL.md`](./skills/animejs/SKILL.md)
    - [`skills/untitled-ui/SKILL.md`](./skills/untitled-ui/SKILL.md)
    - [`skills/animate-ui/SKILL.md`](./skills/animate-ui/SKILL.md)
+   - [`skills/antislop/SKILL.md`](./skills/antislop/SKILL.md)
+   - [`skills/antislop-ui/SKILL.md`](./skills/antislop-ui/SKILL.md)
+   - [`skills/antislop-copywriting/SKILL.md`](./skills/antislop-copywriting/SKILL.md)
+   - [`skills/antislop-human/SKILL.md`](./skills/antislop-human/SKILL.md)
+   - [`skills/antislop-layoutmobile/SKILL.md`](./skills/antislop-layoutmobile/SKILL.md)
+   - [`skills/antislop-code/SKILL.md`](./skills/antislop-code/SKILL.md)
 3. **Pembelajaran Progresif (*Progressive Disclosure*)**:
    Agen baru mempelajari dasar melalui `SKILL.md`, mendalami helpers/pola di folder `references/`, dan hanya membuka referensi API lengkap saat menangani kasus tingkat lanjut.
 

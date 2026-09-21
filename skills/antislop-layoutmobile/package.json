@@ -1,0 +1,15 @@
+{
+  "name": "@agentic/skill-antislop-layoutmobile",
+  "version": "3.2.11",
+  "description": "Mobile layout skill for antislop: reflow, breakpoints, overflow prevention, and tap targets >= 44px.",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "keywords": [
+    "antislop-layoutmobile",
+    "responsive-filter",
+    "mobile-tap-targets"
+  ],
+  "license": "MIT"
+}

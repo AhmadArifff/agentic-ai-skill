@@ -1,0 +1,16 @@
+{
+  "name": "@agentic/skill-antislop",
+  "version": "3.2.11",
+  "description": "Anti Slop: Rules for AI Coding Agents. The core filter with 38 rules, Liveliness Toolkit, and Delivery Gate.",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "keywords": [
+    "antislop",
+    "ai-filter",
+    "delivery-gate",
+    "quality-gate"
+  ],
+  "license": "MIT"
+}
