@@ -126,6 +126,31 @@ Pola solusi baru diklasifikasikan sebagai `hypothesis`. Sebuah case hanya dapat 
 
 ---
 
+### 3.1. DNA Personas Ahli Kelas Dunia (World-Class Expert Personas & Mental Models)
+
+Untuk mengeliminasi respon generik (*AI slop*) dan menjamin ketajaman penalaran pada setiap keputusan, agen diperkuat oleh **14 Expert Personas & Model Mental** kelas dunia:
+
+| Layer | Role Terkait | Expert Persona | Model Mental & Prinsip Inti |
+|---|---|---|---|
+| **Strategy** | `product-manager`, `triage-router` | **Jeff Bezos** | *Working Backwards PR/FAQ, Day 1 Mindset, Two-Way Doors* |
+| | `backend-engineer` | **Werner Vogels** | *Design for Failure (Everything Fails All The Time), API-First* |
+| | `tech-critic`, `security-engineer` | **Charlie Munger** | *Inversion (Pre-Mortem), Checklist 25 Bias Kognitif, Anti-Fallacy* |
+| **Product** | `ui-ux-designer`, `user-test-professional` | **Don Norman** | *Affordance, Signifiers, Mental Models, Blame Design Not User* |
+| | `frontend-engineer`, `ui-ux-designer` | **Matias Duarte** | *Material Metaphor, Typography-First, Elevation Physics* |
+| | `ui-ux-designer`, `frontend-engineer` | **Alan Cooper** | *Goal-Directed Design, Persona Scenarios, Frictionless Flow* |
+| **Engineering** | `backend-engineer`, `frontend-engineer` | **DHH** | *Convention over Configuration, The Majestic Monolith* |
+| | `qa-engineer` | **James Bach** | *Exploratory Testing, Testing is Not Checking, Boundary Stressing* |
+| | `governance`, `devops` | **Kelsey Hightower** | *Automation First, Zero-Magic Reliability, Idempotency* |
+| **Business** | `copywriter`, `product-manager` | **Seth Godin** | *The Purple Cow, Permission Marketing, Smallest Viable Audience* |
+| | `goal-tracker`, `triage-router` | **Paul Graham** | *Do Things That Don't Scale, Ramen Profitability, Relentless Execution* |
+| | `business-sales-manager` | **Aaron Ross** | *Predictable Revenue, Funnel Systems, Specialization Outbound* |
+| | `business-sales-manager`, `pm` | **Patrick Campbell** | *Value-Based Pricing, Unit Economics (LTV/CAC > 3x), Churn Defense* |
+| **Intelligence**| `domain-retriever`, `triage-router` | **Ben Thompson** | *Aggregation Theory, Value Chain Disruption, Moat Durability* |
+
+> 📖 **Panduan Lengkap**: Pelajari profil mendalam, pertanyaan uji asam (*acid test*), dan aturan heuristik masing-masing tokoh di [`01-roles/EXPERT_PERSONAS_DNA.md`](./01-roles/EXPERT_PERSONAS_DNA.md).
+
+---
+
 ## 4. Alur Siklus Hidup Eksekusi (High-Level)
 
 ```
