@@ -1,0 +1,21 @@
+{
+  "name": "@agentic/skill-3d-configurator-simulator",
+  "version": "1.0.0",
+  "description": "3D WebGL Configurator & Biomechanical Prosthesis Simulator knowledge skill with DracoLoader, Three.js, kinematics, and clean HTML5 HUD overlays.",
+  "main": "bootstrap.js",
+  "scripts": {
+    "bootstrap": "node bootstrap.js"
+  },
+  "keywords": [
+    "Three.js",
+    "WebGL",
+    "3D",
+    "Simulator",
+    "Configurator",
+    "Prosthesis",
+    "Interactive",
+    "Draco",
+    "HTML"
+  ],
+  "license": "MIT"
+}

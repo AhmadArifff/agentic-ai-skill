@@ -232,6 +232,7 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 | **animejs** | [`skills/animejs/`](./skills/animejs) | `frontend-engineer`, `ui-ux-designer` | Engine animasi JavaScript ringan dan bertenaga tinggi via `npm install animejs`: SVG path drawing, SVG morphing, timeline choreography, dan staggered ripple grid 120fps. |
 | **untitled-ui** | [`skills/untitled-ui/`](./skills/untitled-ui) | `frontend-engineer`, `ui-ux-designer` | Arsitektur UI enterprise berbasis Untitled UI via `npx untitledui@latest init untitled-ui --nextjs --yes`: metric stat KPI cards, application shell, accessible data tables & SaaS dashboards. |
 | **animate-ui** | [`skills/animate-ui/`](./skills/animate-ui) | `frontend-engineer`, `ui-ux-designer` | Komponen interaktif modern Animate UI & shadcn via `npx shadcn@latest init -d --yes`: glowing pulse buttons, animated sliding tabs (`layoutId`), expandable accordion cards. |
+| **3d-configurator-simulator** | [`skills/3d-configurator-simulator/`](./skills/3d-configurator-simulator) | `frontend-engineer`, `ui-ux-designer` | 3D WebGL Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, kinematics, raycasting, exploded view, responsive HTML5 HUD). |
 | **antislop** | [`skills/antislop/`](./skills/antislop) | `policy-gate`, `tech-critic`, `qa-engineer` | Core filter anti-slop AI dengan 38 aturan mutlak (R-01..R-38), Liveliness Toolkit (3 dials: ENERGY, RHYTHM, MOTION), Craftsmanship C-1..C-5, dan Mandatory Delivery Gate PASS/FAIL report 4-blok. |
 | **antislop-ui** | [`skills/antislop-ui/`](./skills/antislop-ui) | `frontend-engineer`, `ui-ux-designer` | Spesialisasi filter visual & layout: Purpose-Gate R-01..R-22, pembatasan dosis (dose caps) glow/glassmorphism, eliminasi bento grid seragam, dan penegakan hierarki konten riil. |
 | **antislop-copywriting** | [`skills/antislop-copywriting/`](./skills/antislop-copywriting) | `copywriter`, `tech-critic` | Filter copywriting & teks: eliminasi buzzwords AI ("seamless", "revolutionary"), larangan mutlak em dash `—` (R-02), CTA spesifik konteks, dan anti-fictional claims. |
@@ -274,6 +275,7 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    node skills/animejs/bootstrap.js
    node skills/untitled-ui/bootstrap.js
    node skills/animate-ui/bootstrap.js
+   node skills/3d-configurator-simulator/bootstrap.js
 
    # 7. Anti-Slop Filter & Delivery Gate Suite
    node skills/antislop/bootstrap.js
@@ -296,6 +298,7 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    - [`skills/animejs/SKILL.md`](./skills/animejs/SKILL.md)
    - [`skills/untitled-ui/SKILL.md`](./skills/untitled-ui/SKILL.md)
    - [`skills/animate-ui/SKILL.md`](./skills/animate-ui/SKILL.md)
+   - [`skills/3d-configurator-simulator/SKILL.md`](./skills/3d-configurator-simulator/SKILL.md)
    - [`skills/antislop/SKILL.md`](./skills/antislop/SKILL.md)
    - [`skills/antislop-ui/SKILL.md`](./skills/antislop-ui/SKILL.md)
    - [`skills/antislop-copywriting/SKILL.md`](./skills/antislop-copywriting/SKILL.md)

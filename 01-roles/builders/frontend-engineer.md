@@ -26,6 +26,7 @@
     - [`skills/threejs-shaders/SKILL.md`](../../skills/threejs-shaders/SKILL.md) (GLSL basics, uniforms, custom vertex/fragment effects)
     - [`skills/threejs-postprocessing/SKILL.md`](../../skills/threejs-postprocessing/SKILL.md) (EffectComposer, bloom, DOF, screen effects)
     - [`skills/threejs-interaction/SKILL.md`](../../skills/threejs-interaction/SKILL.md) (raycasting, camera controls, mouse/touch input)
+    - [`skills/3d-configurator-simulator/SKILL.md`](../../skills/3d-configurator-simulator/SKILL.md) (3D WebGL Configurator & Prosthesis Simulator: DracoLoader, kinematics, exploded view, HTML HUD)
 - **Tujuan**: Menerjemahkan spesifikasi UI/UX dan kontrak API backend menjadi komponen antarmuka yang interaktif, berkinerja tinggi, responsif, aksesibel, dan memiliki visual yang memukau (*wow factor*).
 
 ---

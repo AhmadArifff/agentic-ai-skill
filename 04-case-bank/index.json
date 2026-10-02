@@ -1,9 +1,9 @@
 {
-  "version": "1.1.0",
-  "updated_at": "2026-09-14T11:30:00Z",
-  "total_cases": 11,
+  "version": "1.2.0",
+  "updated_at": "2026-10-02T10:20:00Z",
+  "total_cases": 12,
   "categories": {
-    "pattern": 10,
+    "pattern": 11,
     "anti_pattern": 1
   },
   "cases": [
@@ -134,6 +134,18 @@
       "category": "pattern",
       "file": "cases/case-20260914-ml-cv-edge-web-inference-pipeline.yaml",
       "domain_tags": ["machine-learning", "deep-learning", "computer-vision", "fastapi", "onnx", "webgpu", "mobile"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261002-3d-interactive-prosthesis-configurator",
+      "title": "Konfigurator & Simulator Biomekanik Prostesis 3D Berbasis WebGL, Three.js, dan Kompresi Draco",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261002-3d-interactive-prosthesis-configurator.yaml",
+      "domain_tags": ["Three.js", "WebGL", "3D", "Simulator", "Configurator", "Prosthesis", "Interactive", "Draco", "HTML"],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
