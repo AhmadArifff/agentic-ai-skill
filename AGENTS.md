@@ -77,9 +77,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 40 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 41 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 40 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 41 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI & Component Registry Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -108,8 +108,9 @@ Seluruh agen dapat memanfaatkan 40 skill terdaftar di `skills/` dan `~/.gemini/c
    - `antislop-human`: Aksesibilitas WCAG AA, skrip pemeriksa kontras matematis `contrast-check.py`, keyboard navigation.
    - `antislop-layoutmobile`: Layout responsif ponsel, eliminasi kebocoran overflow horizontal (R-03), tap target $\ge$ 44px.
    - `antislop-code`: Higienitas komentar kode, penghapusan komentar AI redundan.
-6. **Core Software Engineering & Verification**:
+6. **Core Software Engineering, Reporting & Verification**:
    - `backend`, `frontend`, `pm`, `qa`, `playwright`, `playwright-skill`, `graphify`, `goal-tracker`, `tech-critic`.
+   - `excel-export`: Pipeline ekspor data tabular performa tinggi (FastExcel / FastXlsxWriter streaming vs PhpSpreadsheet, auto column sizing, number formatting, anti-OOM).
 
 ---
 
@@ -120,3 +121,28 @@ Sebelum deliverable diserahkan kepada pengguna, agen wajib memvalidasi ketiadaan
 - **Block 2: Purpose-Gate**: Seluruh teknik visual (gradient, glow, shadow, glassmorphism, background pattern, animasi) memiliki alasan fungsi/hierarki tertulis 1 kalimat (R-31) dan mematuhi batasan dosis (*dose caps*).
 - **Block 3: Liveliness**: Menetapkan dial eksplisit (ENERGY 1-3, RHYTHM 1-3, MOTION 1-3) dan memastikan komposisi bervariasi sesuai identitas brand.
 - **Block 4: Craftsmanship (C-1 s.d C-5)**: Desain didorong oleh kebutuhan konten riil (*content-driven composition*), berdaya tahan di semua state (*empty, loading, error*), dan bebas dari kloningan produk populer tanpa instruksi eksplisit.
+
+---
+
+## 6. Basis Pengetahuan Enterprise: Rules, Workflows & Production Case-Bank
+
+Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rules/`, `workflows/`, dan `knowledge/`:
+
+1. **Enterprise Guardrails & Rules (`rules/` & `.agents/rules/`)**:
+   - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, dan isolasi kredensial rahasia.
+   - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), validasi FormRequest terpisah, transactional safety, dan guard clause early exit.
+   - `20-database-standards.md`: Standar konvensi tabel, indeks foreign key komposit, isolasi soft-delete query, dan eliminasi N+1 problem.
+   - `30-frontend-standards.md`: Arsitektur Single Unified Table (zero double-scroll DataTables), dynamic resize listener, dan DOM memory cleanup.
+   - `40-security-standards.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
+   - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing).
+2. **Standard Operating Workflows (`workflows/` & `.agents/workflows/`)**:
+   - `task-review-protocol.md`: 7 Pilar Evaluasi sebelum pengembangan (Scope, Schema impact, Security, Performance, UX impact, Edge cases, Rollback plan).
+   - `new-module.md`: Siklus hidup pembuatan modul enterprise (Migration -> Model -> Repo -> Service -> Controller -> Views -> E2E Test).
+   - `new-report.md`: Standar implementasi laporan tabular/finansial (Filter bar -> Fast query -> DataTables DOM -> Streaming export).
+   - `add-db-column.md`: Modifikasi skema basis data produksi aman tanpa downtime (*backward compatible*).
+   - `fix-403.md`: Root cause analysis dan resolusi izin/akses ditolak (RBAC/Policy audit).
+   - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
+3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
+   - `case-20261002-softdelete-credential-regeneration.yaml`: Pemulihan akun soft-delete dengan regenerasi kredensial otomatis & audit trail.
+   - `case-20261002-datatables-single-table-alignment.yaml`: Arsitektur Single Unified Table untuk eliminasi double-scroll & misalignment DataTables.
+   - `case-20261002-cross-database-settlement-reporting.yaml`: Kueri laporan settlement multi-database aman & ekspor streaming FastExcel anti-OOM.

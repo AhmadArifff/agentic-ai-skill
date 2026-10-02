@@ -1,0 +1,56 @@
+case_id: "case-20261002-datatables-single-table-alignment"
+title: "Pencegahan Double-Scroll & Ketidaksejajaran Border Kolom pada Tabel DataTables Laporan"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-10-02T10:32:00Z"
+last_validated: "2026-10-02T10:35:00Z"
+
+domain_tags:
+  - "frontend"
+  - "ui"
+  - "datatables"
+  - "css"
+  - "reporting"
+
+context_and_problem:
+  description: "Pada tabel laporan kompleks dengan header bertingkat (rowspan & colspan) dan baris total akumulasi (tfoot), garis vertikal pemisah kolom sering bergeser beberapa piksel dan muncul dua scrollbar horizontal yang merusak estetika dan keterbacaan data finansial."
+  symptoms_or_triggers:
+    - "Pembungkus .table-responsive pada template Blade bersaing dengan kalkulasi internal scrollX DataTables."
+    - "Scrollbar horizontal muncul di bagian paling bawah tabel, menyebabkan pengguna harus menggulir melewati ratusan baris hanya untuk melihat total tfoot di sisi kanan."
+
+proposed_solution:
+  summary: "Gunakan arsitektur Single Unified Table tanpa .table-responsive di Blade, tempatkan table langsung dalam card-body, terapkan padding sel eksplisit, dan sinkronkan scroll 3-arah (scrollHead, scrollBody, scrollFoot)."
+  key_mechanisms:
+    - "Hapus kelas .table-responsive; gunakan DataTables scrollX: true dengan container width: 100%."
+    - "Terapkan padding horizontal sel: padding-left: 0.3rem !important; padding-right: 0.3rem !important; agar border vertikal thead, tbody, dan tfoot sejajar 100%."
+    - "Posisi scrollbar horizontal diletakkan di atas tfoot sehingga ringkasan finansial selalu terlihat."
+  trade_offs:
+    advantages:
+      - "Eliminasi glitch double-scrollbar permanen."
+      - "Keterbacaan laporan audit finansial akurat dan sejajar pada semua resolusi layar."
+    drawbacks:
+      - "Memerlukan penyesuaian CSS global khusus untuk DataTables scroll container."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-10-02T10:33:00Z"
+    test_evidence: "Diuji pada laporan closing dengan 25 kolom; scrollbar horizontal berfungsi tunggal dan garis batas vertikal kolom header sejajar 100% dengan total akumulasi."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-10-02T10:35:00Z"
+    fallacy_check_notes: "Solusi ini mematuhi prinsip anti-slop (C-4 Resilience & R-03 Mobile/Responsive Integrity) dan menghindari CSS hack liar."
+
+code_reference_or_snippet: |
+  /* Standar Single Unified Table CSS */
+  .table-report th, .table-report td {
+      padding-left: 0.35rem !important;
+      padding-right: 0.35rem !important;
+      white-space: nowrap;
+  }
+  .dataTables_scrollFoot {
+      position: sticky;
+      bottom: 0;
+      background: #f8fafc;
+      z-index: 5;
+  }

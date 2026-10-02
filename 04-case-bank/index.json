@@ -1,9 +1,9 @@
 {
   "version": "1.2.0",
   "updated_at": "2026-10-02T10:20:00Z",
-  "total_cases": 12,
+  "total_cases": 15,
   "categories": {
-    "pattern": 11,
+    "pattern": 14,
     "anti_pattern": 1
   },
   "cases": [
@@ -146,6 +146,42 @@
       "category": "pattern",
       "file": "cases/case-20261002-3d-interactive-prosthesis-configurator.yaml",
       "domain_tags": ["Three.js", "WebGL", "3D", "Simulator", "Configurator", "Prosthesis", "Interactive", "Draco", "HTML"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261002-softdelete-credential-regeneration",
+      "title": "Pemulihan Akun Karyawan Soft-Deleted dengan Regenerasi Kredensial Otomatis",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261002-softdelete-credential-regeneration.yaml",
+      "domain_tags": ["backend", "database", "soft-delete", "auth", "credential-generation", "audit-trail"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261002-datatables-single-table-alignment",
+      "title": "Arsitektur Single Unified Table untuk Eliminasi Double-Scroll & Misalignment DataTables Enterprise",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261002-datatables-single-table-alignment.yaml",
+      "domain_tags": ["frontend", "datatables", "responsive", "css", "layout", "ux"],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261002-cross-database-settlement-reporting",
+      "title": "Kueri Laporan Settlement Multi-Database Aman & Ekspor Streaming FastExcel Anti-OOM",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261002-cross-database-settlement-reporting.yaml",
+      "domain_tags": ["backend", "database", "cross-database", "excel-export", "streaming", "memory-optimization"],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"

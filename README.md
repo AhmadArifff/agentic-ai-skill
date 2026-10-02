@@ -244,6 +244,7 @@ Setiap peran dalam framework ini diperkuat secara langsung oleh skill terdaftar 
 | **graphify** | [`skills/graphify/`](./skills/graphify) | `domain-retriever`, `triage-router` | Ekstraksi persistent knowledge graph, penelusuran arsitektur codebase, deteksi god nodes, dan community analysis. |
 | **goal-tracker** | [`skills/goal-tracker/`](./skills/goal-tracker) | `goal-tracker` | Single Source of Truth, OODA session state management, constraint locking, dan deteksi konflik/scope-creep. |
 | **tech-critic** | [`skills/tech-critic/`](./skills/tech-critic) | `tech-critic` | Prinsip steelman, checklist deteksi logical fallacy & bias, audit halusinasi faktual/versi, dan gerbang Dual-Approval Case-Bank. |
+| **excel-export** | [`skills/excel-export/`](./skills/excel-export) | `backend-engineer`, `qa-engineer` | Fast Excel export pipeline (FastExcel / FastXlsxWriter streaming vs PhpSpreadsheet, auto column sizing, number formatting, anti-OOM). |
 
 ---
 
@@ -284,6 +285,9 @@ Saat codebase ini dipindahkan atau di-clone ke perangkat baru (laptop lain, serv
    node skills/antislop-human/bootstrap.js
    node skills/antislop-layoutmobile/bootstrap.js
    node skills/antislop-code/bootstrap.js
+
+   # 8. High-Performance Reporting & Data Pipeline
+   node skills/excel-export/bootstrap.js
    ```
    Script ini secara otomatis memeriksa runtime Node.js dan Python, menginstal dependensi lokal, mengunduh browser binaries (Chromium), memverifikasi ekspor API, dan memvalidasi CLI registry runner.
 2. **Panduan Operasional Mandiri**:
@@ -352,7 +356,7 @@ Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organiz
    # Memvalidasi integritas katalog case-bank
    npm run case:validate
    ```
-3. **Katalog Kasus Terverifikasi Saat Ini (11 Verified Cases)**:
+3. **Katalog Kasus Terverifikasi Saat Ini (15 Verified Cases)**:
    - `case-20260903-httponly-cookie-auth`: Autentikasi aman via Cookie HttpOnly SameSite=Strict.
    - `case-20260907-cross-device-autonomous-bootstrap`: Pemasangan mandiri skill lintas OS (zero-config).
    - `case-20260907-relative-path-portability`: Portabilitas tautan relatif untuk repositori GitHub.
@@ -364,10 +368,35 @@ Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organiz
    - `case-20260914-single-door-triage-routing`: Single Door Policy routing semantik tanpa tagging manual.
    - `case-20260914-reviewer-independence-anti-hallucination`: Pemisahan peran Builder dan Reviewer (anti echo-chamber).
    - `case-20260914-ml-cv-edge-web-inference-pipeline`: Inferensi hibrida FastAPI backend vs in-browser ONNX WebGPU.
+   - `case-20261002-3d-interactive-prosthesis-configurator`: WebGL Three.js, kompresi Draco, kinematics prosthesis simulator, dan HTML5 HUD.
+   - `case-20261002-softdelete-credential-regeneration`: Pemulihan akun soft-delete dengan regenerasi kredensial otomatis & audit trail.
+   - `case-20261002-datatables-single-table-alignment`: Arsitektur Single Unified Table untuk eliminasi double-scroll & misalignment DataTables.
+   - `case-20261002-cross-database-settlement-reporting`: Kueri laporan settlement multi-database aman & ekspor streaming FastExcel anti-OOM.
 
 ---
 
-## 10. Lisensi
+## 10. Basis Pengetahuan Enterprise: Rules & Workflows (`rules/` & `workflows/`)
+
+Framework ini mewarisi aturan rekayasa dan alur kerja standar enterprise dari lini produksi:
+
+1. **Enterprise Rules (`rules/` & `.agents/rules/`)**:
+   - `00-core-guardrails.md`: Standar keamanan, audit log, dan sanitasi input.
+   - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model).
+   - `20-database-standards.md`: Konvensi tabel, indeks komposit, dan isolasi soft-delete.
+   - `30-frontend-standards.md`: Single Unified Table (zero double-scroll DataTables) & responsive layouts.
+   - `40-security-standards.md`: RBAC granular, Spatie permissions, dan pencegahan IDOR.
+   - `50-report-export.md`: Pedoman ekspor laporan skala besar tanpa Out-Of-Memory.
+2. **Enterprise Workflows (`workflows/` & `.agents/workflows/`)**:
+   - `task-review-protocol.md`: Protokol evaluasi 7 pilar sebelum memulai pengembangan task.
+   - `new-module.md`: Panduan end-to-end pembuatan modul baru berskala enterprise.
+   - `new-report.md`: Standar pembuatan laporan tabular dan finansial.
+   - `add-db-column.md`: Prosedur penambahan kolom database produksi tanpa downtime.
+   - `fix-403.md`: Root cause analysis penanganan error Forbidden/Permission.
+   - `playwright-testing.md`: Standar pengujian otomatis Playwright sebelum merge.
+
+---
+
+## 11. Lisensi
 
 Proyek ini dilisensikan di bawah lisensi [MIT License](LICENSE) &copy; 2026 Ahmad Arif.
 
