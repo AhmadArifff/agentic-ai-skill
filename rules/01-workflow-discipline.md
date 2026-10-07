@@ -32,6 +32,8 @@ Sebelum menyentuh kode aplikasi, AI menyajikan dokumen review kepada pengguna ya
    * **Dampak**: Komponen apa saja yang terpengaruh (routing, controller, tabel, performa).
 4. **Skrip SQL Manual (Jika Dibutuhkan)**:
    * Jika ada pendaftaran menu (`menus`), hak akses (`permissions`), atau skema kolom baru, sediakan query SQL manual siap pakai untuk phpMyAdmin. **Jangan lakukan injection CRUD langsung ke database**.
+5. **Rincian Tabel Database Terdampak Operasi INSERT**:
+   * AI Agent WAJIB secara eksplisit merinci tabel-tabel database yang terdampak saat operasi simpan/INSERT pada menu baru (tabel utama, tabel relasi/pivot, kolom kunci, serta foreign key terkait).
 
 ### Tahap 3: Menunggu Konfirmasi Pengguna (Approval Gate)
 * **DILARANG KERAS** mulai memodifikasi atau membuat file sebelum pengguna menyatakan persetujuan secara eksplisit terhadap hasil review dan alur yang diajukan.
@@ -61,6 +63,8 @@ Format Pencatatan:
 2. **Full English Naming**: Simbol kode (class, function, variable, folder) wajib bahasa Inggris baku.
 3. **Bahasa Indonesia**: Khusus untuk label antarmuka pengguna (UI) dan komunikasi di chat.
 4. **Keamanan Git**: Berkas aturan, knowledge, `.agents/`, `.agent/`, dan file `.sql` telah dimasukkan ke `.gitignore` dan tidak boleh di-force add ke repositori Git.
+5. **Eliminasi Dead Code & Zombie Code**: Dilarang meninggalkan kode mati (*dead code*), logika terbengkalai, atau elemen tampilan sisa iterasi development sebelumnya. Seluruh kode versi lama yang sudah tidak terpakai wajib dihapus tuntas agar basis kode selalu bersih (*clean code*).
+6. **Label UI Bersih & Human-Friendly (Bebas Jargon Teknis)**: Dilarang menampilkan detail/jargon teknis kode ke antarmuka pengguna (seperti `Password (16 Karakter):`, `random string 16 karakter acak`, atau `disanitasi dari karakter injeksi`). Label UI, modal, dan pesan sistem wajib menggunakan istilah umum yang bersih dan mudah dipahami manusia (misal cukup `Password :`).
 
 ---
 

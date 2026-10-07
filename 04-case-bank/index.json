@@ -1,9 +1,9 @@
 {
   "version": "1.2.0",
-  "updated_at": "2026-10-02T10:20:00Z",
-  "total_cases": 15,
+  "updated_at": "2026-10-02T21:19:11Z",
+  "total_cases": 19,
   "categories": {
-    "pattern": 14,
+    "pattern": 17,
     "anti_pattern": 1
   },
   "cases": [
@@ -13,7 +13,12 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/sample-case.yaml",
-      "domain_tags": ["backend", "security", "auth", "frontend"],
+      "domain_tags": [
+        "backend",
+        "security",
+        "auth",
+        "frontend"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -25,7 +30,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260907-cross-device-autonomous-bootstrap.yaml",
-      "domain_tags": ["orchestration", "devops", "cross-platform", "automation", "qa"],
+      "domain_tags": [
+        "orchestration",
+        "devops",
+        "cross-platform",
+        "automation",
+        "qa"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -37,7 +48,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260907-relative-path-portability.yaml",
-      "domain_tags": ["orchestration", "documentation", "github", "portability", "governance"],
+      "domain_tags": [
+        "orchestration",
+        "documentation",
+        "github",
+        "portability",
+        "governance"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -49,7 +66,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260907-redis-atomic-lock-concurrency.yaml",
-      "domain_tags": ["backend", "database", "concurrency", "redis", "performance"],
+      "domain_tags": [
+        "backend",
+        "database",
+        "concurrency",
+        "redis",
+        "performance"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -61,7 +84,14 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260907-resilient-websocket-dual-ecosystem.yaml",
-      "domain_tags": ["frontend", "backend", "realtime", "vue", "nextjs", "network"],
+      "domain_tags": [
+        "frontend",
+        "backend",
+        "realtime",
+        "vue",
+        "nextjs",
+        "network"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -73,7 +103,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260907-circuit-breaker-rework-loop.yaml",
-      "domain_tags": ["orchestration", "governance", "lifecycle", "circuit-breaker", "human-in-the-loop"],
+      "domain_tags": [
+        "orchestration",
+        "governance",
+        "lifecycle",
+        "circuit-breaker",
+        "human-in-the-loop"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -85,7 +121,13 @@
       "status": "verified_case",
       "category": "anti_pattern",
       "file": "cases/case-20260907-anti-pattern-hardcoded-credentials.yaml",
-      "domain_tags": ["security", "backend", "frontend", "governance", "git"],
+      "domain_tags": [
+        "security",
+        "backend",
+        "frontend",
+        "governance",
+        "git"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -97,7 +139,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260914-session-state-consistency-goal-tracking.yaml",
-      "domain_tags": ["orchestration", "session", "governance", "goal-tracking", "memory"],
+      "domain_tags": [
+        "orchestration",
+        "session",
+        "governance",
+        "goal-tracking",
+        "memory"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -109,7 +157,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260914-single-door-triage-routing.yaml",
-      "domain_tags": ["orchestration", "triage", "routing", "ux", "natural-language"],
+      "domain_tags": [
+        "orchestration",
+        "triage",
+        "routing",
+        "ux",
+        "natural-language"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -121,7 +175,13 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260914-reviewer-independence-anti-hallucination.yaml",
-      "domain_tags": ["governance", "qa", "security", "tech-critic", "anti-hallucination"],
+      "domain_tags": [
+        "governance",
+        "qa",
+        "security",
+        "tech-critic",
+        "anti-hallucination"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -133,7 +193,15 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20260914-ml-cv-edge-web-inference-pipeline.yaml",
-      "domain_tags": ["machine-learning", "deep-learning", "computer-vision", "fastapi", "onnx", "webgpu", "mobile"],
+      "domain_tags": [
+        "machine-learning",
+        "deep-learning",
+        "computer-vision",
+        "fastapi",
+        "onnx",
+        "webgpu",
+        "mobile"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -145,7 +213,17 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20261002-3d-interactive-prosthesis-configurator.yaml",
-      "domain_tags": ["Three.js", "WebGL", "3D", "Simulator", "Configurator", "Prosthesis", "Interactive", "Draco", "HTML"],
+      "domain_tags": [
+        "Three.js",
+        "WebGL",
+        "3D",
+        "Simulator",
+        "Configurator",
+        "Prosthesis",
+        "Interactive",
+        "Draco",
+        "HTML"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -157,7 +235,14 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20261002-softdelete-credential-regeneration.yaml",
-      "domain_tags": ["backend", "database", "soft-delete", "auth", "credential-generation", "audit-trail"],
+      "domain_tags": [
+        "backend",
+        "database",
+        "soft-delete",
+        "auth",
+        "credential-generation",
+        "audit-trail"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -169,7 +254,14 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20261002-datatables-single-table-alignment.yaml",
-      "domain_tags": ["frontend", "datatables", "responsive", "css", "layout", "ux"],
+      "domain_tags": [
+        "frontend",
+        "datatables",
+        "responsive",
+        "css",
+        "layout",
+        "ux"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
@@ -181,11 +273,83 @@
       "status": "verified_case",
       "category": "pattern",
       "file": "cases/case-20261002-cross-database-settlement-reporting.yaml",
-      "domain_tags": ["backend", "database", "cross-database", "excel-export", "streaming", "memory-optimization"],
+      "domain_tags": [
+        "backend",
+        "database",
+        "cross-database",
+        "excel-export",
+        "streaming",
+        "memory-optimization"
+      ],
       "dual_approval": {
         "qa_engineer": "approved",
         "tech_critic": "approved"
       }
+    },
+    {
+      "file": "cases/case-20261002-postgresql-enum-type-deduction.yaml",
+      "domain_tags": [
+        "backend",
+        "database",
+        "postgresql",
+        "enum",
+        "type-casting",
+        "express"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      },
+      "case_id": "case-20261002-postgresql-enum-type-deduction",
+      "category": "pattern",
+      "title": "Resolusi Error Parameter Type Deduction pada PostgreSQL Enum di Express",
+      "status": "verified_case"
+    },
+    {
+      "file": "cases/case-20261002-bom-hpp-database-sync.yaml",
+      "domain_tags": [
+        "database",
+        "accounting",
+        "bom",
+        "hpp",
+        "transaction",
+        "supabase"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      },
+      "case_id": "case-20261002-bom-hpp-database-sync",
+      "category": "pattern",
+      "title": "Sinkronisasi Akumulasi Biaya Resep BOM dengan Kolom raw_cost_hpp Produk",
+      "status": "verified_case"
+    },
+    {
+      "file": "cases/case-20261002-csv-utf8-bom-excel-compatibility.yaml",
+      "domain_tags": [
+        "frontend",
+        "export",
+        "csv",
+        "excel",
+        "utf-8",
+        "bom"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      },
+      "case_id": "case-20261002-csv-utf8-bom-excel-compatibility",
+      "category": "pattern",
+      "title": "Pencegahan Teks Rusak (Mojibake) pada Ekspor CSV saat Dibuka di Microsoft Excel",
+      "status": "verified_case"
+    },
+    {
+      "id": "case-20261003-custom-studio-checkout-and-maintenance-guard",
+      "title": "Dukungan Checkout Buket Kustom Studio dan Penegakan Guard Mode Istirahat Produksi pada Orders API",
+      "domain": "checkout-ecommerce-state-machine",
+      "severity": "HIGH",
+      "status": "VERIFIED",
+      "file": "cases/case-20261003-custom-studio-checkout-and-maintenance-guard.yaml"
     }
   ]
 }

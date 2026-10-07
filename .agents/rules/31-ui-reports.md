@@ -82,3 +82,15 @@ Gunakan token warna lembut (*soft palette*) untuk membedakan kategori data secar
   * PHP (Blade): `number_format($row->total_payment, 0, ',', '.')` ➔ `165.000`
   * Angka desimal (Berat): `number_format($row->weight, 1, ',', '.') . ' kg'` ➔ `2,5 kg`
   * Teks angka finansial selalu rata kanan (`text-end`).
+
+---
+
+## 5. Tombol Aksi Kolom Detail Berbasis Ikon Polos (Plain Icon Detail Standard - Bab 42)
+* Kolom aksi 'DETAIL' atau link modal pada tabel laporan **DILARANG** menggunakan button ber-frame atau badge tebal yang memakan tinggi baris (*row height*).
+* Wajib menggunakan ikon polos (*plain icon*) dengan tooltip/title:
+  ```blade
+  <a href="javascript:void(0)" class="text-secondary btn-detail" data-id="{{ $row->id }}" title="Lihat Rincian Transaksi">
+      <i class="las la-eye font-16"></i>
+  </a>
+  ```
+* Menjaga tabel tetap padat (*compact*), estetis, dan sejajar sempurna dengan baris data lainnya.

@@ -1,0 +1,61 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\{{ request }};
+use App\Services\{{ service }};
+use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+
+class {{ class }} extends Controller
+{
+    public function __construct(
+        protected {{ service }} $service
+    ) {}
+
+    /**
+     * Display listing page.
+     */
+    public function index(Request $request)
+    {
+        $this->permission('view');
+
+        return view('{{ view }}.index', [
+            'title' => '{{ title }}',
+        ]);
+    }
+
+    /**
+     * Store a newly created resource.
+     */
+    public function store({{ request }} $request): JsonResponse
+    {
+        $this->permission('create');
+        $result = $this->service->create($request->validated());
+
+        return response()->json($result, $result['success'] ? 201 : 500);
+    }
+
+    /**
+     * Update the specified resource.
+     */
+    public function update({{ request }} $request, int $id): JsonResponse
+    {
+        $this->permission('edit');
+        $result = $this->service->update($id, $request->validated());
+
+        return response()->json($result, $result['success'] ? 200 : 500);
+    }
+
+    /**
+     * Remove the specified resource.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $this->permission('delete');
+        $result = $this->service->delete($id);
+
+        return response()->json($result, $result['success'] ? 200 : 500);
+    }
+}

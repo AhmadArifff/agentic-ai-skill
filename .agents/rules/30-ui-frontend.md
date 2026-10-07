@@ -75,3 +75,15 @@ Ketika DateRangePicker atau Datepicker diletakkan di dalam Modal Dialog Bootstra
    * ❌ *Salah*: `Nama OTA otomatis dikonversi ke huruf besar dan disanitasi dari karakter injeksi.`
    * ✅ *Benar*: `Format nama OTA otomatis disesuaikan ke huruf besar.`
 
+---
+
+## 6. Standar Header Halaman & Navigasi Breadcrumb
+1. **Halaman Index / List Data**:
+   * Wajib menggunakan Single Title tegas `<h4 class="page-title">DATA {{ strtoupper($title) }}</h4>` **tanpa breadcrumb**.
+   * Dilarang keras menempatkan navigasi breadcrumb di halaman tabel index / daftar data.
+2. **Halaman Form Tambah & Edit Data**:
+   * Breadcrumb HANYA ADA pada form tambah atau edit, dengan link kembali bergaris bawah:
+     `<a href="{{ route('[menu].index') }}"><u>DATA {{ strtoupper($title) }}</u></a>`
+   * Menampilkan status mode aktif: `TAMBAH BARU` (mode tambah) atau `EDIT [NAMA DATA]` (mode perbarui).
+   * Dilarang menambahkan tombol sekunder seperti "KEMBALI KE DAFTAR" di header samping karena navigasi kembali telah disediakan oleh link breadcrumb.
+

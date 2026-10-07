@@ -1,0 +1,55 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Models\{{ model }};
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
+
+class {{ class }}
+{
+    /**
+     * Get all records with optional filters.
+     */
+    public function getAll(array $filters = []): Collection
+    {
+        return {{ model }}::query()
+            ->when(!empty($filters['status']), fn ($q) => $q->where('status', $filters['status']))
+            ->latest()
+            ->get();
+    }
+
+    /**
+     * Find record by ID or fail.
+     */
+    public function findById(int $id): ?{{ model }}
+    {
+        return {{ model }}::find($id);
+    }
+
+    /**
+     * Create new record.
+     */
+    public function create(array $data): {{ model }}
+    {
+        return {{ model }}::create($data);
+    }
+
+    /**
+     * Update record by ID.
+     */
+    public function update(int $id, array $data): bool
+    {
+        $record = $this->findById($id);
+        return $record ? $record->update($data) : false;
+    }
+
+    /**
+     * Delete record by ID.
+     */
+    public function delete(int $id): bool
+    {
+        $record = $this->findById($id);
+        return $record ? $record->delete() : false;
+    }
+}

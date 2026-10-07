@@ -130,9 +130,11 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
 
 1. **Enterprise Guardrails & Rules (`rules/` & `.agents/rules/`)**:
    - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, dan isolasi kredensial rahasia.
+   - `01-workflow-discipline.md`: Siklus OODA, Review Gate (rincian tabel terdampak INSERT), eliminasi dead code sisa iterasi, higienitas komentar kode, dan label UI bebas jargon teknis.
    - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), validasi FormRequest terpisah, transactional safety, dan guard clause early exit.
    - `20-database-standards.md`: Standar konvensi tabel, indeks foreign key komposit, isolasi soft-delete query, dan eliminasi N+1 problem.
-   - `30-frontend-standards.md`: Arsitektur Single Unified Table (zero double-scroll DataTables), dynamic resize listener, dan DOM memory cleanup.
+   - `30-frontend-standards.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, anti-clipping modal datepicker, dan DOM memory cleanup.
+   - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik data finansial, dan plain icon detail.
    - `40-security-standards.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
    - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing).
 2. **Standard Operating Workflows (`workflows/` & `.agents/workflows/`)**:
@@ -146,3 +148,6 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `case-20261002-softdelete-credential-regeneration.yaml`: Pemulihan akun soft-delete dengan regenerasi kredensial otomatis & audit trail.
    - `case-20261002-datatables-single-table-alignment.yaml`: Arsitektur Single Unified Table untuk eliminasi double-scroll & misalignment DataTables.
    - `case-20261002-cross-database-settlement-reporting.yaml`: Kueri laporan settlement multi-database aman & ekspor streaming FastExcel anti-OOM.
+4. **Scaffolding Stubs & Local Navigation Map (`.agents/stubs/` & `.agents/README.md`)**:
+   - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`) untuk standarisasi pembuatan modul baru.
+   - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas (Backend, Routing, DB, UI Form, Reports, RBAC, Export).

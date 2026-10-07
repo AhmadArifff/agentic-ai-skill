@@ -381,9 +381,11 @@ Framework ini mewarisi aturan rekayasa dan alur kerja standar enterprise dari li
 
 1. **Enterprise Rules (`rules/` & `.agents/rules/`)**:
    - `00-core-guardrails.md`: Standar keamanan, audit log, dan sanitasi input.
+   - `01-workflow-discipline.md`: Siklus OODA, Review Gate (rincian tabel terdampak INSERT), eliminasi dead code, dan label UI bebas jargon teknis.
    - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model).
    - `20-database-standards.md`: Konvensi tabel, indeks komposit, dan isolasi soft-delete.
-   - `30-frontend-standards.md`: Single Unified Table (zero double-scroll DataTables) & responsive layouts.
+   - `30-frontend-standards.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, dan anti-clipping modal datepicker.
+   - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik, dan plain icon detail.
    - `40-security-standards.md`: RBAC granular, Spatie permissions, dan pencegahan IDOR.
    - `50-report-export.md`: Pedoman ekspor laporan skala besar tanpa Out-Of-Memory.
 2. **Enterprise Workflows (`workflows/` & `.agents/workflows/`)**:
@@ -393,6 +395,9 @@ Framework ini mewarisi aturan rekayasa dan alur kerja standar enterprise dari li
    - `add-db-column.md`: Prosedur penambahan kolom database produksi tanpa downtime.
    - `fix-403.md`: Root cause analysis penanganan error Forbidden/Permission.
    - `playwright-testing.md`: Standar pengujian otomatis Playwright sebelum merge.
+3. **Scaffolding Stubs & Local Navigation Map (`stubs/` & `.agents/README.md`)**:
+   - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`).
+   - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas.
 
 ---
 

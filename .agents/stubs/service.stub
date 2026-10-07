@@ -1,0 +1,94 @@
+<?php
+
+namespace {{ namespace }};
+
+use App\Repositories\{{ repository }};
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
+use Exception;
+
+class {{ class }}
+{
+    public function __construct(
+        protected {{ repository }} $repository
+    ) {}
+
+    /**
+     * Create record with database transaction safety.
+     */
+    public function create(array $data): array
+    {
+        DB::beginTransaction();
+        try {
+            $record = $this->repository->create($data);
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Data berhasil disimpan.',
+                'data' => $record,
+            ];
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal menyimpan {{ class }}: ' . $e->getMessage(), ['trace' => $e->getTraceAsString()]);
+
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan sistem saat menyimpan data.',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Update record with database transaction safety.
+     */
+    public function update(int $id, array $data): array
+    {
+        DB::beginTransaction();
+        try {
+            $this->repository->update($id, $data);
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Data berhasil diperbarui.',
+            ];
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal memperbarui {{ class }}: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat memperbarui data.',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+
+    /**
+     * Delete record by ID.
+     */
+    public function delete(int $id): array
+    {
+        DB::beginTransaction();
+        try {
+            $this->repository->delete($id);
+            DB::commit();
+
+            return [
+                'success' => true,
+                'message' => 'Data berhasil dihapus.',
+            ];
+        } catch (Exception $e) {
+            DB::rollBack();
+            Log::error('Gagal menghapus {{ class }}: ' . $e->getMessage());
+
+            return [
+                'success' => false,
+                'message' => 'Terjadi kesalahan saat menghapus data.',
+                'error' => $e->getMessage(),
+            ];
+        }
+    }
+}
