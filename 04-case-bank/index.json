@@ -1,9 +1,9 @@
 {
   "version": "1.2.0",
-  "updated_at": "2026-10-02T21:19:11Z",
-  "total_cases": 19,
+  "updated_at": "2026-10-07T23:08:44.388Z",
+  "total_cases": 27,
   "categories": {
-    "pattern": 17,
+    "pattern": 26,
     "anti_pattern": 1
   },
   "cases": [
@@ -344,12 +344,166 @@
       "status": "verified_case"
     },
     {
-      "id": "case-20261003-custom-studio-checkout-and-maintenance-guard",
+      "case_id": "case-20261003-custom-studio-checkout-and-maintenance-guard",
       "title": "Dukungan Checkout Buket Kustom Studio dan Penegakan Guard Mode Istirahat Produksi pada Orders API",
-      "domain": "checkout-ecommerce-state-machine",
-      "severity": "HIGH",
-      "status": "VERIFIED",
-      "file": "cases/case-20261003-custom-studio-checkout-and-maintenance-guard.yaml"
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261003-custom-studio-checkout-and-maintenance-guard.yaml",
+      "domain_tags": [
+        "ecommerce",
+        "checkout",
+        "state-machine",
+        "custom-studio",
+        "guard"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261003-admin-storefront-data-sync-copywriting",
+      "title": "Sinkronisasi Data Pengaturan Admin Toko ke Storefront & Eliminasi Copywriting AI Slop",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261003-admin-storefront-data-sync-copywriting.yaml",
+      "domain_tags": [
+        "frontend",
+        "state-management",
+        "storefront",
+        "copywriting",
+        "anti-slop"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261003-cod-checkout-guard-and-zero-dummy-quota",
+      "title": "Penegakan Guard Validasi Titik Temu COD di CartDrawer & Eliminasi Mock Kuota Harian Storefront",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261003-cod-checkout-guard-and-zero-dummy-quota.yaml",
+      "domain_tags": [
+        "checkout",
+        "cod",
+        "logistics",
+        "state-integrity",
+        "anti-dummy"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261004-chat-action-navigation-and-multi-turn-sync",
+      "title": "Resolusi Navigasi Tombol Aksi Chat, Global COD Modal & Sinkronisasi Konteks Multi-Turn AI",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261004-chat-action-navigation-and-multi-turn-sync.yaml",
+      "domain_tags": [
+        "ai-chat",
+        "live-chat",
+        "multi-turn",
+        "state-sync",
+        "navigation"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261004-database-optimization-and-test-orders-cleanup",
+      "title": "Optimasi Performa Indeks Database PostgreSQL (27 FK Unindexed & Chat Subquery) serta Pembersihan Pesanan Uji Coba",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261004-database-optimization-and-test-orders-cleanup.yaml",
+      "domain_tags": [
+        "database",
+        "postgresql",
+        "index-optimization",
+        "performance",
+        "cleanup"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261004-member-order-scoping-and-zero-fraud-claims",
+      "title": "Penegakan Scoping Pesanan Member, Penyimpanan Perangkat Guest, dan Verifikasi Kepemilikan Klaim Anti-Fraud",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261004-member-order-scoping-and-zero-fraud-claims.yaml",
+      "domain_tags": [
+        "security",
+        "authorization",
+        "order-scoping",
+        "idor-prevention",
+        "anti-fraud"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261004-uncontrolled-input-admin-store-settings",
+      "title": "Resolusi Error Uncontrolled Input React dan Sinkronisasi Alias WhatsApp Resmi di StoreSettingsView",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261004-uncontrolled-input-admin-store-settings.yaml",
+      "domain_tags": [
+        "frontend",
+        "react",
+        "forms",
+        "admin-settings",
+        "uncontrolled-input"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261007-studio-folded-wrapping-upright-chenille",
+      "title": "Resolusi Swatch Kertas Wrapping Lipatan Sudut Dual-Tone, Buket Tulip Tegak Lurus, Lavender Chenille Otentik, & Cache-Buster v4",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261007-studio-folded-wrapping-upright-chenille.yaml",
+      "domain_tags": [
+        "frontend",
+        "studio",
+        "asset-integrity",
+        "css-layers",
+        "cache-buster"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261007-sunflower-natural-color-and-package-lightbox",
+      "title": "Resolusi Kebocoran Warna Modulasi Global Bunga Matahari & Implementasi Lightbox Modal Detail Kelengkapan Paket Studio",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261007-sunflower-natural-color-and-package-lightbox.yaml",
+      "domain_tags": [
+        "frontend",
+        "studio",
+        "color-integrity",
+        "ux",
+        "lightbox-modal"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
     }
   ]
 }

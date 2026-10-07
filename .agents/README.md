@@ -34,9 +34,11 @@ Gunakan panduan berikut untuk membuka dan mematuhi dokumen spesifik sesuai konte
 Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah berikut:
 * **[workflows/task-review-protocol.md](./workflows/task-review-protocol.md)**: **[WAJIB]** Protokol Review Task Sebelum Development (Evaluasi 7 Pilar & Persetujuan Pengguna).
 * **[workflows/new-module.md](./workflows/new-module.md)**: Langkah pembuatan modul CRUD / domain baru end-to-end.
+* **[workflows/new-prd-feature.md](./workflows/new-prd-feature.md)**: Siklus hidup pembuatan fitur berbasis PRD (PRD -> DB -> Types -> API -> UI -> QA -> Gate).
 * **[workflows/new-report.md](./workflows/new-report.md)**: Langkah pembuatan modul Laporan Tabular dan Finansial.
 * **[workflows/add-db-column.md](./workflows/add-db-column.md)**: Prosedur penambahan kolom database produksi aman tanpa downtime.
 * **[workflows/fix-403.md](./workflows/fix-403.md)**: Panduan diagnosis cepat dan resolusi izin/otorisasi 403 Forbidden.
+* **[workflows/multi-device-collaboration.md](./workflows/multi-device-collaboration.md)**: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
 * **[workflows/playwright-testing.md](./workflows/playwright-testing.md)**: SOP Pengujian Browser Playwright otomatis (Hanya jika diminta eksplisit oleh pengguna).
 
 ---
@@ -45,13 +47,16 @@ Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah be
 Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara permanen:
 * **[knowledge/README.md](./knowledge/README.md)**: Tata kelola dan format pencatatan kasus bug.
 * **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (Kasus #01, #02, #03, dst.).
-* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory dengan format dual-approval YAML.
+* **[knowledge/hub-and-spoke-sync.md](./knowledge/hub-and-spoke-sync.md)**: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
+* **[knowledge/payment-logistics-integrations.md](./knowledge/payment-logistics-integrations.md)**: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
+* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (27 kasus produksi terverifikasi).
 
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 41 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 42 skill terdaftar di `skills/` dan `.agents/skills/`:
 * **[skills/excel-export/SKILL.md](./skills/excel-export/SKILL.md)**: Pembuatan spreadsheet berkecepatan tinggi dengan FastXlsxWriter dan ReportExporter.
+* **[skills/agentic-ai/SKILL.md](./skills/agentic-ai/SKILL.md)**: Master Multi-Agent Orchestration & Governance System (OODA loop).
 * **[skills/antislop/SKILL.md](./skills/antislop/SKILL.md)**: Filter kualitas anti-AI-slop (38 aturan absolut, Liveliness Toolkit, Delivery Gate).
 * **[skills/3d-configurator-simulator/SKILL.md](./skills/3d-configurator-simulator/SKILL.md)**: WebGL Three.js, Draco compression, dan biomechanical simulation.
 * Serta modul UI enterprise lainnya: `shadcn-ui`, `magic-ui`, `21st-dev`, `react-bits`, `untitled-ui`, `animate-ui`, dan `motion`.

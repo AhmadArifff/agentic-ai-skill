@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 40 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 42 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -77,9 +77,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 41 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 42 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 41 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 42 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI & Component Registry Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -109,7 +109,7 @@ Seluruh agen dapat memanfaatkan 41 skill terdaftar di `skills/` dan `~/.gemini/c
    - `antislop-layoutmobile`: Layout responsif ponsel, eliminasi kebocoran overflow horizontal (R-03), tap target $\ge$ 44px.
    - `antislop-code`: Higienitas komentar kode, penghapusan komentar AI redundan.
 6. **Core Software Engineering, Reporting & Verification**:
-   - `backend`, `frontend`, `pm`, `qa`, `playwright`, `playwright-skill`, `graphify`, `goal-tracker`, `tech-critic`.
+   - `backend`, `frontend`, `pm`, `qa`, `playwright`, `playwright-skill`, `graphify`, `goal-tracker`, `tech-critic`, `agentic-ai`.
    - `excel-export`: Pipeline ekspor data tabular performa tinggi (FastExcel / FastXlsxWriter streaming vs PhpSpreadsheet, auto column sizing, number formatting, anti-OOM).
 
 ---
@@ -140,14 +140,19 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
 2. **Standard Operating Workflows (`workflows/` & `.agents/workflows/`)**:
    - `task-review-protocol.md`: 7 Pilar Evaluasi sebelum pengembangan (Scope, Schema impact, Security, Performance, UX impact, Edge cases, Rollback plan).
    - `new-module.md`: Siklus hidup pembuatan modul enterprise (Migration -> Model -> Repo -> Service -> Controller -> Views -> E2E Test).
+   - `new-prd-feature.md`: Siklus hidup pembuatan fitur berbasis PRD (PRD -> DB Schema -> Shared Contract -> API -> Store -> UI -> QA -> Delivery Gate).
    - `new-report.md`: Standar implementasi laporan tabular/finansial (Filter bar -> Fast query -> DataTables DOM -> Streaming export).
    - `add-db-column.md`: Modifikasi skema basis data produksi aman tanpa downtime (*backward compatible*).
    - `fix-403.md`: Root cause analysis dan resolusi izin/akses ditolak (RBAC/Policy audit).
+   - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
-   - `case-20261002-softdelete-credential-regeneration.yaml`: Pemulihan akun soft-delete dengan regenerasi kredensial otomatis & audit trail.
-   - `case-20261002-datatables-single-table-alignment.yaml`: Arsitektur Single Unified Table untuk eliminasi double-scroll & misalignment DataTables.
-   - `case-20261002-cross-database-settlement-reporting.yaml`: Kueri laporan settlement multi-database aman & ekspor streaming FastExcel anti-OOM.
-4. **Scaffolding Stubs & Local Navigation Map (`.agents/stubs/` & `.agents/README.md`)**:
+   - 27 Kasus Produksi Terverifikasi dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`).
+   - Mencakup preseden arsitektur: soft-delete credentials, single table DataTables, cross-database streaming, PostgreSQL pool circuit breaker, COD checkout guard, real-time chat sync, IDOR order scoping, dan reactive studio customization.
+4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
+   - `hub-and-spoke-sync.md`: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
+   - `payment-logistics-integrations.md`: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
+5. **Scaffolding Stubs & Local Navigation Map (`.agents/stubs/` & `.agents/README.md`)**:
    - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`) untuk standarisasi pembuatan modul baru.
    - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas (Backend, Routing, DB, UI Form, Reports, RBAC, Export).
+   - `01-roles/EXPERT_PERSONAS_DNA.md`: 14 Karakteristik Ahli (Mental Models) pemandu penalaran multi-agen.

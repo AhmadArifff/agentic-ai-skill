@@ -356,7 +356,7 @@ Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organiz
    # Memvalidasi integritas katalog case-bank
    npm run case:validate
    ```
-3. **Katalog Kasus Terverifikasi Saat Ini (15 Verified Cases)**:
+3. **Katalog Kasus Terverifikasi Saat Ini (27 Verified Cases)**:
    - `case-20260903-httponly-cookie-auth`: Autentikasi aman via Cookie HttpOnly SameSite=Strict.
    - `case-20260907-cross-device-autonomous-bootstrap`: Pemasangan mandiri skill lintas OS (zero-config).
    - `case-20260907-relative-path-portability`: Portabilitas tautan relatif untuk repositori GitHub.
@@ -372,6 +372,18 @@ Case-Bank berfungsi sebagai memori organisasi jangka panjang (*long-term organiz
    - `case-20261002-softdelete-credential-regeneration`: Pemulihan akun soft-delete dengan regenerasi kredensial otomatis & audit trail.
    - `case-20261002-datatables-single-table-alignment`: Arsitektur Single Unified Table untuk eliminasi double-scroll & misalignment DataTables.
    - `case-20261002-cross-database-settlement-reporting`: Kueri laporan settlement multi-database aman & ekspor streaming FastExcel anti-OOM.
+   - `case-20261002-postgresql-enum-type-deduction`: Resolusi error parameter type deduction pada PostgreSQL enum di Express.
+   - `case-20261002-bom-hpp-database-sync`: Sinkronisasi akumulasi biaya resep BOM dengan kolom raw_cost_hpp produk.
+   - `case-20261002-csv-utf8-bom-excel-compatibility`: Pencegahan teks rusak (Mojibake) pada ekspor CSV saat dibuka di Excel.
+   - `case-20261003-custom-studio-checkout-and-maintenance-guard`: Dukungan checkout buket kustom studio dan penegakan guard mode istirahat produksi.
+   - `case-20261003-admin-storefront-data-sync-copywriting`: Sinkronisasi data pengaturan admin toko ke storefront & eliminasi copywriting AI slop.
+   - `case-20261003-cod-checkout-guard-and-zero-dummy-quota`: Penegakan guard validasi titik temu COD di CartDrawer & eliminasi mock kuota harian.
+   - `case-20261004-chat-action-navigation-and-multi-turn-sync`: Navigasi tombol aksi chat, global COD modal & sinkronisasi konteks multi-turn AI.
+   - `case-20261004-database-optimization-and-test-orders-cleanup`: Optimasi performa indeks PostgreSQL (27 FK unindexed) dan cleanup order uji coba.
+   - `case-20261004-member-order-scoping-and-zero-fraud-claims`: Penegakan scoping pesanan member, penyimpanan guest, dan verifikasi klaim anti-fraud.
+   - `case-20261004-uncontrolled-input-admin-store-settings`: Resolusi error uncontrolled input React & sinkronisasi alias WhatsApp resmi.
+   - `case-20261007-studio-folded-wrapping-upright-chenille`: Swatch kertas wrapping lipatan sudut dual-tone, buket upright, & cache-buster v4.
+   - `case-20261007-sunflower-natural-color-and-package-lightbox`: Resolusi kebocoran warna modulasi global & modal lightbox kelengkapan paket.
 
 ---
 
@@ -394,7 +406,13 @@ Framework ini mewarisi aturan rekayasa dan alur kerja standar enterprise dari li
    - `new-report.md`: Standar pembuatan laporan tabular dan finansial.
    - `add-db-column.md`: Prosedur penambahan kolom database produksi tanpa downtime.
    - `fix-403.md`: Root cause analysis penanganan error Forbidden/Permission.
+   - `new-prd-feature.md`: Panduan pembuatan modul berbasis PRD (PRD -> DB -> Types -> API -> UI -> QA -> Gate).
+   - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Standar pengujian otomatis Playwright sebelum merge.
+4. **Knowledge Blueprints & Hub-and-Spoke Master Hub (`knowledge/`)**:
+   - `hub-and-spoke-sync.md`: Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
+   - `payment-logistics-integrations.md`: Blueprint integrasi payment gateway Midtrans/QRIS dan kurir Biteship.
+   - `01-roles/EXPERT_PERSONAS_DNA.md`: 14 Karakteristik Ahli (Mental Models) pemandu penalaran multi-agen.
 3. **Scaffolding Stubs & Local Navigation Map (`stubs/` & `.agents/README.md`)**:
    - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`).
    - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas.
