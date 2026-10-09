@@ -151,8 +151,10 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - Mencakup preseden arsitektur: soft-delete credentials, single table DataTables, cross-database streaming, PostgreSQL pool circuit breaker, COD checkout guard, real-time chat sync, IDOR order scoping, dan reactive studio customization.
 4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
    - `hub-and-spoke-sync.md`: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
+   - `spoke-adoption-guide.md`: Protokol adopsi, 3 peran penyelaras (`domain-retriever`, `policy-schema-enforcer`, `goal-tracker`), dan 6 komponen wajib (`.agents` Core Essentials) untuk proyek anak.
    - `payment-logistics-integrations.md`: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
-5. **Scaffolding Stubs & Local Navigation Map (`.agents/stubs/` & `.agents/README.md`)**:
+5. **Scaffolding Stubs & Autonomous Spoke Scaffolder (`.agents/stubs/`, `05-spoke-template/` & `scripts/`)**:
    - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`) untuk standarisasi pembuatan modul baru.
+   - `05-spoke-template/` & `scripts/scaffold-spoke.js`: Mesin scaffolding otomatis starter pack `.agents` anak (`npm run spoke:scaffold`).
    - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas (Backend, Routing, DB, UI Form, Reports, RBAC, Export).
    - `01-roles/EXPERT_PERSONAS_DNA.md`: 14 Karakteristik Ahli (Mental Models) pemandu penalaran multi-agen.

@@ -1,0 +1,41 @@
+{
+  "project_name": "{{PROJECT_NAME}}",
+  "primary_goal": "{{PRIMARY_GOAL}}",
+  "current_stage": "INITIALIZATION",
+  "active_subtask": {
+    "id": "T-01",
+    "task": "Inisialisasi arsitektur proyek dan tinjauan kebutuhan PRD",
+    "owner_role": "problem-decomposer",
+    "status": "in_progress",
+    "rework_iteration_count": 0
+  },
+  "subtasks": [
+    {
+      "id": "T-01",
+      "task": "Inisialisasi arsitektur proyek dan tinjauan kebutuhan PRD",
+      "owner_role": "problem-decomposer",
+      "status": "in_progress",
+      "rework_iteration_count": 0
+    }
+  ],
+  "established_constraints": [
+    {
+      "id": "C-01",
+      "category": "security",
+      "constraint": "Dilarang keras melakukan hardcoding API secret key, private key, atau database credentials ke repositori",
+      "locked": true
+    },
+    {
+      "id": "C-02",
+      "category": "governance",
+      "constraint": "Setiap fitur baru wajib melalui evaluasi 7 pilar task review dan verifikasi reviewer (No Self-Review)",
+      "locked": true
+    }
+  ],
+  "open_questions": [],
+  "last_reviewer_verdict": {
+    "role": "tech-critic",
+    "result": "approved",
+    "note": "Initial spoke project architecture template initialized successfully"
+  }
+}

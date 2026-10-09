@@ -1,0 +1,25 @@
+id: "case-YYYYMMDD-slug-deskripsi"
+title: "Judul Singkat Kasus Bug yang Terpecahkan"
+date: "YYYY-MM-DD"
+severity: "HIGH | MEDIUM | LOW"
+affected_component: "Nama modul / file yang terdampak"
+status: "VERIFIED"
+summary: "Penjelasan ringkas 1-2 kalimat mengenai masalah dan solusinya."
+
+problem:
+  symptom: "Gejala yang muncul saat bug terjadi"
+  root_cause: "Akar penyebab teknis ditemukannya masalah"
+
+solution:
+  description: "Bagaimana masalah diperbaiki secara arsitektural"
+  key_changes:
+    - "Langkah atau perubahan kode 1"
+    - "Langkah atau perubahan kode 2"
+
+verification:
+  test_performed: "Pengujian yang membuktikan bahwa masalah telah terselesaikan secara permanen"
+  reviewed_by:
+    - role: "qa-engineer"
+      verdict: "approved"
+    - role: "tech-critic"
+      verdict: "approved"
