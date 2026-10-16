@@ -157,7 +157,7 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `video-retention-engineering.md`: Blueprint video shorts viral (The 3-Second Hook, pacing, timeline sub-detik milidetik, audio waveform snapping).
    - `production-db-sync.md`: SOP sanitasi, reset auto-increment sequence, dan mitigasi schema drift saat mengimpor dump SQL produksi.
    - `hub-and-spoke-sync.md`: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
-   - `spoke-adoption-guide.md`: Protokol adopsi, 3 peran penyelaras (`domain-retriever`, `policy-schema-enforcer`, `goal-tracker`), dan 6 komponen wajib (`.agents` Core Essentials) untuk proyek anak.
+   - `spoke-adoption-guide.md`: Protokol adopsi, 3 peran penyelaras (`domain-retriever`, `policy-schema-enforcer`, `goal-tracker`), 2 pertanyaan kustomisasi onboarding (Git auto-push & database/storage), serta 4 alur operasional wajib untuk proyek anak.
    - `payment-logistics-integrations.md`: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
 5. **Scaffolding Stubs & Autonomous Spoke Scaffolder (`.agents/stubs/`, `05-spoke-template/` & `scripts/`)**:
    - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`) untuk standarisasi pembuatan modul baru.

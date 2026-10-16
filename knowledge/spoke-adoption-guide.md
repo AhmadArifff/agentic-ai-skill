@@ -10,7 +10,7 @@ Ketika sebuah proyek baru mengadopsi Master Hub, sistem tidak menyalin seluruh r
 
 ```mermaid
 flowchart TD
-    MASTER["🏛️ Master Hub (agentic AI)<br/>• 22 Roles & 14 Personas<br/>• 42 Skills Global<br/>• 27 Case Bank"]
+    MASTER["🏛️ Master Hub (agentic AI)<br/>• 24 Roles & 16 Personas<br/>• 42 Skills Global<br/>• 31 Case Bank"]
     
     MASTER --> AUDIT["1. domain-retriever<br/>Audit Tech Stack (PRD, package.json, Cargo.toml)"]
     AUDIT --> PRUNE["2. policy-schema-enforcer / tech-critic<br/>Pruning bloat & tailoring constraints"]
@@ -19,66 +19,80 @@ flowchart TD
 ```
 
 1. **`domain-retriever` (Audit Stack & PRD)**: Membaca kebutuhan proyek dan menentukan arsitektur yang cocok.
-2. **`policy-schema-enforcer` / `tech-critic` (Pruning & Tailoring)**: Menghilangkan file yang tidak relevan (zero bloat) dan memastikan aturan mutlak keamanan tetap aktif.
+2. **`policy-schema-enforcer` / `tech-critic` (Pruning & Tailoring)**: Menghilangkan file yang tidak relevan (*zero bloat*) dan memastikan aturan mutlak keamanan tetap aktif.
 3. **`goal-tracker` (State Management)**: Mengunci `established_constraints` awal dan mencatat sub-tugas pertama di `session-state.json`.
 
 ---
 
-## 2. Enam Komponen Wajib (.agents Core Essentials)
+## 2. Kuesioner Kustomisasi Onboarding (2 Pertanyaan Wajib)
 
-Setiap proyek anak yang mengadopsi Master Hub wajib memiliki 6 komponen inti berikut:
+Ketika sebuah proyek mengadopsi `.agents` Master, pengguna disuguhkan 2 pertanyaan kunci untuk menentukan alur kerja dan infrastruktur data:
 
-| No | Komponen | File Path | Fungsi Utama |
-|---|---|---|---|
-| 1 | **Session State** | `.agents/session-state.json` | Single source of truth, pencegah *context drift*, pengunci batasan teknis (*locked constraints*). |
-| 2 | **Local Entry File** | `AGENTS.md` (root & `.agents/`) | Panduan otomatis saat workspace dibuka; menghubungkan ke PRD lokal dan peran aktif. |
-| 3 | **Core Guardrails** | `.agents/rules/00-core-guardrails.md` | Larangan hardcode kredensial, kepatuhan arsitektur, dan prinsip No Self-Review. |
-| 4 | **Workflow Discipline** | `.agents/rules/01-workflow-discipline.md` | Disiplin OODA loop, 7 pilar review gate, dan pembersihan zombie code. |
-| 5 | **Domain Architecture** | `.agents/rules/10-domain-architecture.md` | Standar arsitektur teknis spesifik proyek (Web3, Laravel, Next.js). |
-| 6 | **Standard Workflows** | `.agents/workflows/` | SOP evaluasi pra-coding (`task-review-protocol.md`) dan siklus fitur (`new-feature-lifecycle.md`). |
+### Pertanyaan 1: Alur Git & Auto-Push
+> *"Untuk development selesai setelah preview, apakah langsung dipush ke GitHub atau tidak?"*
+
+- **Pilihan A: YA (Auto-Push Aktif)**:
+  * **Sebelum Development**: Wajib menjalankan `git pull --rebase` untuk mengambil commit terbaru dari rekan tim lain sebelum baris kode pertama ditulis.
+  * **Setelah Development & Lolos Preview/QA**: Wajib menjalankan `git pull --rebase` kembali untuk memastikan tidak ada konflik antar-rekan tim saat development berlangsung. Jika bebas konflik atau konflik terpecahkan, baru jalankan `git push`.
+  * *Aturan Terkunci*: Terdaftar di `workflows/git-workflow.md` dan `session-state.json` (`C-GIT`).
+- **Pilihan B: TIDAK (Manual Push)**:
+  * Seluruh commit tersimpan rapi di lokal. Push ke remote dilakukan secara manual atas instruksi pengguna.
 
 ---
 
-## 3. Otomasi Provisioning via CLI
+### Pertanyaan 2: Pilihan Database & Media Storage
+> *"Untuk development apakah Anda menggunakan database apa?"*
+
+- **Pilihan A: Supabase**:
+  * Mengaktifkan modul otomatis untuk:
+    1. **Injeksi Data Idempoten**: Skrip seeding awal menggunakan `upsert` (`ON CONFLICT DO UPDATE`) agar tidak terjadi duplikasi baris data.
+    2. **Pembuatan Bucket Storage**: Otomasi penyediaan bucket `public-assets` (gambar katalog publik) dan `private-documents` (dokumen/bukti bayar dengan *signed URL* bertempo).
+    3. **Penyimpanan Path**: Database hanya menyimpan path relatif di bucket (misal: `documents/2026/proof-001.jpg`), bukan absolute signed URL yang kedaluwarsa.
+- **Pilihan B: PostgreSQL / MySQL Relasional (Laravel / Prisma)**:
+  * Menerapkan 4-layer Repository pattern, migrasi relasional, isolasi soft-delete, dan transactional atomic safety.
+- **Pilihan C: SQLite / Local / None**:
+  * Menyesuaikan konfigurasi penyimpanan data lokal atau in-memory state.
+
+---
+
+## 3. Empat Alur Operasional Wajib di Setiap Proyek Anak
+
+Setelah kuesioner dijawab, seluruh proyek anak wajib mematuhi 4 alur kerja ini:
+
+### 1. Wajib State `session-state.json` & Case Bank (Tracking Independen dari PRD)
+- Setiap pengembangan atau perubahan **wajib** mencatat statusnya di `session-state.json` (sub-tugas, owner role, status `pending` -> `in_progress` -> `done`).
+- **PENTING**: Tracking tidak boleh bergantung hanya pada keberadaan `PRD.md` karena banyak proyek nyata tidak memiliki file PRD. `session-state.json` adalah *Single Source of Truth* mandiri yang memungkinkan tim dan agen di sesi percakapan berikutnya langsung melanjutkan pekerjaan tanpa konflik fitur (*feature collision*).
+
+### 2. Wajib Catat Setiap Bug & Ketidaksesuaian ke Case Bank Lokal
+- Setiap kali ditemukan bug, error runtime, atau ketidaksesuaian hasil yang berhasil dipecahkan setelah development, agen **wajib** membuat dokumen kasus di `.agents/knowledge/cases/` (format `case-YYYYMMDD-slug.yaml`) sesuai panduan [record-bug-case.md](../workflows/record-bug-case.md).
+- Dengan catatan ini, agen AI di masa depan memiliki memori kontekstual dan dijamin tidak akan mengulangi kesalahan yang sama.
+
+### 3. Kepatuhan Standarisasi Arsitektur (Inherited vs Formulated)
+- **Jika Proyek Memiliki Standar Eksisting**: Wajib 100% mengikuti pola yang sudah ada (misal: arsitektur 4-layer Controller-Service-Repository pada `adminShuttleV3` dan `admin-sunjaya-dev`). Dilarang keras melakukan perombakan liar di luar kesepakatan tim.
+- **Jika Proyek Belum Memiliki Standar**: Agen wajib merumuskan arsitektur standarisasi yang paling cocok:
+  * OOP Modular (enkapsulasi domain dan interface).
+  * Repository Pattern (isolasi kueri dari presentasi).
+  * Clean / Hexagonal Architecture.
+
+### 4. Skill Mapping yang Relevan & Terpasang
+- Agen wajib memetakan skill yang relevan dari 42 skill global ke dalam file `AGENTS.md` proyek tersebut (contoh: skill Motion/Tailwind jika UI interaktif, Excel export jika ada modul laporan tabular, Three.js jika 3D, Supabase jika database Supabase).
+
+---
+
+## 4. Otomasi Provisioning via CLI
 
 Master Hub menyediakan skrip otomatis untuk menghasilkan starter pack `.agents` yang sudah disesuaikan:
 
 ```bash
-# Perintah umum di repositori Master Hub:
-npm run spoke:scaffold -- --target "<path-ke-proyek>" --name "<NamaProyek>" --type "<tipe>" --goal "<tujuan>"
+# Mode Interaktif (Menjawab 2 Pertanyaan Onboarding Secara Langsung):
+npm run spoke:scaffold -- --interactive
 
-# Contoh: Proyek Web3 Solana (SolanaTradeMemes)
-npm run spoke:scaffold -- --target "c:\Users\ASUS\Documents\Web Dev\improving\SolanaTradeMemes" --name "SolanaTradeMemes" --type "web3-solana" --goal "Sistem Trading Memecoin Solana Terintegrasi Dexscreener & Phantom Wallet"
-
-# Contoh: Proyek Laravel (adminShuttleV3)
-npm run spoke:scaffold -- --target "c:\Users\ASUS\Documents\Web Dev\sunjaya\Roleback\adminShuttleV3" --name "adminShuttleV3" --type "laravel"
-
-# Contoh: Proyek Next.js E-Commerce
-npm run spoke:scaffold -- --target "c:\Users\ASUS\Documents\Web Dev\improving\E-Comerce-BucketFlowers" --name "E-Comerce-BucketFlowers" --type "nextjs"
+# Mode CLI dengan Argumen Lengkap:
+npm run spoke:scaffold -- \
+  --target "c:\Users\ASUS\Documents\Web Dev\improving\SolanaTradeMemes" \
+  --name "SolanaTradeMemes" \
+  --type "web3-solana" \
+  --git-autopush yes \
+  --db supabase \
+  --arch clean
 ```
-
----
-
-## 4. Preset yang Tersedia
-
-1. **`web3-solana`**:
-   - Stack: Solana Web3.js, Anchor Framework, Next.js App Router, Tailwind CSS.
-   - Roles: `smart-contract-engineer` & `frontend-engineer`.
-   - Constraints: Larangan hardcode private key, RPC rate-limit fallback, Phantom auto-reconnect.
-2. **`laravel`**:
-   - Stack: Laravel 11 (4-Layer Controller -> Service -> Repository -> Model), MySQL/PostgreSQL.
-   - Roles: `backend-engineer` & `laravel-architect`.
-   - Constraints: Pemisahan ketat 4-layer, validasi via FormRequest, Spatie RBAC.
-3. **`nextjs`**:
-   - Stack: Next.js App Router (React 19), TypeScript, Tailwind CSS, Server Actions.
-   - Roles: `frontend-engineer` & `fullstack-engineer`.
-   - Constraints: Server Components default, dark-mode tokenized palette, WCAG AA.
-4. **`general`**:
-   - Stack: Fullstack Modern Web Application.
-
----
-
-## 5. Sinkronisasi Dua Arah (Upstream Learning)
-
-- Jika proyek anak menemukan bug unik di produksi dan menyelesaikannya secara elegan, catat di `.agents/knowledge/cases/`.
-- Solusi yang memiliki nilai guna umum disetorkan (*upstream*) kembali ke Master Hub di `04-case-bank/cases/`.

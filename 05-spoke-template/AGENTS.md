@@ -42,12 +42,16 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
 
 ## 4. Struktur Direktori Tata Kelola Lokal (`.agents/`)
 
-- [session-state.json](./session-state.json): Memori sesi aktif, sasaran utama, dan status sub-tugas saat ini.
+- [session-state.json](./session-state.json): Single Source of Truth memori sesi aktif, sasaran utama, dan status sub-tugas saat ini (tidak bergantung pada PRD.md).
 - `rules/`:
   - [00-core-guardrails.md](./rules/00-core-guardrails.md): Aturan mutlak keamanan dan kepatuhan sistem.
-  - [01-workflow-discipline.md](./rules/01-workflow-discipline.md): Disiplin OODA loop, 7 pilar task review, dan eliminasi zombie code.
-  - [10-domain-architecture.md](./rules/10-domain-architecture.md): Standar arsitektur teknis spesifik proyek.
+  - [01-workflow-discipline.md](./rules/01-workflow-discipline.md): Disiplin OODA loop, 7 pilar task review, pelacakan sesi, dan eliminasi zombie code.
+  - [10-domain-architecture.md](./rules/10-domain-architecture.md): Standar arsitektur teknis spesifik proyek (kepatuhan standar eksisting atau perumusan OOP/Repository modular).
+  - [20-database-storage.md](./rules/20-database-storage.md): Standar integrasi basis data, injeksi data, dan manajemen bucket storage aset.
 - `workflows/`:
+  - [git-workflow.md](./workflows/git-workflow.md): Protokol Git Pull-Before-Build & Pull-Before-Push untuk mencegah merge conflict.
   - [task-review-protocol.md](./workflows/task-review-protocol.md): Evaluasi 7 pilar sebelum penulisan kode baru.
-  - [new-feature-lifecycle.md](./workflows/new-feature-lifecycle.md): Siklus hidup pengembangan fitur dari PRD hingga QA.
-- `knowledge/cases/`: Catatan preseden bug produksi lokal yang telah terselesaikan agar tidak terulang kembali.
+  - [new-feature-lifecycle.md](./workflows/new-feature-lifecycle.md): Siklus hidup pengembangan fitur dari awal hingga lolos QA.
+  - [record-bug-case.md](./workflows/record-bug-case.md): SOP wajib pencatatan setiap bug/ketidaksesuaian ke bank kasus lokal.
+- `knowledge/cases/`: Catatan preseden bug produksi lokal yang telah terselesaikan agar agen tidak mengulangi kesalahan yang sama.
+

@@ -29,3 +29,23 @@ Sebelum menulis baris kode fitur baru, wajib menjalankan evaluasi 7 pilar sesuai
 1. **Bersihkan Kode Sementara**: Hapus console.log debug mentah, komentar sisa iterasi, atau file scratch sementara sebelum tugas ditandai selesai.
 2. **Komentar Kode Berkualitas**: Berikan komentar hanya pada logika yang kompleks atau keputusan arsitektural penting. Hindari komentar berlebihan yang hanya menjelaskan hal sepele.
 3. **Circuit Breaker Loop**: Jika sebuah tugas mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan loop dan minta panduan langsung kepada pengguna.
+
+---
+
+## 4. Mandatory Tracking via `session-state.json` (Independen dari PRD.md)
+1. **Single Source of Truth Progres**: Setiap fitur baru, perbaikan bug, atau perubahan arsitektur **WAJIB** dicatat statusnya di `session-state.json` (subtasks array, status `in_progress` -> `done`, dan owner role).
+2. **Tidak Bergantung pada PRD.md**: Mengingat banyak proyek nyata tidak memiliki `PRD.md`, agen dilarang berasumsi bahwa PRD adalah satu-satunya acuan progres. `session-state.json` berfungsi sebagai memori sesi independen agar tim dan agen di sesi berikutnya dapat langsung melanjutkan pekerjaan tanpa konflik fitur.
+
+---
+
+## 5. Mandatory Bug & Discrepancy Logging ke Case-Bank
+1. **Catat Setiap Bug Tervalidasi**: Setiap kali ditemukan bug, error runtime, atau ketidaksesuaian hasil setelah development yang berhasil diperbaiki, agen wajib membuat catatan kasus di `.agents/knowledge/cases/` sesuai panduan [record-bug-case.md](../workflows/record-bug-case.md).
+2. **Pembelajaran Berkelanjutan**: Agen AI di sesi percakapan berikutnya wajib memeriksa bank kasus lokal ini sebelum merancang solusi agar tidak mengulangi kesalahan arsitektural yang sama.
+
+---
+
+## 6. Protokol Sinkronisasi Git (Pull-Before-Build & Pull-Before-Push)
+Untuk proyek dengan alur integrasi GitHub aktif:
+1. **Sebelum Mulai Coding**: Wajib jalankan `git pull --rebase origin <branch>` untuk mengambil pembaruan tim terbaru.
+2. **Setelah Preview & QA Lolos**: Jalankan kembali `git pull --rebase origin <branch>` untuk mendeteksi potensi konflik. Jika bebas konflik atau konflik telah diselesaikan, baru lakukan `git push` ke repositori.
+
