@@ -80,6 +80,8 @@ properties:
             - "ai-engineer"
             - "domain-retriever"
             - "ml-vision-engineer"
+            - "web3-blockchain-architect"
+            - "multimedia-video-engineer"
         depends_on:
           type: "array"
           items:
@@ -155,6 +157,10 @@ properties:
             - "security"
             - "ui_styling"
             - "business_rule"
+            - "blockchain"
+            - "multimedia"
+            - "performance"
+            - "financial_ledger"
         constraint:
           type: "string"
           example: "Wajib menggunakan PostgreSQL v16 dengan skema relasional, dilarang NoSQL."

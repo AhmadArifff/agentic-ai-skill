@@ -1,0 +1,39 @@
+case_id: "case-20261016-video-shorts-millisecond-retention"
+title: "Presisi Milidetik Timeline Snapping & Koreografi Pacing Retensi Penonton pada Pemotongan Video Shorts"
+date: "2026-10-16"
+severity: "MEDIUM"
+category: "pattern"
+status: "verified_case"
+affected_component: "components/editor/TimelineEditor & VideoProcessingEngine"
+domain_tags:
+  - "multimedia"
+  - "video-editing"
+  - "shorts"
+  - "retention"
+  - "timeline"
+  - "audio-waveform"
+  - "canvas"
+
+summary: "Menghilangkan audio-popping dan dialog terpotong pada pemotong klip video pendek otomatis dengan mengganti interval statis 3 detik menjadi draggable timeline presisi milidetik dan audio waveform snapping."
+
+problem:
+  symptom: "Potongan video hasil automasi klip TikTok/Shorts terdengar kasar, kata-kata terakhir pembicara terpotong di tengah kalimat, dan muncul suara letupan klik pada perbatasan klip."
+  root_cause: "Algoritma pemotongan mengunci durasi penambahan/pengurangan hanya pada nilai bulat (fixed 3 detik), tanpa membaca jeda hening gelombang audio dan tanpa menerapkan micro-crossfade."
+
+solution:
+  description: "Membangun kontrol timeline interaktif dengan resolusi milidetik (mm:ss.SSS). Mengintegrasikan Web Audio API untuk deteksi jeda hening (silence detection) dan menerapkan micro-crossfade 15ms pada setiap titik sambungan klip."
+  key_changes:
+    - "Refactoring data model segmen video dari detik integer ke startMs dan endMs bertipe float/integer milidetik."
+    - "Visualisasi waveform audio interaktif dengan snapping otomatis ke lembah desibel hening."
+    - "Penerapan audio micro-fade in/out 15ms pada sambungan klip untuk eliminasi letupan suara."
+
+verification:
+  test_performed: "E2E testing manipulasi drag handle timeline dengan step 10ms; ekspor video melalui FFmpeg menghasilkan file MP4 dengan audio terhubung mulus tanpa artefak letupan."
+  reviewed_by:
+    - role: "qa-engineer"
+      verdict: "approved"
+    - role: "tech-critic"
+      verdict: "approved"
+dual_approval:
+  qa_engineer: "approved"
+  tech_critic: "approved"

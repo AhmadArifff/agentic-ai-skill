@@ -1,0 +1,39 @@
+case_id: "case-20261016-production-sql-schema-sync"
+title: "Sinkronisasi Aman Dump Basis Data Produksi SQL tanpa Tabrakan Sequence Auto-Increment & Schema Drift"
+date: "2026-10-16"
+severity: "HIGH"
+category: "pattern"
+status: "verified_case"
+affected_component: "database/migrations & SQL Sync Pipeline"
+domain_tags:
+  - "database"
+  - "sql"
+  - "postgresql"
+  - "mysql"
+  - "schema-drift"
+  - "migrations"
+  - "devops"
+
+summary: "Mencegah duplikasi kunci utama dan crash migrasi saat mengimpor dump database produksi (sunjaya_prod-*.sql) ke lingkungan lokal dengan reset sequence otomatis dan audit schema drift."
+
+problem:
+  symptom: "Setelah mengimpor dump SQL produksi ke mesin development, fitur create/insert baru pada tabel transaksi operasional mengalami error 'duplicate key value violates unique constraint' atau 'column does not exist'."
+  root_cause: "Proses import manual mengisi data dengan ID eksplisit tanpa memperbarui sequence generator internal database (setval() PostgreSQL atau AUTO_INCREMENT MySQL), dan terdapat ketidaksesuaian kolom baru antara branch dev dan snapshot prod."
+
+solution:
+  description: "Menerapkan alur sinkronisasi 4 tahap: sanitasi PII, audit schema diff, impor idempoten, dan eksekusi skrip sinkronisasi sequence ke MAX(id) untuk seluruh tabel relasional."
+  key_changes:
+    - "Penyediaan script auto-reset sequence: SELECT setval(pg_get_serial_sequence(table, 'id'), max(id)) FROM table."
+    - "Pemeriksaan schema drift sebelum pengujian fungsional modul baru."
+    - "Pemberlakuan aturan migrasi backward-compatible (kolom baru wajib nullable sebelum pengetatan constraint)."
+
+verification:
+  test_performed: "Impor file dump produksi sunjaya_prod-16-10-2026.sql, eksekusi sequence reset script, diikuti penambahan 50 transaksi operasional baru via API; seluruh ID baru terbit berurutan tanpa tabrakan."
+  reviewed_by:
+    - role: "qa-engineer"
+      verdict: "approved"
+    - role: "tech-critic"
+      verdict: "approved"
+dual_approval:
+  qa_engineer: "approved"
+  tech_critic: "approved"

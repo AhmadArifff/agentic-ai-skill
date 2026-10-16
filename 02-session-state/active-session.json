@@ -2,8 +2,8 @@
   "$schema": "./schema.yaml",
   "session_id": "sess-agentic-ai-master-dev",
   "project_name": "agentic-ai-skill",
-  "exported_at": "2026-09-14T11:30:00Z",
-  "primary_goal": "Pengembangan Ekosistem Multi-Agent Orchestration, Case-Bank Governance, dan Integrasi Spesialis ML/CV",
+  "exported_at": "2026-10-16T21:55:00Z",
+  "primary_goal": "Pengembangan Ekosistem Multi-Agent Orchestration, Case-Bank Governance (31 Kasus), 24 Spesialis Roles, dan Spoke Scaffolding",
   "current_stage": "building",
   "locked_constraints": [
     "Wajib menggunakan relative path di seluruh dokumentasi dan skill links",
@@ -38,7 +38,28 @@
       "id": "task-004",
       "title": "Integrasi Peran ML/Deep Learning/Computer Vision Specialist (ml-vision-engineer)",
       "owner_role": "ml-vision-engineer",
-      "status": "in_progress",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-005",
+      "title": "Integrasi Peran Spesialis Web3 & Blockchain Architect (web3-blockchain-architect)",
+      "owner_role": "web3-blockchain-architect",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-006",
+      "title": "Integrasi Peran Spesialis Multimedia & Video Retention Engineering (multimedia-video-engineer)",
+      "owner_role": "multimedia-video-engineer",
+      "status": "done",
+      "rework_iteration_count": 0
+    },
+    {
+      "id": "task-007",
+      "title": "Adopsi 4 Knowledge Blueprints & 4 Verified Production Cases Baru ke Case-Bank (Total 31 Kasus)",
+      "owner_role": "tech-critic",
+      "status": "done",
       "rework_iteration_count": 0
     }
   ],
@@ -47,6 +68,9 @@
     "problem-decomposer -> backend-engineer",
     "backend-engineer -> qa-engineer",
     "qa-engineer -> goal-tracker",
-    "goal-tracker -> ml-vision-engineer"
+    "goal-tracker -> ml-vision-engineer",
+    "ml-vision-engineer -> web3-blockchain-architect",
+    "web3-blockchain-architect -> multimedia-video-engineer",
+    "multimedia-video-engineer -> tech-critic"
   ]
 }

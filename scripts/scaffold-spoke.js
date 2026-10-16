@@ -111,6 +111,48 @@ const PRESETS = {
       }
     ]
   },
+  'video-ai': {
+    techStack: 'Multimedia & Video Automation (Canvas, WebCodecs, FFmpeg, Audio Waveform API), TypeScript, Next.js',
+    primaryBuilder: 'multimedia-video-engineer & frontend-engineer',
+    constraints: [
+      {
+        id: 'C-01',
+        category: 'multimedia',
+        constraint: 'Timeline editor wajib mendukung penyesuaian detik dan milidetik fleksibel (bukan fixed interval)',
+        locked: true
+      },
+      {
+        id: 'C-02',
+        category: 'retention',
+        constraint: 'Wajib mengoptimalkan The 3-Second Hook dan safe-zone format 9:16 vertikal',
+        locked: true
+      },
+      {
+        id: 'C-03',
+        category: 'audio',
+        constraint: 'Terapkan micro-crossfade (15ms) pada setiap titik potong sambungan klip audio',
+        locked: true
+      }
+    ]
+  },
+  'service-pos': {
+    techStack: 'Point of Sale & Multi-Stage Service Fulfillment (Next.js/Laravel, PostgreSQL, Thermal Printing)',
+    primaryBuilder: 'backend-engineer & ui-ux-designer',
+    constraints: [
+      {
+        id: 'C-01',
+        category: 'business_rule',
+        constraint: 'Wajib menerapkan Finite State Machine pada tahapan pengerjaan jasa dengan audit log',
+        locked: true
+      },
+      {
+        id: 'C-02',
+        category: 'financial_ledger',
+        constraint: 'Kalkulasi diskon bertingkat dan saldo kasir wajib menggunakan integer cent/sen tanpa floating rounding error',
+        locked: true
+      }
+    ]
+  },
   'general': {
     techStack: 'Fullstack Modern Web Application',
     primaryBuilder: 'software-engineer & frontend-engineer',

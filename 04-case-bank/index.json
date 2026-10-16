@@ -1,9 +1,9 @@
 {
-  "version": "1.2.0",
-  "updated_at": "2026-10-07T23:08:44.388Z",
-  "total_cases": 27,
+  "version": "1.3.0",
+  "updated_at": "2026-10-16T21:50:00.000Z",
+  "total_cases": 31,
   "categories": {
-    "pattern": 26,
+    "pattern": 30,
     "anti_pattern": 1
   },
   "cases": [
@@ -499,6 +499,86 @@
         "color-integrity",
         "ux",
         "lightbox-modal"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261016-financial-ledger-driver-withdrawal",
+      "title": "Pemisahan Dua Lapisan Tabel Request & Disbursement pada Penarikan Insentif Mitra Driver (Financial Ledger Pattern)",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261016-financial-ledger-driver-withdrawal.yaml",
+      "domain_tags": [
+        "backend",
+        "database",
+        "financial-ledger",
+        "concurrency",
+        "driver-incentives",
+        "laravel",
+        "atomic-locking"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261016-web3-ssr-hydration-mismatch",
+      "title": "Resolusi React SSR/CSR Hydration Mismatch pada Pure Client-Side Web3 Trading Terminal",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261016-web3-ssr-hydration-mismatch.yaml",
+      "domain_tags": [
+        "frontend",
+        "web3",
+        "solana",
+        "nextjs",
+        "react",
+        "ssr",
+        "hydration"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261016-video-shorts-millisecond-retention",
+      "title": "Presisi Milidetik Timeline Snapping & Koreografi Pacing Retensi Penonton pada Pemotongan Video Shorts",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261016-video-shorts-millisecond-retention.yaml",
+      "domain_tags": [
+        "multimedia",
+        "video-editing",
+        "shorts",
+        "retention",
+        "timeline",
+        "audio-waveform",
+        "canvas"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261016-production-sql-schema-sync",
+      "title": "Sinkronisasi Aman Dump Basis Data Produksi SQL tanpa Tabrakan Sequence Auto-Increment & Schema Drift",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261016-production-sql-schema-sync.yaml",
+      "domain_tags": [
+        "database",
+        "sql",
+        "postgresql",
+        "mysql",
+        "schema-drift",
+        "migrations",
+        "devops"
       ],
       "dual_approval": {
         "qa_engineer": "approved",

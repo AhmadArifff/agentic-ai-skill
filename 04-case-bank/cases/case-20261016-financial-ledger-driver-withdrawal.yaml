@@ -1,0 +1,39 @@
+case_id: "case-20261016-financial-ledger-driver-withdrawal"
+title: "Pemisahan Dua Lapisan Tabel Request & Disbursement pada Penarikan Insentif Mitra Driver (Financial Ledger Pattern)"
+date: "2026-10-16"
+severity: "HIGH"
+category: "pattern"
+status: "verified_case"
+affected_component: "app/Repositories/OperationalDaily & DriverWithdrawal Module"
+domain_tags:
+  - "backend"
+  - "database"
+  - "financial-ledger"
+  - "concurrency"
+  - "driver-incentives"
+  - "laravel"
+  - "atomic-locking"
+
+summary: "Mengeliminasi race condition double-withdrawal dan ketidakseimbangan pencatatan insentif driver dengan memisahkan tabel permintaan (driver_deposite_withdraw_requests) dan realisasi pembayaran (driver_withdrawals) menggunakan row-level lock dan width_code."
+
+problem:
+  symptom: "Pengemudi yang telah menyelesaikan perjalanan operasional mengalami penundaan insentif atau saldo tertarik ganda saat melakukan klik berulang pada menu penarikan dana di aplikasi mitra."
+  root_cause: "Tabel penarikan dana mencampuradukkan status pengajuan dengan riwayat transfer kas, dan kueri pemotongan saldo tidak menerapkan database lockForUpdate(), menyebabkan race condition saat request paralel tiba."
+
+solution:
+  description: "Menerapkan pola Financial Ledger dua lapis. Pengajuan dicatat di tabel request dengan saldo terkunci (held balance), sementara eksekusi pembayaran dicatat di tabel withdrawals terpisah dengan kode transaksi unik berelasi (width_code)."
+  key_changes:
+    - "Pemisahan entitas: driver_deposite_withdraw_requests (status PENDING/APPROVED/REJECTED) dan driver_withdrawals (status PAID/DISBURSED)."
+    - "Penerapan DB::transaction dan lockForUpdate() pada pengecekan saldo dompet pengemudi."
+    - "Pembangkitan kode referensi audit unik berurutan: WTH-[YYYYMMDD]-[DRIVER_ID]-[SEQUENCE]."
+
+verification:
+  test_performed: "Simulasi 20 concurrent withdrawal requests serentak menggunakan Apache Bench / Artillery; saldo terpotong tepat satu kali, seluruh request sisa ditolak dengan status insufficient balance atau pending."
+  reviewed_by:
+    - role: "qa-engineer"
+      verdict: "approved"
+    - role: "tech-critic"
+      verdict: "approved"
+dual_approval:
+  qa_engineer: "approved"
+  tech_critic: "approved"

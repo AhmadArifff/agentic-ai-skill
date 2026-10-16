@@ -8,7 +8,7 @@
 
 Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** dengan pemisahan peran secara tegas antara pelaksana (**Builder**) dan penguji (**Reviewer**) guna mengeliminasi *echo-chamber hallucination*.
 
-### 4-Tier Hirarki Peran (22 Spesialis) & 14 Expert Personas DNA:
+### 4-Tier Hirarki Peran (24 Spesialis) & 16 Expert Personas DNA:
 1. **Generalist Tier (Koordinasi & Dekomposisi)**:
    - `triage-router`: Gerbang utama penerima instruksi (*Single Door Policy*), didukung persona **Jeff Bezos** (Working Backwards) & **Paul Graham** (Relentless Execution).
    - `problem-decomposer`: Memecah problem menjadi sub-task independen, acceptance criteria, dan dependensi terstruktur.
@@ -21,6 +21,8 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
    - `frontend-engineer`: Dual-ekosistem Next.js & Vue 3 / Nuxt 3, UI/UX Pro Max, Tailwind, WebSockets, Creative Suite, dan WebGL 3D ([`skills/frontend/SKILL.md`](./skills/frontend/SKILL.md)), didukung persona **Matias Duarte** (Material Metaphor) & **Alan Cooper** (Goal-Directed).
    - `ui-ux-designer`: Hierarki visual, micro-interactions, motion personality, dan design DNA ([`skills/design-dna/SKILL.md`](./skills/design-dna/SKILL.md), [`skills/paint/SKILL.md`](./skills/paint/SKILL.md), [`skills/cast/SKILL.md`](./skills/cast/SKILL.md)), didukung persona **Don Norman** (Affordance & Mental Models).
    - `ml-vision-engineer`: Spesialis Machine Learning, Deep Learning, dan Computer Vision: clustering, classification, YOLOv8/v11, ONNX INT8 quantization, FastAPI backend, dan in-browser WebGPU ([`skills/ml-vision/SKILL.md`](./skills/ml-vision/SKILL.md)).
+   - `web3-blockchain-architect`: Pure Client-Side terminal, Solana Web3.js & Anchor, anti-hydration mismatch Next.js, zero-secret-leak, dan resilient RPC fallback ([`01-roles/builders/web3-blockchain-architect.md`](./01-roles/builders/web3-blockchain-architect.md)), didukung persona **Anatoly Yakovenko** (High-Throughput Concurrency).
+   - `multimedia-video-engineer`: Otomasi pemotongan video Shorts 9:16, timeline interaktif presisi milidetik, audio waveform snapping, dan The 3-Second Hook ([`01-roles/builders/multimedia-video-engineer.md`](./01-roles/builders/multimedia-video-engineer.md)), didukung persona **MKBHD** & **Casey Neistat** (Retention Pacing).
    - `copywriter`: Copy deck, voice, mikrocopy humanis, dan penempatan nilai pasar, didukung persona **Seth Godin** (The Purple Cow).
    - `ai-engineer`: Arsitektur prompt terstruktur, alokasi token budget, skema JSON tool calling, dan isolasi prompt injection.
 3. **Specific Tier — Reviewers (Penguji Kualitas & Ketahanan — No Self-Review)**:
@@ -147,9 +149,13 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
-   - 27 Kasus Produksi Terverifikasi dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`).
-   - Mencakup preseden arsitektur: soft-delete credentials, single table DataTables, cross-database streaming, PostgreSQL pool circuit breaker, COD checkout guard, real-time chat sync, IDOR order scoping, dan reactive studio customization.
+   - 31 Kasus Produksi Terverifikasi dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`).
+   - Mencakup preseden arsitektur: financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, soft-delete credentials, single table DataTables, cross-database streaming, COD checkout guard, real-time chat sync, dan reactive studio customization.
 4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
+   - `financial-ledger-transactions.md`: Blueprint pemisahan tabel request vs disbursement penarikan insentif supir dengan atomic locking dan `width_code`.
+   - `web3-client-architecture.md`: Blueprint Pure Client-Side Web3 Terminal, eliminasi Next.js SSR hydration mismatch, dan resilient RPC fallback pool.
+   - `video-retention-engineering.md`: Blueprint video shorts viral (The 3-Second Hook, pacing, timeline sub-detik milidetik, audio waveform snapping).
+   - `production-db-sync.md`: SOP sanitasi, reset auto-increment sequence, dan mitigasi schema drift saat mengimpor dump SQL produksi.
    - `hub-and-spoke-sync.md`: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
    - `spoke-adoption-guide.md`: Protokol adopsi, 3 peran penyelaras (`domain-retriever`, `policy-schema-enforcer`, `goal-tracker`), dan 6 komponen wajib (`.agents` Core Essentials) untuk proyek anak.
    - `payment-logistics-integrations.md`: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
@@ -157,4 +163,4 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `stubs/`: Template boilerplate arsitektur 4-layer (`controller.stub`, `service.stub`, `repository.stub`) untuk standarisasi pembuatan modul baru.
    - `05-spoke-template/` & `scripts/scaffold-spoke.js`: Mesin scaffolding otomatis starter pack `.agents` anak (`npm run spoke:scaffold`).
    - `.agents/README.md`: Peta navigasi aturan lokal berbasis area tugas (Backend, Routing, DB, UI Form, Reports, RBAC, Export).
-   - `01-roles/EXPERT_PERSONAS_DNA.md`: 14 Karakteristik Ahli (Mental Models) pemandu penalaran multi-agen.
+   - `01-roles/EXPERT_PERSONAS_DNA.md`: 16 Karakteristik Ahli (Mental Models) pemandu penalaran multi-agen.

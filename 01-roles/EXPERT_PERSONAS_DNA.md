@@ -34,6 +34,14 @@ Dokumen ini mendefinisikan persona dan model mental para ahli dunia yang diadops
 - **Peran**: `ui-ux-designer`
 - **Mental Model**: Jika pengguna bingung cara menekan tombol atau memilih warna kawat bulu, kesalahannya ada pada desainnya. Affordance tombol harus jelas dapat diklik, feedback visual harus instan.
 
+### Anatoly Yakovenko (High-Throughput Concurrency & Proof of History)
+- **Peran**: `web3-blockchain-architect`
+- **Mental Model**: Maksimalkan konkurensi hardware, hilangkan bottleneck serial, dan bangun terminal non-kustodian client-side yang zero-latency dan bebas memory leak.
+
+### Marques Brownlee & Casey Neistat (Visual Pacing, Frame Polish & Audience Retention)
+- **Peran**: `multimedia-video-engineer`
+- **Mental Model**: Tiga detik pertama menentukan segalanya (*The 3-Second Hook*). Potong klip dengan presisi milidetik, selaraskan dengan ketukan audio, dan pertahankan ritme visual dinamis.
+
 ---
 
 ## 3. Reviewer Tier (Penguji Kualitas & Ketahanan)

@@ -1,0 +1,39 @@
+case_id: "case-20261016-web3-ssr-hydration-mismatch"
+title: "Resolusi React SSR/CSR Hydration Mismatch pada Pure Client-Side Web3 Trading Terminal"
+date: "2026-10-16"
+severity: "MEDIUM"
+category: "pattern"
+status: "verified_case"
+affected_component: "components/web3/WalletButton & TradingTerminalView"
+domain_tags:
+  - "frontend"
+  - "web3"
+  - "solana"
+  - "nextjs"
+  - "react"
+  - "ssr"
+  - "hydration"
+
+summary: "Menghilangkan error runtime konsol 'A tree hydrated but some attributes of the server rendered HTML didn't match the client' pada terminal trading Web3 menggunakan hook useIsMounted dan dynamic import non-SSR."
+
+problem:
+  symptom: "Konsol browser menampilkan pesan kesalahan hydration mismatch berulang kali saat halaman trading dibuka, menyebabkan flicker UI dan kegagalan inisialisasi tombol dompet Phantom/Solflare."
+  root_cause: "Komponen Next.js merender status disconnected secara SSR di server, tetapi pada fase hydration browser mendeteksi extension wallet yang sudah terinjeksi di window.solana, menghasilkan pohon DOM klien yang berbeda dari server."
+
+solution:
+  description: "Menerapkan Two-Pass Rendering Guard melalui hook useIsMounted(). Selama proses SSR dan hydration awal, render skeleton statis yang identik antara server dan klien. Hanya aktifkan pembacaan status wallet setelah komponen terpasang (mounted) di DOM."
+  key_changes:
+    - "Penciptaan hook reusable useIsMounted() dengan flag state boolean di useEffect."
+    - "Pembungkusan tombol wallet dan grafik terminal trading dengan dynamic import ssr: false."
+    - "Penyediaan komponen skeleton placeholder netral selama inisialisasi awal."
+
+verification:
+  test_performed: "Pengujian navigasi Next.js production build (next build && next start) dengan browser Playwright yang memiliki extension wallet aktif; console log bersih 0 hydration error."
+  reviewed_by:
+    - role: "qa-engineer"
+      verdict: "approved"
+    - role: "tech-critic"
+      verdict: "approved"
+dual_approval:
+  qa_engineer: "approved"
+  tech_critic: "approved"
