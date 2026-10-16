@@ -131,7 +131,7 @@ Sebelum deliverable diserahkan kepada pengguna, agen wajib memvalidasi ketiadaan
 Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rules/`, `workflows/`, dan `knowledge/`:
 
 1. **Enterprise Guardrails & Rules (`rules/` & `.agents/rules/`)**:
-   - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, dan isolasi kredensial rahasia.
+   - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, isolasi kredensial rahasia, dan Zero-Direct-CRUD ke database MySQL/PostgreSQL/phpMyAdmin (wajib sediakan query SQL manual).
    - `01-workflow-discipline.md`: Siklus OODA, Review Gate (rincian tabel terdampak INSERT), eliminasi dead code sisa iterasi, higienitas komentar kode, dan label UI bebas jargon teknis.
    - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), validasi FormRequest terpisah, transactional safety, dan guard clause early exit.
    - `20-database-standards.md`: Standar konvensi tabel, indeks foreign key komposit, isolasi soft-delete query, dan eliminasi N+1 problem.

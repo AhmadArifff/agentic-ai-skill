@@ -24,9 +24,15 @@ Jika proyek mengadopsi **Supabase** sebagai Backend/Database:
 
 ---
 
-## 2. Modul Relational Database Lokal (MySQL / PostgreSQL / Laravel 4-Layer)
+## 2. Modul Relational Database Lokal (MySQL / PostgreSQL / phpMyAdmin / Laravel 4-Layer)
 
 Jika proyek mengadopsi basis data relasional mandiri:
-1. **Isolasi Kueri pada Repository**: Dilarang menuliskan raw SQL query atau pemanggilan langsung Eloquent/Prisma di dalam Controller atau UI components. Seluruh kueri wajib berada di dalam Repository interface.
-2. **Transactional Safety**: Operasi mutasi multi-tabel (seperti penarikan dana, pembuatan pesanan, atau pembagian komisi) wajib dibungkus dalam transaksi database atomik dengan penanganan rollback otomatis.
-3. **Pencegahan N+1 Query**: Wajib menggunakan Eager Loading (`with(['relation'])`) pada setiap kueri daftar data tabular.
+1. **Zero-Direct-CRUD ke phpMyAdmin (MUTLAK)**:
+   - Agen **DILARANG KERAS** mengeksekusi query mutasi data (`INSERT`, `UPDATE`, `DELETE`) atau perubahan skema (`ALTER`, `DROP`, `CREATE`) langsung ke database MySQL/PostgreSQL/phpMyAdmin secara otonom/diam-diam.
+   - Agen **DILARANG KERAS** menjalankan migrasi otomatis (`php artisan migrate`, `migrate:fresh`, dll).
+   - **Kewajiban Agen**: Agen **CUKUP MEMBUATKAN QUERY SQL TERVERIFIKASI** (dalam blok kode markdown SQL yang bersih atau file skrip `.sql`) agar **PENGGUNA SENDIRI YANG MENGEKSEKUSINYA DI PHPMYADMIN**.
+   - Ini adalah standar baku yang telah terbukti aman di sistem `adminShuttleV3` dan `admin-sunjaya`.
+2. **Isolasi Kueri pada Repository**: Dilarang menuliskan raw SQL query atau pemanggilan langsung Eloquent/Prisma di dalam Controller atau UI components. Seluruh kueri wajib berada di dalam Repository interface.
+3. **Transactional Safety**: Operasi mutasi multi-tabel (seperti penarikan dana, pembuatan pesanan, atau pembagian komisi) wajib dibungkus dalam transaksi database atomik dengan penanganan rollback otomatis.
+4. **Pencegahan N+1 Query**: Wajib menggunakan Eager Loading (`with(['relation'])`) pada setiap kueri daftar data tabular.
+5. **Dump SQL Sebagai Knowledge Ground-Truth**: AI wajib membaca file dump skema yang disediakan di proyek (seperti `transport_system-*.sql` atau `sunjaya_prod-*.sql`) sebagai acuan struktur tabel, tipe data, dan relasi yang sah.

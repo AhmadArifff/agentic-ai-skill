@@ -248,6 +248,14 @@ async function run() {
       constraint: `Database Aktif: Menggunakan ${databaseChoice.toUpperCase()} dengan transaksi atomik dan isolasi kueri pada repository layer.`,
       locked: true
     });
+    if (databaseChoice.includes('mysql') || databaseChoice.includes('postgres') || projectType === 'laravel') {
+      compiledConstraints.push({
+        id: 'C-ZERO-DIRECT-CRUD',
+        category: 'database',
+        constraint: 'Zero-Direct-CRUD: Dilarang eksekusi/injeksi mutasi langsung ke database phpMyAdmin; agen wajib menyediakan query SQL siap pakai untuk dieksekusi manual oleh pengguna di phpMyAdmin.',
+        locked: true
+      });
+    }
   }
 
   // Inject Architecture constraint

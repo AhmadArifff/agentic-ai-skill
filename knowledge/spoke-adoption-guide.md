@@ -48,8 +48,11 @@ Ketika sebuah proyek mengadopsi `.agents` Master, pengguna disuguhkan 2 pertanya
     1. **Injeksi Data Idempoten**: Skrip seeding awal menggunakan `upsert` (`ON CONFLICT DO UPDATE`) agar tidak terjadi duplikasi baris data.
     2. **Pembuatan Bucket Storage**: Otomasi penyediaan bucket `public-assets` (gambar katalog publik) dan `private-documents` (dokumen/bukti bayar dengan *signed URL* bertempo).
     3. **Penyimpanan Path**: Database hanya menyimpan path relatif di bucket (misal: `documents/2026/proof-001.jpg`), bukan absolute signed URL yang kedaluwarsa.
-- **Pilihan B: PostgreSQL / MySQL Relasional (Laravel / Prisma)**:
-  * Menerapkan 4-layer Repository pattern, migrasi relasional, isolasi soft-delete, dan transactional atomic safety.
+- **Pilihan B: PostgreSQL / MySQL Relasional (Laravel / phpMyAdmin / Prisma)**:
+  * **Zero-Direct-CRUD ke phpMyAdmin (MUTLAK)**: Agen **DILARANG KERAS** melakukan eksekusi/injeksi CRUD (`INSERT`, `UPDATE`, `DELETE`) atau perubahan skema (`ALTER`, `DROP`, `CREATE`) langsung ke database phpMyAdmin.
+  * **Kewajiban Agen**: Agen **CUKUP MEMBUATKAN QUERY SQL TERVERIFIKASI** (dalam blok kode markdown SQL yang bersih atau file skrip `.sql`) agar pengguna sendiri yang memasukkan dan mengeksekusinya di phpMyAdmin.
+  * Menerapkan arsitektur 4-layer (Controller -> Service -> Repository -> Model), isolasi soft-delete, transaksi atomik, dan pencegahan N+1 query.
+  * File dump skema (seperti `transport_system-*.sql` atau `sunjaya_prod-*.sql`) dijadikan sebagai *knowledge ground-truth*.
 - **Pilihan C: SQLite / Local / None**:
   * Menyesuaikan konfigurasi penyimpanan data lokal atau in-memory state.
 
