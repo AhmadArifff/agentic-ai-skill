@@ -136,6 +136,7 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), validasi FormRequest terpisah, transactional safety, dan guard clause early exit.
    - `20-database-standards.md`: Standar konvensi tabel, indeks foreign key komposit, isolasi soft-delete query, dan eliminasi N+1 problem.
    - `30-frontend-standards.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, anti-clipping modal datepicker, dan DOM memory cleanup.
+   - `30-ui-component-reasoning.md`: Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover), Z-index layering, dan auto-dismiss timers.
    - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik data finansial, dan plain icon detail.
    - `40-security-standards.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
    - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing).

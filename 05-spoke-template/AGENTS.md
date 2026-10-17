@@ -48,6 +48,7 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
   - [01-workflow-discipline.md](./rules/01-workflow-discipline.md): Disiplin OODA loop, 7 pilar task review, pelacakan sesi, dan eliminasi zombie code.
   - [10-domain-architecture.md](./rules/10-domain-architecture.md): Standar arsitektur teknis spesifik proyek (kepatuhan standar eksisting atau perumusan OOP/Repository modular).
   - [20-database-storage.md](./rules/20-database-storage.md): Standar integrasi basis data, injeksi data, dan manajemen bucket storage aset.
+  - [30-ui-component-reasoning.md](./rules/30-ui-component-reasoning.md): Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover vs Inline Alert).
 - `workflows/`:
   - [git-workflow.md](./workflows/git-workflow.md): Protokol Git Pull-Before-Build & Pull-Before-Push untuk mencegah merge conflict.
   - [task-review-protocol.md](./workflows/task-review-protocol.md): Evaluasi 7 pilar sebelum penulisan kode baru.
