@@ -3,6 +3,7 @@ const path = require('path');
 
 const userHome = process.env.USERPROFILE || process.env.HOME;
 const globalConfigRules = path.join(userHome, '.gemini', 'config', 'rules');
+const globalConfigAgents = path.join(userHome, '.gemini', 'config', 'AGENTS.md');
 const adminSunjayaRules = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'rules');
 
 // 1. Ensure directories exist
@@ -13,7 +14,7 @@ if (!fs.existsSync(globalConfigRules)) {
 // 2. Updated content for agentic-ai-orchestration.md
 const orchestrationContent = `# Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 42 katalog skill, serta protokol proteksi basis data dan sesi state.
+> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 42 katalog skill, serta protokol proteksi basis data, sesi state, dan rekayasa antarmuka visual-first.
 
 ---
 
@@ -67,7 +68,15 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 7. **Protokol Onboarding 2 Pertanyaan**:
    - Pertanyaan 1 (Git Workflow): Apakah hasil development langsung di-push ke GitHub? Jika ya: \`git pull\` sebelum kerja, \`git pull\` sesudah kerja untuk validasi konflik, baru \`git push\`.
    - Pertanyaan 2 (Database & Storage): Apakah menggunakan Supabase (otomasi seed & bucket storage) atau MySQL/PostgreSQL/phpMyAdmin (Zero-Direct-CRUD SQL manual).
-8. **Inversion & Anti-Fallacy Veto**: Persona Charlie Munger pada \`tech-critic\` memiliki hak veto untuk menolak kode yang memuat *premature optimization*, asumsi rapuh, atau bias konfirmasi.
+8. **Visual-First Engineering & Visual Anchor Protocol (Rule 32)**:
+   - Dilarang keras melakukan *blind slicing* pada tugas antarmuka UI.
+   - Di tahap Planning & Review, agen **WAJIB menyajikan ASCII Wireframe kasar** dan mengklarifikasi **Jangkar Referensi Visual (*Visual Anchor*)**:
+     - *Metode A*: Minta/gunakan screenshot desain dari \`scratch/ui-references/\`.
+     - *Metode B*: Kiblat desain acuan (Untitled UI / Stripe Dashboard / Vercel Dark Mode).
+     - *Metode C*: Mockup visual AI via \`generate_image\` jika pengguna belum memiliki gambaran kasar.
+   - Agen dilarang slicing menggunakan \`<div>\` mentah (eliminasi *Passive Skill Syndrome*), wajib aktifkan skill komponen terpasang (\`skills/untitled-ui\`, \`skills/shadcn-ui\`, \`skills/21st-dev\`).
+   - Seluruh referensi visual wajib dipersistensikan di \`scratch/\` untuk memori session state yang tidak mengalami halusinasi.
+9. **Inversion & Anti-Fallacy Veto**: Persona Charlie Munger pada \`tech-critic\` memiliki hak veto untuk menolak kode yang memuat *premature optimization*, asumsi rapuh, atau bias konfirmasi.
 `;
 
 fs.writeFileSync(path.join(globalConfigRules, 'agentic-ai-orchestration.md'), orchestrationContent, 'utf8');
@@ -87,10 +96,25 @@ if (fs.existsSync(coreGuardrailsSrc)) {
   console.log('✅ Copied 00-core-guardrails.md to ~/.gemini/config/rules/');
 }
 
-// 5. Sync 30-ui-component-reasoning.md to admin-sunjaya-dev if exists
+// 5. Copy 32-visual-first-engineering.md to global rules
+const visualFirstSrc = path.join(__dirname, '..', 'rules', '32-visual-first-engineering.md');
+if (fs.existsSync(visualFirstSrc)) {
+  fs.copyFileSync(visualFirstSrc, path.join(globalConfigRules, '32-visual-first-engineering.md'));
+  console.log('✅ Copied 32-visual-first-engineering.md to ~/.gemini/config/rules/');
+}
+
+// 6. Sync AGENTS.md to global AGENTS.md
+const masterAgentsMd = path.join(__dirname, '..', 'AGENTS.md');
+if (fs.existsSync(masterAgentsMd)) {
+  fs.copyFileSync(masterAgentsMd, globalConfigAgents);
+  console.log('✅ Synced master AGENTS.md to ~/.gemini/config/AGENTS.md');
+}
+
+// 7. Sync rules to admin-sunjaya-dev if exists
 if (fs.existsSync(adminSunjayaRules)) {
   fs.copyFileSync(uiReasoningSrc, path.join(adminSunjayaRules, '30-ui-component-reasoning.md'));
-  console.log('✅ Synced 30-ui-component-reasoning.md to admin-sunjaya-dev/.agents/rules/');
+  fs.copyFileSync(visualFirstSrc, path.join(adminSunjayaRules, '32-visual-first-engineering.md'));
+  console.log('✅ Synced 30-ui-component-reasoning.md and 32-visual-first-engineering.md to admin-sunjaya-dev/.agents/rules/');
 } else {
   console.log('⚠️ admin-sunjaya-dev rules path not found at: ' + adminSunjayaRules);
 }

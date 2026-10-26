@@ -37,6 +37,7 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
    Jika terdapat aturan spesifik di [PRD.md](../PRD.md), `RULES.md`, atau `rules/` lokal, sistem **100% mematuhi aturan lokal tersebut** untuk logika bisnis, skema data, dan alur aplikasi.
 2. **Guardrails Global Tetap Aktif**:
    Standar keamanan (OWASP, larangan hardcoded secrets), filter anti-slop (bebas em dash, rasio kontras WCAG AA), dan 42 skill global (`skills/`) tetap aktif mengawal kualitas pengiriman (*Mandatory Delivery Gate*).
+3. **Visual-First Engineering & Visual Anchor Protocol**: Dilarang keras melakukan *blind slicing*. Agen wajib menyajikan ASCII Wireframe di tahap review dan mengklarifikasi Jangkar Referensi (Metode A screenshot di `scratch/ui-references/`, Metode B kiblat desain Untitled UI/Stripe, atau Metode C AI mockup) sebelum menulis kode frontend ([`rules/32-visual-first-engineering.md`](./rules/32-visual-first-engineering.md)).
 
 ---
 
@@ -49,6 +50,7 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
   - [10-domain-architecture.md](./rules/10-domain-architecture.md): Standar arsitektur teknis spesifik proyek (kepatuhan standar eksisting atau perumusan OOP/Repository modular).
   - [20-database-storage.md](./rules/20-database-storage.md): Standar integrasi basis data, injeksi data, dan manajemen bucket storage aset.
   - [30-ui-component-reasoning.md](./rules/30-ui-component-reasoning.md): Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover vs Inline Alert).
+  - [32-visual-first-engineering.md](./rules/32-visual-first-engineering.md): Protokol Visual Planning Gate (ASCII wireframe), Visual Anchor (scratch/ui-references/), dan 4 Invarian Visual Craftsmanship.
 - `workflows/`:
   - [git-workflow.md](./workflows/git-workflow.md): Protokol Git Pull-Before-Build & Pull-Before-Push untuk mencegah merge conflict.
   - [task-review-protocol.md](./workflows/task-review-protocol.md): Evaluasi 7 pilar sebelum penulisan kode baru.

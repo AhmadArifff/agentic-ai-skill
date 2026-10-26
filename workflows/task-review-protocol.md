@@ -85,6 +85,16 @@ Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan fo
 * **Penanganan Anggun di Kode (*Graceful Fallback*)**:
   - Pastikan kode memberikan notifikasi/flash message informatif jika konfigurasi belum diset, bukan fatal crash 500.
 
-### 5. Konfirmasi Tindak Lanjut
-* Mengajukan pertanyaan persetujuan kepada pengguna sebelum mulai menulis kode.
+### 5. Visual Planning Gate & Jangkar Referensi (Khusus Fitur Antarmuka / UI)
+*Wajib disertakan jika pengerjaan melibatkan pembuatan atau perubahan tampilan UI:*
+* **ASCII Layout Wireframe**: Gambaran visual kasar tata letak komponen (Header, KPI Cards, Filter Bar, Table/Grid, Pagination, Modal/Drawer).
+* **Jangkar Referensi (*Visual Anchor*)**:
+  - *Metode A*: Minta/gunakan screenshot desain dari `scratch/ui-references/` (misal: `scratch/ui-references/mockup.png`).
+  - *Metode B*: Kiblat desain acuan (misal: *Untitled UI / Stripe Dashboard* atau *Vercel Dark Mode*).
+  - *Metode C*: Penawaran pembuatan mockup AI via `generate_image` jika pengguna belum memiliki gambaran kasar.
+* **Skill Aktif**: Deklarasi skill yang diaktifkan (misal: `skills/untitled-ui`, `skills/shadcn-ui`, `skills/21st-dev`). Dilarang slicing dari `<div>` mentah.
+* **Persistensi State**: Pastikan aset acuan disimpan di `scratch/` untuk state session yang dapat dipakai kembali.
+
+### 6. Konfirmasi Tindak Lanjut (Human-in-the-Loop Approval)
+* Mengajukan pertanyaan persetujuan kepada pengguna terhadap logika, skrip SQL manual, dan wireframe visual sebelum mulai menulis kode.
 ```

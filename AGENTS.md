@@ -48,6 +48,7 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 3. **Circuit Breaker Loop Pengerjaan Ulang**: Jika suatu task mengalami revisi $\ge$ 3 kali berturut-turut pada siklus QA-Builder, hentikan proses otomatis dan minta klarifikasi langsung kepada pengguna (*Human-in-the-Loop*).
 4. **Session State Consistency**: Selalu periksa dan sinkronkan status `active_goal` dan sub-tugas pada `goal-tracker` agar percakapan panjang tidak mengalami *context drift*.
 5. **Kedaulatan Aturan Lokal (*Local Rules Precedence*)**: Jika pengguna menyediakan file aturan proyek (`DESIGN.md`, `RULES.md`, atau template komponen internal), sistem **100% mematuhi aturan lokal tersebut** dan mem-bypass katalog skill visual luar. Filter kualitas (*anti-slop* dan QA) tetap aktif sebagai penjaga stabilitas fungsional.
+6. **Visual-First Engineering & Visual Anchor Protocol**: Dilarang keras melakukan *blind slicing* pada tugas antarmuka UI. Agen wajib menyajikan ASCII Wireframe di tahap review, mengklarifikasi Jangkar Referensi (Metode A screenshot di `scratch/ui-references/`, Metode B kiblat desain Untitled UI/Stripe, atau Metode C AI mockup), serta mengaktifkan skill spesifik sebelum koding ([`rules/32-visual-first-engineering.md`](./rules/32-visual-first-engineering.md)).
 
 ---
 
@@ -138,6 +139,7 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `30-frontend-standards.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, anti-clipping modal datepicker, dan DOM memory cleanup.
    - `30-ui-component-reasoning.md`: Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover), Z-index layering, dan auto-dismiss timers.
    - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik data finansial, dan plain icon detail.
+   - `32-visual-first-engineering.md`: Protokol Visual Planning Gate (ASCII wireframe), Visual Anchor (scratch/ui-references/), dan 4 Invarian Visual Craftsmanship.
    - `40-security-standards.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
    - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing).
 2. **Standard Operating Workflows (`workflows/` & `.agents/workflows/`)**:
