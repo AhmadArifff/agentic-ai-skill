@@ -30,9 +30,11 @@ flowchart TD
    - Sanitasi input dan proteksi data sensitif.
 4. **Performance (Kinerja & Sumber Daya)**:
    - Periksa potensi query lambat, memory leak, atau loop rekursif.
-5. **UX & Accessibility (Pengalaman Pengguna)**:
-   - Pastikan layout adaptif di layar desktop dan mobile.
-   - Periksa kontras rasio warna (WCAG AA).
+5. **UX, Visual Planning & Accessibility (Pengalaman Pengguna)**:
+   - **Wajib untuk Tugas UI**: Sertakan ASCII Wireframe kasar dan klarifikasi Visual Anchor (Metode A screenshot di `scratch/ui-references/`, Metode B kiblat desain Untitled UI/Stripe, atau Metode C AI mockup) sesuai `Rule 32`.
+   - Pastikan layout adaptif di layar desktop dan mobile (bebas overflow horizontal).
+   - Periksa kontras rasio warna (WCAG AA $\ge$ 4.5:1).
+   - Wajib deklarasikan skill desain yang aktif (`skills/untitled-ui`, `skills/shadcn-ui`, `skills/21st-dev`). Dilarang slicing dari `<div>` mentah.
 6. **Edge Cases (Penanganan Kasus Ekstrem)**:
    - Tangani skenario koneksi putus, saldo nol, input kosong, atau double click submission.
 7. **Rollback Plan (Rencana Pembatalan)**:
