@@ -300,3 +300,4 @@ Setiap pembuatan SP atau View wajib mematuhi 5 pilar keamanan berikut:
 4. **Dokumentasi & Versi Repositori**:
    - Simpan salinan file DDL di repositori proyek (misal: `database/procedures/sp_process_driver_withdrawal.sql` atau `database/views/v_driver_daily_settlement.sql`).
    - Catat nama SP/View, fungsi, dan parameternya ke dalam `.agents/session-state.json` dan `bug-cases.md`.
+
