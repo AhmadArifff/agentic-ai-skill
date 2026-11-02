@@ -23,8 +23,11 @@ flowchart TD
 1. **Scope (Cakupan Tugas)**:
    - Tentukan secara jelas file apa saja yang akan dibuat atau diubah.
    - Cegah refactoring liar pada modul lain yang tidak berhubungan.
-2. **Schema (Dampak Skema Data / Tipe)**:
+2. **Schema & Database Strategy (Dampak Skema Data & Optimasi)**:
    - Identifikasi apakah ada perubahan field database, skema tipe data, atau struktur payload API.
+   - **Konsultasi SP/View Proaktif**: Jika tugas memuat agregasi laporan multi-tabel atau mutasi transaksi atomik, tawarkan penggunaan **Database View (`v_...`)** atau **Stored Procedure (`sp_...` / Supabase `rpc`)** kepada pengguna untuk optimasi kueri dan enkapsulasi logic.
+   - Wajib sertakan audit keamanan: `SQL SECURITY INVOKER` (MySQL) atau `SET search_path = public, pg_temp` (Postgres/Supabase), error rollback handler, dan parameter binding.
+   - Siapkan query SQL DDL terverifikasi untuk dieksekusi manual oleh pengguna (Zero-Direct-CRUD).
 3. **Security (Keamanan & Otorisasi)**:
    - Verifikasi otorisasi hak akses user/wallet.
    - Sanitasi input dan proteksi data sensitif.

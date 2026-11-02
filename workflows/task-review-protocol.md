@@ -74,13 +74,20 @@ Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan fo
   - File apa saja yang akan dibuat / diubah.
   - Apakah mempengaruhi modul lain (zero side-effects).
 
-### 4. Fallback Feedback & Skrip SQL Manual phpMyAdmin
+### 4. Fallback Feedback, Konsultasi SP/View & Skrip SQL Manual phpMyAdmin
 * **Status Ketersediaan Data di `transport_system`**:
   - Apakah data tabel, menu, permission, atau master data sudah lengkap?
   - Jika **TIDAK TERSEDIA / KOSONG**: Berikan **Fallback Feedback** transparan dan siapkan query SQL `INSERT` di bawah untuk ditambahkan pengguna ke phpMyAdmin secara manual (Dilarang silent bypass atau mock data palsu).
+* **Konsultasi Stored Procedure / Database View (Optimization Gate)**:
+  - *Jika tugas memuat join multi-tabel berat atau mutasi transaksi atomik*: AI **WAJIB menawarkan secara proaktif**:
+    > *"Untuk modul ini, apakah Anda ingin kita implementasikan menggunakan **Stored Procedure (`sp_...`)** atau **Database View (`v_...`)** agar lebih optimal? Keuntungannya: kueri pre-compiled di database lebih cepat, logic reusable tanpa membuat fungsi berulang di controller, serta transaksi atomik terlindungi."*
+  - Jelaskan aspek keamanan: `SQL SECURITY INVOKER` (MySQL) atau `SET search_path = public, pg_temp` (Postgres/Supabase), error rollback handler, dan parameter sanitization.
 * **Kueri SQL Siap Pakai**:
   ```sql
-  -- DDL/DML untuk dieksekusi manual oleh pengguna di phpMyAdmin
+  -- DDL/DML untuk dieksekusi manual oleh pengguna di phpMyAdmin / database console
+  -- 1. Skrip Pembuatan (CREATE TABLE / VIEW / PROCEDURE)
+  -- 2. Skrip Uji Coba Pemanggilan (Smoke Test)
+  -- 3. Skrip Rollback (DROP ... IF EXISTS)
   ```
 * **Penanganan Anggun di Kode (*Graceful Fallback*)**:
   - Pastikan kode memberikan notifikasi/flash message informatif jika konfigurasi belum diset, bukan fatal crash 500.

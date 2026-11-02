@@ -36,3 +36,18 @@ Jika proyek mengadopsi basis data relasional mandiri:
 3. **Transactional Safety**: Operasi mutasi multi-tabel (seperti penarikan dana, pembuatan pesanan, atau pembagian komisi) wajib dibungkus dalam transaksi database atomik dengan penanganan rollback otomatis.
 4. **Pencegahan N+1 Query**: Wajib menggunakan Eager Loading (`with(['relation'])`) pada setiap kueri daftar data tabular.
 5. **Dump SQL Sebagai Knowledge Ground-Truth**: AI wajib membaca file dump skema yang disediakan di proyek (seperti `transport_system-*.sql` atau `sunjaya_prod-*.sql`) sebagai acuan struktur tabel, tipe data, dan relasi yang sah.
+
+---
+
+## 3. Tata Kelola Stored Procedures & Database Views (MySQL & Supabase/Postgres)
+
+1. **Penawaran Proaktif Saat Setup / Planning**:
+   - Jika fitur membutuhkan kueri baca agregasi berat/join banyak tabel $\rightarrow$ tawarkan pembuatan **Database View** (`v_[nama]`).
+   - Jika fitur membutuhkan mutasi transaksi berulang multi-tabel $\rightarrow$ tawarkan pembuatan **Stored Procedure** (`sp_[nama]`) atau **Supabase RPC Function** (`rpc`).
+   - Sampaikan keuntungan ke pengguna: *"Kueri pre-compiled di database lebih cepat, tinggal panggil tanpa menduplikasi function/kueri berkali-kali di backend, dan menjamin transaksi atomik."*
+2. **Keamanan Mutlak (Security Invariants)**:
+   - **MySQL**: Wajib sertakan `DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; END;`, gunakan `SQL SECURITY INVOKER`, dan cegah SQL Injection dengan parameter binding (bukan string concatenation).
+   - **PostgreSQL / Supabase**: Jika menggunakan `SECURITY DEFINER`, **WAJIB pasang `SET search_path = public, pg_temp`** untuk mencegah search_path hijacking, batasi izin dengan `REVOKE ... FROM PUBLIC; GRANT ... TO authenticated;`, dan validasi `auth.uid()`.
+3. **Alur Sebelum & Sesudah (Before & After Flow)**:
+   - **Sebelum**: Sajikan rancangan DDL lengkap dan rollback script dalam blok kode SQL. Pengguna mengeksekusi manual di phpMyAdmin atau Supabase SQL Editor.
+   - **Sesudah**: Berikan kueri pengujian (smoke test), integrasikan pemanggilan ke Repository layer / Supabase client, dan simpan arsip DDL di repositori proyek.

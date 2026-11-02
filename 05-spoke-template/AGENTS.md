@@ -48,7 +48,7 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
   - [00-core-guardrails.md](./rules/00-core-guardrails.md): Aturan mutlak keamanan dan kepatuhan sistem.
   - [01-workflow-discipline.md](./rules/01-workflow-discipline.md): Disiplin OODA loop, 7 pilar task review, pelacakan sesi, dan eliminasi zombie code.
   - [10-domain-architecture.md](./rules/10-domain-architecture.md): Standar arsitektur teknis spesifik proyek (kepatuhan standar eksisting atau perumusan OOP/Repository modular).
-  - [20-database-storage.md](./rules/20-database-storage.md): Standar integrasi basis data, injeksi data, dan manajemen bucket storage aset.
+  - [20-database-storage.md](./rules/20-database-storage.md): Standar integrasi basis data, injeksi data, manajemen bucket storage aset, serta optimasi Stored Procedures & Database Views.
   - [30-ui-component-reasoning.md](./rules/30-ui-component-reasoning.md): Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover vs Inline Alert).
   - [32-visual-first-engineering.md](./rules/32-visual-first-engineering.md): Protokol Visual Planning Gate (ASCII wireframe), Visual Anchor (scratch/ui-references/), dan 4 Invarian Visual Craftsmanship.
 - `workflows/`:

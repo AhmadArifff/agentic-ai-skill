@@ -73,3 +73,22 @@ Dokumen ini mengatur tata kelola basis data, kebijakan perlindungan data eksisti
 ## 5. Kebijakan Migrasi Laravel (Dokumentasi Tanpa Eksekusi CLI)
 1. Perintah `php artisan migrate` **DILARANG KERAS**.
 2. Berkas migrasi di `database/migrations/` diperbarui hanya sebagai riwayat dokumentasi skema kode agar sinkron dengan perubahan manual yang telah dieksekusi di phpMyAdmin.
+
+---
+
+## 6. Standar Stored Procedures & Database Views (Optimasi & Keamanan)
+
+1. **Konsultasi & Penawaran Proaktif (Review Gate)**:
+   - Ketika tugas melibatkan agregasi baca kompleks (> 4 tabel join) atau transaksi mutasi multi-tabel krusial (seperti mutasi saldo supir, settlement kasir, validasi kuota tiket), AI **WAJIB menawarkan opsi penggunaan Stored Procedure / View kepada pengguna** di tahap review.
+   - Jelaskan keuntungannya: kueri pre-compiled lebih cepat, logic terpusat tanpa menulis fungsi berulang kali di controller/service, dan atomisitas transaksi terlindungi.
+2. **Kepatuhan Zero-Direct-CRUD pada DDL Stored Procedure / View**:
+   - Dilarang membuat SP/View langsung ke database via koneksi background.
+   - AI **WAJIB menyajikan skrip SQL DDL lengkap** (`CREATE PROCEDURE`, `CREATE VIEW`) disertai pembungkus `DELIMITER //`, `DROP IF EXISTS`, dan skrip rollback agar **PENGGUNA SENDIRI YANG MENGEKSEKUSINYA DI PHPMYADMIN**.
+3. **Standar Keamanan Mutlak Stored Procedure (MySQL)**:
+   - **Error Handling Wajib**: Sertakan `DECLARE EXIT HANDLER FOR SQLEXCEPTION BEGIN ROLLBACK; ... END;` dan blok transaksi atomik `START TRANSACTION; ... COMMIT;`.
+   - **Konteks Keamanan**: Gunakan `SQL SECURITY INVOKER` secara default untuk mencegah *privilege escalation*.
+   - **Anti-SQL Injection**: Gunakan parameter SQL langsung (`WHERE id = p_id`). Dilarang string concatenation dinamis tanpa parameter binding.
+   - **Pencegahan Race Condition**: Gunakan `FOR UPDATE` saat membaca saldo, kuota, atau status sebelum operasi pemotongan data.
+4. **Integrasi ke Layer Aplikasi**:
+   - Kueri pemanggilan Stored Procedure (`DB::select('CALL sp_...')`) atau View (`DB::table('v_...')`) **WAJIB diletakkan di dalam Repository layer**, bukan ditulis secara acak di Controller atau Blade view.
+   - Simpan berkas DDL di folder repositori (misal: `database/procedures/` atau `database/views/`) sebagai arsip version control.

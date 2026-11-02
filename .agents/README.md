@@ -51,6 +51,7 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 * **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (Kasus #01, #02, #03, dst.).
 * **[knowledge/hub-and-spoke-sync.md](./knowledge/hub-and-spoke-sync.md)**: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
 * **[knowledge/spoke-adoption-guide.md](./knowledge/spoke-adoption-guide.md)**: Panduan adopsi starter pack, 2 pertanyaan kustomisasi onboarding (Git & DB).
+* **[knowledge/stored-procedures-and-views.md](./knowledge/stored-procedures-and-views.md)**: Blueprint Stored Procedures & Database Views untuk MySQL (`adminShuttleV3`) & Supabase/Postgres.
 * **[knowledge/financial-ledger-transactions.md](./knowledge/financial-ledger-transactions.md)**: Blueprint pemisahan tabel request vs disbursement penarikan insentif supir dengan atomic lock.
 * **[knowledge/production-db-sync.md](./knowledge/production-db-sync.md)**: SOP sanitasi dan mitigasi schema drift impor dump SQL produksi.
 * **[knowledge/payment-logistics-integrations.md](./knowledge/payment-logistics-integrations.md)**: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.

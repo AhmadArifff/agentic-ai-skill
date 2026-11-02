@@ -62,9 +62,10 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 3. **Circuit Breaker Loop Pengerjaan Ulang**: Jika suatu task mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan proses otomatis dan minta klarifikasi langsung kepada pengguna (*Human-in-the-Loop*).
 4. **Session State Consistency**: Selalu periksa dan sinkronkan status \`active_goal\` dan sub-tugas pada \`session-state.json\` agar percakapan panjang tidak mengalami *context drift*.
 5. **Katalog 42 Skill Global**: Seluruh agen dapat memanfaatkan 42 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*).
-6. **Proteksi Basis Data Lokal (Zero-Direct-CRUD)**:
+6. **Proteksi Basis Data Lokal & Tata Kelola SP/View (Zero-Direct-CRUD)**:
    - Pada proyek berbasis MySQL / PostgreSQL / phpMyAdmin (seperti \`adminShuttleV3\` dan \`admin-sunjaya\`), agen **DILARANG KERAS** mengeksekusi kueri mutasi (\`INSERT\`, \`UPDATE\`, \`DELETE\`, \`ALTER\`) langsung ke database lokal secara otonom.
    - Agen hanya bertugas menyusun query SQL terverifikasi agar pengguna sendiri yang mengeksekusinya di phpMyAdmin.
+   - **Optimasi Stored Procedures & Database Views**: Pada modul laporan berat atau transaksi multi-tabel, agen proaktif menawarkan pembuatan Stored Procedure (\`sp_...\`) dan View (\`v_...\`) lengkap dengan error rollback handler, parameter binding, dan \`SQL SECURITY INVOKER\` (atau \`SET search_path = public, pg_temp\` pada Supabase/Postgres) agar logic reusable dan performa optimal.
 7. **Protokol Onboarding 2 Pertanyaan**:
    - Pertanyaan 1 (Git Workflow): Apakah hasil development langsung di-push ke GitHub? Jika ya: \`git pull\` sebelum kerja, \`git pull\` sesudah kerja untuk validasi konflik, baru \`git push\`.
    - Pertanyaan 2 (Database & Storage): Apakah menggunakan Supabase (otomasi seed & bucket storage) atau MySQL/PostgreSQL/phpMyAdmin (Zero-Direct-CRUD SQL manual).
@@ -110,11 +111,33 @@ if (fs.existsSync(masterAgentsMd)) {
   console.log('✅ Synced master AGENTS.md to ~/.gemini/config/AGENTS.md');
 }
 
-// 7. Sync rules to admin-sunjaya-dev if exists
+// 7. Sync knowledge and rules to internal .agents/
+const internalAgentRules = path.join(__dirname, '..', '.agents', 'rules');
+const internalAgentKnowledge = path.join(__dirname, '..', '.agents', 'knowledge');
+const spViewsKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'stored-procedures-and-views.md');
+const dbRulesSrc = path.join(__dirname, '..', 'rules', '20-database.md');
+
+if (fs.existsSync(spViewsKnowledgeSrc) && fs.existsSync(internalAgentKnowledge)) {
+  fs.copyFileSync(spViewsKnowledgeSrc, path.join(internalAgentKnowledge, 'stored-procedures-and-views.md'));
+  console.log('✅ Synced stored-procedures-and-views.md to .agents/knowledge/');
+}
+if (fs.existsSync(dbRulesSrc) && fs.existsSync(internalAgentRules)) {
+  fs.copyFileSync(dbRulesSrc, path.join(internalAgentRules, '20-database.md'));
+  console.log('✅ Synced 20-database.md to .agents/rules/');
+}
+
+// 8. Sync rules and knowledge to admin-sunjaya-dev if exists
+const adminSunjayaKnowledge = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'knowledge');
 if (fs.existsSync(adminSunjayaRules)) {
   fs.copyFileSync(uiReasoningSrc, path.join(adminSunjayaRules, '30-ui-component-reasoning.md'));
   fs.copyFileSync(visualFirstSrc, path.join(adminSunjayaRules, '32-visual-first-engineering.md'));
-  console.log('✅ Synced 30-ui-component-reasoning.md and 32-visual-first-engineering.md to admin-sunjaya-dev/.agents/rules/');
+  if (fs.existsSync(dbRulesSrc)) {
+    fs.copyFileSync(dbRulesSrc, path.join(adminSunjayaRules, '20-database.md'));
+  }
+  if (fs.existsSync(adminSunjayaKnowledge) && fs.existsSync(spViewsKnowledgeSrc)) {
+    fs.copyFileSync(spViewsKnowledgeSrc, path.join(adminSunjayaKnowledge, 'stored-procedures-and-views.md'));
+  }
+  console.log('✅ Synced 30-ui, 32-visual, 20-database, and stored-procedures-and-views to admin-sunjaya-dev/.agents/');
 } else {
   console.log('⚠️ admin-sunjaya-dev rules path not found at: ' + adminSunjayaRules);
 }
