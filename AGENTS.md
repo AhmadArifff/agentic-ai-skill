@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 43 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 44 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 43 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 44 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 43 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 44 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI & Component Registry Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -96,6 +96,7 @@ Seluruh agen dapat memanfaatkan 43 skill terdaftar di `skills/` dan `~/.gemini/c
    - `motionmaxxing`: Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas senior motion designer, seek-safe GSAP runtime, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg.
 2. **Interactive 3D / WebGL Graphics Suite**:
    - `3d-configurator-simulator`: WebGL 3D Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, Kinematics, HTML HUD).
+   - `teardown`: Simulator 3D mesin & mekanikal interaktif offline single-page HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
    - `threejs-fundamentals`, `threejs-geometry`, `threejs-materials`, `threejs-lighting`, `threejs-textures`, `threejs-animation`, `threejs-loaders`, `threejs-shaders`, `threejs-postprocessing`, `threejs-interaction`: 10 modul modular rekayasa WebGL Three.js.
 3. **Machine Learning, Vision & Data**:
    - `ml-vision`: Clustering (K-Means, DBSCAN), Classification (LightGBM, XGBoost), PyTorch, YOLOv8/v11, ONNX INT8 quantization, FastAPI backend, dan in-browser WebGPU.

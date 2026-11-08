@@ -62,7 +62,8 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 43 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 44 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/teardown/SKILL.md](./skills/teardown/SKILL.md)**: Simulator 3D mesin interaktif offline single-file HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
 * **[skills/motionmaxxing/SKILL.md](./skills/motionmaxxing/SKILL.md)**: Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas senior motion designer (seek-safe GSAP, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg).
 * **[skills/excel-export/SKILL.md](./skills/excel-export/SKILL.md)**: Pembuatan spreadsheet berkecepatan tinggi dengan FastXlsxWriter dan ReportExporter.
 * **[skills/agentic-ai/SKILL.md](./skills/agentic-ai/SKILL.md)**: Master Multi-Agent Orchestration & Governance System (OODA loop).

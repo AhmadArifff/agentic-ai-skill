@@ -61,7 +61,7 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 2. **Reviewer Independence (No Self-Review)**: Builder tidak boleh mereview kodenya sendiri. Setiap artefak builder wajib melalui verifikasi independen oleh Reviewer (\`qa-engineer\` atau \`tech-critic\`).
 3. **Circuit Breaker Loop Pengerjaan Ulang**: Jika suatu task mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan proses otomatis dan minta klarifikasi langsung kepada pengguna (*Human-in-the-Loop*).
 4. **Session State Consistency**: Selalu periksa dan sinkronkan status \`active_goal\` dan sub-tugas pada \`session-state.json\` agar percakapan panjang tidak mengalami *context drift*.
-5. **Katalog 43 Skill Global**: Seluruh agen dapat memanfaatkan 43 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`motionmaxxing\` (Looksmaxxing for motion graphics & viral video retention).
+5. **Katalog 44 Skill Global**: Seluruh agen dapat memanfaatkan 44 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`teardown\` (3D interactive machine simulator & exploded view) dan \`motionmaxxing\` (motion graphics & viral video retention).
 6. **Proteksi Basis Data Lokal & Tata Kelola SP/View (Zero-Direct-CRUD)**:
    - Pada proyek berbasis MySQL / PostgreSQL / phpMyAdmin (seperti \`adminShuttleV3\` dan \`admin-sunjaya\`), agen **DILARANG KERAS** mengeksekusi kueri mutasi (\`INSERT\`, \`UPDATE\`, \`DELETE\`, \`ALTER\`) langsung ke database lokal secara otonom.
    - Agen hanya bertugas menyusun query SQL terverifikasi agar pengguna sendiri yang mengeksekusinya di phpMyAdmin.
