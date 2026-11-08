@@ -1,0 +1,12 @@
+{
+  "name": "motionmaxxing-skill",
+  "version": "1.0.0",
+  "description": "Looksmaxxing for motion graphics: turn AI slop videos into motion designer-grade films",
+  "main": "scripts/render.mjs",
+  "scripts": {
+    "providers": "bash scripts/providers.sh",
+    "test": "node scripts/lint.mjs --help"
+  },
+  "author": "Tejas Makwana",
+  "license": "Apache-2.0"
+}

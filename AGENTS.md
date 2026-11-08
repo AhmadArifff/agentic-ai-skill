@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 42 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 43 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 42 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 43 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 42 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 43 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI & Component Registry Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -93,6 +93,7 @@ Seluruh agen dapat memanfaatkan 42 skill terdaftar di `skills/` dan `~/.gemini/c
    - `shadcn-ui`: Arsitektur komponen enterprise berbasis Radix UI headless, CVA variant system, dan Tailwind tokens.
    - `magic-ui`: 50+ komponen animasi premium (Bento Grid, Marquee, Particles, Border Beam).
    - `motion`: Animasi GPU-accelerated micro-animations, layoutId transitions, dan gesture spring physics.
+   - `motionmaxxing`: Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas senior motion designer, seek-safe GSAP runtime, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg.
 2. **Interactive 3D / WebGL Graphics Suite**:
    - `3d-configurator-simulator`: WebGL 3D Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, Kinematics, HTML HUD).
    - `threejs-fundamentals`, `threejs-geometry`, `threejs-materials`, `threejs-lighting`, `threejs-textures`, `threejs-animation`, `threejs-loaders`, `threejs-shaders`, `threejs-postprocessing`, `threejs-interaction`: 10 modul modular rekayasa WebGL Three.js.
