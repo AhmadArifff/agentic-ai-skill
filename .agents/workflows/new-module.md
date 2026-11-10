@@ -33,9 +33,10 @@ Gunakan alur kerja terstruktur ini saat diminta mengembangkan modul baru di `adm
 
 ---
 
-## Tahap 3: Daftarkan Route
-1. Di `routes/web.php`, impor Controller di header dengan `use`.
-2. Daftarkan grup rute:
+## Tahap 3: Daftarkan Route Modular Per Resource (`routes/partials/[resource].php`)
+1. **Dilarang Menumpuk di `routes/web.php`**: Buka file partial per resource terkait di `routes/partials/[resource].php` (misal `routes/partials/voucher.php`, `routes/partials/promotion.php`). Jika modul merupakan domain baru yang belum memiliki file partial, buat berkas baru `routes/partials/[resource-baru].php` dan daftarkan pemanggilannya (`require __DIR__.'/partials/[resource-baru].php';`) di dalam grup `auth` pada `routes/web.php`.
+2. Impor Controller di header partial dengan `use` statement terstruktur.
+3. Daftarkan grup rute ber-controller:
    ```php
    Route::prefix('[url-prefix]')->controller([Entity]Controller::class)->group(function () {
        Route::get('index', 'index')->name('[entity].index');

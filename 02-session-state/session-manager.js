@@ -39,18 +39,42 @@ switch (command) {
     console.log('            AGENTIC AI - ACTIVE SESSION STATUS        ');
     console.log('======================================================');
     console.log(`Session ID     : ${state.session_id}`);
-    console.log(`Project        : ${state.project_name || 'N/A'}`);
-    console.log(`Current Stage  : ${state.current_stage}`);
-    console.log(`Primary Goal   : ${state.primary_goal}`);
+    console.log(`Project        : ${state.project_name || state.project || 'N/A'}`);
+    console.log(`Current Stage  : ${state.current_stage || state.status || 'N/A'}`);
+    if (state.current_sprint) console.log(`Current Sprint : ${state.current_sprint}`);
+    console.log(`Primary Goal   : ${state.primary_goal || state.active_goal || 'N/A'}`);
     console.log('------------------------------------------------------');
+    const constraints = state.locked_constraints || state.established_constraints || [];
     console.log('Locked Constraints:');
-    (state.locked_constraints || []).forEach(c => console.log(`  🔒 ${c}`));
-    console.log('------------------------------------------------------');
-    console.log('Subtasks Progress:');
-    (state.subtasks || []).forEach(st => {
-      const badge = st.status === 'done' ? '✅' : st.status === 'in_progress' ? '⏳' : '⏸️';
-      console.log(`  ${badge} [${st.id}] ${st.title} (${st.owner_role}) -> ${st.status} (rework: ${st.rework_iteration_count || 0})`);
+    constraints.forEach(c => {
+      const text = typeof c === 'string' ? c : `[${c.id || '-'}] ${c.constraint || c}`;
+      console.log(`  🔒 ${text}`);
     });
+    console.log('------------------------------------------------------');
+    const subtasks = state.subtasks || state.decomposed_subtasks || [];
+    if (subtasks.length > 0) {
+      console.log('Subtasks Progress:');
+      subtasks.forEach(st => {
+        const badge = st.status === 'done' ? '✅' : st.status === 'in_progress' ? '⏳' : '⏸️';
+        console.log(`  ${badge} [${st.id}] ${st.title || st.task} (${st.owner_role}) -> ${st.status} (rework: ${st.rework_iteration_count || 0})`);
+      });
+    }
+    if (state.completed_milestones && state.completed_milestones.length > 0) {
+      console.log('Completed Milestones:');
+      state.completed_milestones.forEach((m, idx) => {
+        console.log(`  ✅ ${idx + 1}. [${m.status}] ${m.title} (${m.verified_at || '-'})`);
+      });
+    }
+    if (state.in_progress_milestones && state.in_progress_milestones.length > 0) {
+      console.log('In Progress Milestones:');
+      state.in_progress_milestones.forEach(m => {
+        console.log(`  ⏳ [${m.status}] ${m.title}`);
+      });
+    }
+    if (state.next_actionable_steps && state.next_actionable_steps.length > 0) {
+      console.log('Next Actionable Steps:');
+      state.next_actionable_steps.forEach(s => console.log(`  -> ${s}`));
+    }
     console.log('======================================================\n');
     break;
   }

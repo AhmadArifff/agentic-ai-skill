@@ -20,11 +20,13 @@ flowchart TD
     G -- "Tidak" --> REV["Klarifikasi Persyaratan"]
 ```
 
-1. **Scope (Cakupan Tugas)**:
-   - Tentukan secara jelas file apa saja yang akan dibuat atau diubah.
+1. **Scope, Data Engine & Analogi Bisnis (Cakupan Tugas)**:
+   - Tentukan secara jelas file apa saja yang akan dibuat atau diubah, serta audit non-regresi Git terhadap kode rekan tim (`git blame`/`git diff`).
    - Cegah refactoring liar pada modul lain yang tidak berhubungan.
+   - **Deklarasi Data Engine Strategy**: Nyatakan tegas apakah fitur menggunakan **Direct DB Lokal** atau **Hybrid / External API** (perlu/tidaknya endpoint baru dari tim backend eksternal).
+   - **Analogi Dunia Nyata**: Sertakan 1 analogi operasional sederhana agar nilai bisnis fitur langsung dipahami pemangku kepentingan non-teknis.
 2. **Schema & Database Strategy (Dampak Skema Data & Optimasi)**:
-   - Identifikasi apakah ada perubahan field database, skema tipe data, atau struktur payload API.
+   - Identifikasi apakah ada perubahan field database, skema tipe data, atau struktur payload API, dan rincikan **daftar tabel terdampak saat operasi `INSERT`** (Tabel Utama, Tabel Pivot/Relasi, Foreign Key).
    - **Konsultasi SP/View Proaktif**: Jika tugas memuat agregasi laporan multi-tabel atau mutasi transaksi atomik, tawarkan penggunaan **Database View (`v_...`)** atau **Stored Procedure (`sp_...` / Supabase `rpc`)** kepada pengguna untuk optimasi kueri dan enkapsulasi logic.
    - Wajib sertakan audit keamanan: `SQL SECURITY INVOKER` (MySQL) atau `SET search_path = public, pg_temp` (Postgres/Supabase), error rollback handler, dan parameter binding.
    - Siapkan query SQL DDL terverifikasi untuk dieksekusi manual oleh pengguna (Zero-Direct-CRUD).
@@ -38,7 +40,8 @@ flowchart TD
    - Pastikan layout adaptif di layar desktop dan mobile (bebas overflow horizontal).
    - Periksa kontras rasio warna (WCAG AA $\ge$ 4.5:1).
    - Wajib deklarasikan skill desain yang aktif (`skills/untitled-ui`, `skills/shadcn-ui`, `skills/21st-dev`). Dilarang slicing dari `<div>` mentah.
-6. **Edge Cases (Penanganan Kasus Ekstrem)**:
+6. **Edge Cases & Audit Celah Lapangan (Penanganan Kasus Ekstrem)**:
    - Tangani skenario koneksi putus, saldo nol, input kosong, atau double click submission.
+   - **Audit Celah Lapangan Lintas-Menu**: Periksa keselarasan state-machine antar-halaman (*Single Source of Truth Guard*), batas waktu dinamis tanpa *premature lock* (`ETD` / kadaluarsa), timezone dinamis (`config('app.timezone')` / `APP_TIMEZONE`), dan integritas tabel anak/audit log.
 7. **Rollback Plan (Rencana Pembatalan)**:
    - Pastikan kode dapat dikembalikan dengan aman jika terjadi kegagalan saat implementasi.

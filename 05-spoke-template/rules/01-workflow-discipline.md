@@ -49,3 +49,16 @@ Untuk proyek dengan alur integrasi GitHub aktif:
 1. **Sebelum Mulai Coding**: Wajib jalankan `git pull --rebase origin <branch>` untuk mengambil pembaruan tim terbaru.
 2. **Setelah Preview & QA Lolos**: Jalankan kembali `git pull --rebase origin <branch>` untuk mendeteksi potensi konflik. Jika bebas konflik atau konflik telah diselesaikan, baru lakukan `git push` ke repositori.
 
+---
+
+## 7. Deklarasi Data Engine Strategy, Analogi Bisnis & Evaluasi Celah Lintas-Menu
+1. **Deklarasi Data Engine Saat Review**: Nyatakan tegas apakah fitur menggunakan **Direct DB Lokal** atau **Hybrid / External API** (sehingga developer langsung mengetahui butuh/tidaknya endpoint baru dari tim API eksternal).
+2. **Analogi Dunia Nyata**: Sertakan 1 analogi operasional sederhana pada dokumen review agar nilai inti fitur mudah dipahami oleh atasan maupun pemangku kepentingan non-teknis.
+3. **Post-Fix Field Gap Check**: Setelah eksekusi perubahan selesai, verifikasi ulang konsistensi state-machine di seluruh layar terkait (list, detail, modal, dan mobile).
+
+---
+
+## 8. Anti-Meta-Jargon Komentar & Iterasi Purge
+1. **Bersih dari Meta-Rules AI**: Dilarang menuliskan komentar seperti `// Sesuai .agents bab X`, `// 100% Parity...`, atau blok banner ASCII raksasa di dalam file kode produksi.
+2. **Iterasi Purge**: Hapus tuntas kode lama sisa iterasi V1/V2 saat beralih ke V3 tanpa meninggalkan commented-out zombie code.
+

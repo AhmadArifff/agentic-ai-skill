@@ -134,19 +134,19 @@ Sebelum deliverable diserahkan kepada pengguna, agen wajib memvalidasi ketiadaan
 Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rules/`, `workflows/`, dan `knowledge/`:
 
 1. **Enterprise Guardrails & Rules (`rules/` & `.agents/rules/`)**:
-   - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, isolasi kredensial rahasia, dan Zero-Direct-CRUD ke database MySQL/PostgreSQL/phpMyAdmin (wajib sediakan query SQL manual).
-   - `01-workflow-discipline.md`: Siklus OODA, Review Gate (rincian tabel terdampak INSERT), eliminasi dead code sisa iterasi, higienitas komentar kode, dan label UI bebas jargon teknis.
-   - `10-backend-standards.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), validasi FormRequest terpisah, transactional safety, dan guard clause early exit.
-   - `20-database-standards.md`: Standar konvensi tabel, indeks foreign key komposit, isolasi soft-delete query, dan eliminasi N+1 problem.
-   - `30-frontend-standards.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, anti-clipping modal datepicker, dan DOM memory cleanup.
+   - `00-core-guardrails.md`: Aturan mutlak kepatuhan skema, error logging, sanitasi input, isolasi kredensial, Zero-Direct-CRUD phpMyAdmin, proteksi commit rekan tim (*Co-Developer Guard*), timezone dinamis, bahasa DB English vs UI Indonesia, dan Audit Skenario Celah Lapangan.
+   - `01-workflow-discipline.md`: Siklus OODA, Review Gate (rincian tabel terdampak INSERT, Data Engine Strategy, Analogi Bisnis), eliminasi dead code sisa iterasi, higienitas komentar kode bebas meta-jargon AI, dan label UI human-friendly.
+   - `10-architecture.md` & `11-structure-routing.md`: Arsitektur 4-layer (Controller -> Service -> Repository -> Model), Zero Inline FQCN (`use` import header), modular route partials (`routes/partials/[resource].php`), dan transactional safety.
+   - `20-database.md` & `21-database-reasoning.md`: Standar konvensi tabel, migrasi statis `Schema::create` sesuai dump SQL terbaru, pemetaan evolusi skema Legacy vs Modern, serta tata kelola Stored Procedures & Database Views.
+   - `30-ui-frontend.md`: Single Title header index tanpa breadcrumb, breadcrumb form bergaris bawah, anti-clipping modal datepicker, DRY reusable dual-mode partial modals, seamless pill input groups, toast feedback & instant toggle switch.
    - `30-ui-component-reasoning.md`: Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover), Z-index layering, dan auto-dismiss timers.
-   - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik data finansial, dan plain icon detail.
+   - `31-ui-reports.md`: Single Unified Table (zero double-scroll DataTables), Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik data finansial, plain icon detail, dan standar tombol Excel Pill (`.dt-buttons .buttons-excel`).
    - `32-visual-first-engineering.md`: Protokol Visual Planning Gate (ASCII wireframe), Visual Anchor (scratch/ui-references/), dan 4 Invarian Visual Craftsmanship.
-   - `40-security-standards.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
-   - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing).
+   - `40-security-rbac.md`: RBAC granular, Spatie permissions, proteksi IDOR, dan sanitasi payload mutasi.
+   - `50-report-export.md`: Pedoman ekspor laporan skala besar (FastXlsxWriter chunking, cursor pagination, batch memory flushing, dan tombol ekspor pill standar).
 2. **Standard Operating Workflows (`workflows/` & `.agents/workflows/`)**:
-   - `task-review-protocol.md`: 7 Pilar Evaluasi sebelum pengembangan (Scope, Schema impact, Security, Performance, UX impact, Edge cases, Rollback plan).
-   - `new-module.md`: Siklus hidup pembuatan modul enterprise (Migration -> Model -> Repo -> Service -> Controller -> Views -> E2E Test).
+   - `task-review-protocol.md`: 7 Pilar Evaluasi sebelum pengembangan (Data Engine Strategy, Tabel Terdampak INSERT, Analogi Nyata, Audit Skenario Celah Lapangan, Konsultasi SP/View, Visual Planning Gate, dan Rollback Plan).
+   - `new-module.md`: Siklus hidup pembuatan modul enterprise (Migration -> Model -> Repo -> Service -> Controller -> Modular Route Partials -> Views -> E2E Test).
    - `new-prd-feature.md`: Siklus hidup pembuatan fitur berbasis PRD (PRD -> DB Schema -> Shared Contract -> API -> Store -> UI -> QA -> Delivery Gate).
    - `new-report.md`: Standar implementasi laporan tabular/finansial (Filter bar -> Fast query -> DataTables DOM -> Streaming export).
    - `add-db-column.md`: Modifikasi skema basis data produksi aman tanpa downtime (*backward compatible*).
@@ -154,9 +154,10 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
-   - 31 Kasus Produksi Terverifikasi dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`).
-   - Mencakup preseden arsitektur: financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, soft-delete credentials, single table DataTables, cross-database streaming, COD checkout guard, real-time chat sync, dan reactive studio customization.
+   - **32 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **29 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #29` di `knowledge/bug-cases.md`).
+   - Mencakup preseden arsitektur: financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.
 4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
+   - `team-alignment-framework.md`: Pola komunikasi 3 Kalimat Emas ke stakeholder, Contract-First JSON protocol untuk API eksternal, Pre-Development Sanity Gate, dan Kamus Zero-Jargon.
    - `financial-ledger-transactions.md`: Blueprint pemisahan tabel request vs disbursement penarikan insentif supir dengan atomic locking dan `width_code`.
    - `web3-client-architecture.md`: Blueprint Pure Client-Side Web3 Terminal, eliminasi Next.js SSR hydration mismatch, dan resilient RPC fallback pool.
    - `video-retention-engineering.md`: Blueprint video shorts viral (The 3-Second Hook, pacing, timeline sub-detik milidetik, audio waveform snapping).

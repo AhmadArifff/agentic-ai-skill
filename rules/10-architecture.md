@@ -78,6 +78,8 @@ class SettlementPackageController extends Controller
 * **Aturan Mutlak**:
   * ❌ **JANGAN** mengimpor Eloquent Model secara langsung di file Service.
   * ❌ **JANGAN** menulis kueri database SQL / `DB::table()` di dalam Service.
+  * ❌ **DILARANG** menggunakan inline Fully Qualified Class Name (FQCN) seperti `\Illuminate\Support\Facades\Log::error(...)` atau `\Carbon\Carbon::now()` di dalam fungsi/metode. Seluruh class WAJIB di-import di atas berkas menggunakan `use`.
+  * ✅ **Standar Error Handling**: Wajib mengembalikan `ServiceResult::failed($message, $code, $errors)` dan mencatat log via `Log::error(...)` sebelum me-return kegagalan (dilarang menelan error secara bisu tanpa log/pesan).
 
 ```php
 // ✅ CONTOH YANG BENAR

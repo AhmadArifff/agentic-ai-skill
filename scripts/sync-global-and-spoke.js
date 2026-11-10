@@ -77,67 +77,69 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
      - *Metode C*: Mockup visual AI via \`generate_image\` jika pengguna belum memiliki gambaran kasar.
    - Agen dilarang slicing menggunakan \`<div>\` mentah (eliminasi *Passive Skill Syndrome*), wajib aktifkan skill komponen terpasang (\`skills/untitled-ui\`, \`skills/shadcn-ui\`, \`skills/21st-dev\`).
    - Seluruh referensi visual wajib dipersistensikan di \`scratch/\` untuk memori session state yang tidak mengalami halusinasi.
-9. **Inversion & Anti-Fallacy Veto**: Persona Charlie Munger pada \`tech-critic\` memiliki hak veto untuk menolak kode yang memuat *premature optimization*, asumsi rapuh, atau bias konfirmasi.
+9. **Field Edge-Case Audit, Co-Developer Protection & Dynamic Timezone**:
+   - **Audit Skenario Celah Lapangan**: Setiap review & fix-bug wajib memeriksa sinkronisasi state-machine lintas menu (*Single Source of Truth Guard*), batas waktu dinamis tanpa *premature lock* (\`ETD\`/kadaluarsa), dan integritas tabel anak.
+   - **Co-Developer Non-Regression Guard**: Sebelum memodifikasi file proyek tim, periksa \`git blame\` / \`git diff\` agar tidak menimpa kode rekan tim secara sepihak.
+   - **Zona Waktu Dinamis & Dual-Language**: Dilarang hardcode timezone statis; nilai DB (hari, status ENUM) wajib Bahasa Inggris baku sementara UI lokal Bahasa Indonesia.
+   - **Data Engine Strategy & Anti-Jargon**: Deklarasikan \`Direct DB\` vs \`External API\` saat review; gunakan analogi bisnis nyata dan larang jargon kode di antarmuka pengguna.
+10. **Inversion & Anti-Fallacy Veto**: Persona Charlie Munger pada \`tech-critic\` memiliki hak veto untuk menolak kode yang memuat *premature optimization*, asumsi rapuh, atau bias konfirmasi.
 `;
 
 fs.writeFileSync(path.join(globalConfigRules, 'agentic-ai-orchestration.md'), orchestrationContent, 'utf8');
 console.log('✅ Updated ~/.gemini/config/rules/agentic-ai-orchestration.md');
 
-// 3. Copy 30-ui-component-reasoning.md to global rules
+// 3. Copy universal rules to global config rules
 const uiReasoningSrc = path.join(__dirname, '..', 'rules', '30-ui-component-reasoning.md');
-if (fs.existsSync(uiReasoningSrc)) {
-  fs.copyFileSync(uiReasoningSrc, path.join(globalConfigRules, '30-ui-component-reasoning.md'));
-  console.log('✅ Copied 30-ui-component-reasoning.md to ~/.gemini/config/rules/');
-}
-
-// 4. Copy 00-core-guardrails.md to global rules
 const coreGuardrailsSrc = path.join(__dirname, '..', '05-spoke-template', 'rules', '00-core-guardrails.md');
-if (fs.existsSync(coreGuardrailsSrc)) {
-  fs.copyFileSync(coreGuardrailsSrc, path.join(globalConfigRules, '00-core-guardrails.md'));
-  console.log('✅ Copied 00-core-guardrails.md to ~/.gemini/config/rules/');
-}
-
-// 5. Copy 32-visual-first-engineering.md to global rules
+const workflowDisciplineSrc = path.join(__dirname, '..', '05-spoke-template', 'rules', '01-workflow-discipline.md');
 const visualFirstSrc = path.join(__dirname, '..', 'rules', '32-visual-first-engineering.md');
-if (fs.existsSync(visualFirstSrc)) {
-  fs.copyFileSync(visualFirstSrc, path.join(globalConfigRules, '32-visual-first-engineering.md'));
-  console.log('✅ Copied 32-visual-first-engineering.md to ~/.gemini/config/rules/');
-}
 
-// 6. Sync AGENTS.md to global AGENTS.md
+[
+  { src: uiReasoningSrc, name: '30-ui-component-reasoning.md' },
+  { src: coreGuardrailsSrc, name: '00-core-guardrails.md' },
+  { src: workflowDisciplineSrc, name: '01-workflow-discipline.md' },
+  { src: visualFirstSrc, name: '32-visual-first-engineering.md' }
+].forEach(item => {
+  if (fs.existsSync(item.src)) {
+    fs.copyFileSync(item.src, path.join(globalConfigRules, item.name));
+    console.log('✅ Copied ' + item.name + ' to ~/.gemini/config/rules/');
+  }
+});
+
+// 4. Sync AGENTS.md to global AGENTS.md
 const masterAgentsMd = path.join(__dirname, '..', 'AGENTS.md');
 if (fs.existsSync(masterAgentsMd)) {
   fs.copyFileSync(masterAgentsMd, globalConfigAgents);
   console.log('✅ Synced master AGENTS.md to ~/.gemini/config/AGENTS.md');
 }
 
-// 7. Sync knowledge and rules to internal .agents/
-const internalAgentRules = path.join(__dirname, '..', '.agents', 'rules');
-const internalAgentKnowledge = path.join(__dirname, '..', '.agents', 'knowledge');
-const spViewsKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'stored-procedures-and-views.md');
-const dbRulesSrc = path.join(__dirname, '..', 'rules', '20-database.md');
+// 5. Sync ALL rules, knowledge, workflows from root to internal .agents/
+['rules', 'knowledge', 'workflows'].forEach(folder => {
+  const rootDir = path.join(__dirname, '..', folder);
+  const agentDir = path.join(__dirname, '..', '.agents', folder);
+  if (fs.existsSync(rootDir) && fs.existsSync(agentDir)) {
+    fs.readdirSync(rootDir).forEach(file => {
+      if (file.endsWith('.md')) {
+        fs.copyFileSync(path.join(rootDir, file), path.join(agentDir, file));
+      }
+    });
+    console.log('✅ Synced all ' + folder + '/*.md to .agents/' + folder + '/');
+  }
+});
 
-if (fs.existsSync(spViewsKnowledgeSrc) && fs.existsSync(internalAgentKnowledge)) {
-  fs.copyFileSync(spViewsKnowledgeSrc, path.join(internalAgentKnowledge, 'stored-procedures-and-views.md'));
-  console.log('✅ Synced stored-procedures-and-views.md to .agents/knowledge/');
-}
-if (fs.existsSync(dbRulesSrc) && fs.existsSync(internalAgentRules)) {
-  fs.copyFileSync(dbRulesSrc, path.join(internalAgentRules, '20-database.md'));
-  console.log('✅ Synced 20-database.md to .agents/rules/');
-}
-
-// 8. Sync rules and knowledge to admin-sunjaya-dev if exists
+// 6. Sync compatible universal rules & blueprints to admin-sunjaya-dev without overwriting custom DB/bug files
 const adminSunjayaKnowledge = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'knowledge');
+const spViewsKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'stored-procedures-and-views.md');
+const teamAlignKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'team-alignment-framework.md');
+
 if (fs.existsSync(adminSunjayaRules)) {
-  fs.copyFileSync(uiReasoningSrc, path.join(adminSunjayaRules, '30-ui-component-reasoning.md'));
-  fs.copyFileSync(visualFirstSrc, path.join(adminSunjayaRules, '32-visual-first-engineering.md'));
-  if (fs.existsSync(dbRulesSrc)) {
-    fs.copyFileSync(dbRulesSrc, path.join(adminSunjayaRules, '20-database.md'));
+  if (fs.existsSync(uiReasoningSrc)) fs.copyFileSync(uiReasoningSrc, path.join(adminSunjayaRules, '30-ui-component-reasoning.md'));
+  if (fs.existsSync(visualFirstSrc)) fs.copyFileSync(visualFirstSrc, path.join(adminSunjayaRules, '32-visual-first-engineering.md'));
+  if (fs.existsSync(adminSunjayaKnowledge)) {
+    if (fs.existsSync(spViewsKnowledgeSrc)) fs.copyFileSync(spViewsKnowledgeSrc, path.join(adminSunjayaKnowledge, 'stored-procedures-and-views.md'));
+    if (fs.existsSync(teamAlignKnowledgeSrc)) fs.copyFileSync(teamAlignKnowledgeSrc, path.join(adminSunjayaKnowledge, 'team-alignment-framework.md'));
   }
-  if (fs.existsSync(adminSunjayaKnowledge) && fs.existsSync(spViewsKnowledgeSrc)) {
-    fs.copyFileSync(spViewsKnowledgeSrc, path.join(adminSunjayaKnowledge, 'stored-procedures-and-views.md'));
-  }
-  console.log('✅ Synced 30-ui, 32-visual, 20-database, and stored-procedures-and-views to admin-sunjaya-dev/.agents/');
+  console.log('✅ Synced compatible universal rules and blueprints to admin-sunjaya-dev/.agents/');
 } else {
   console.log('⚠️ admin-sunjaya-dev rules path not found at: ' + adminSunjayaRules);
 }

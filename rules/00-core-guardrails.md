@@ -87,6 +87,81 @@ Dokumen ini memuat **invarian mutlak** yang wajib dipatuhi oleh setiap AI Agent 
 
 ---
 
+## 8. Eliminasi Dead Code & Sisa Iterasi Development (Clean Code Discipline)
+1. **DILARANG Meninggalkan Kode Usang Sisa Iterasi**:
+   * Ketika proses development berlangsung secara berulang/iteratif (misal: kode versi 1 direvisi ke versi 2, lalu disempurnakan di versi 3):
+   * Seluruh kode tampilan (elemen DOM/Blade/HTML, modal dialog lama), logika backend/frontend, fungsi helper, event listener, maupun variabel dari versi sebelumnya yang sudah tidak digunakan lagi **WAJIB LANGSUNG DIHAPUS BERSIH**.
+2. **Larangan Menumpuk Kode Mati Sebagai Komentar (*Zombie Code*)**:
+   * Dilarang membiarkan blok kode lama hanya dijadikan komentar (`//` atau `/* */`). Kode yang sudah tidak dipakai harus dibuang sepenuhnya dari berkas produksi agar basis kode selalu bersih, ringkas, dan mudah dirawat.
+
+---
+
+## 9. Standar Modular Route Partials Per Resource (`routes/partials/`)
+1. **DILARANG Menumpuk Rute Baru di `routes/web.php`**:
+   * File `routes/web.php` hanya bertindak sebagai *Aggregator Utama* yang me-require berkas-berkas partial.
+   * Dilarang menambahkan route fitur/modul baru langsung ke `routes/web.php`.
+2. **Wajib Pisahkan Rute Per Resource / Domain**:
+   * Seluruh penambahan endpoint dan rute baru WAJIB ditempatkan pada file partial domain masing-masing di dalam folder `routes/partials/[resource].php` (misal `routes/partials/voucher.php`, `routes/partials/promotion.php`, `routes/partials/ticket-transaction.php`, dsb).
+   * Pendekatan ini menjaga modularitas, memudahkan pemeliharaan jangka panjang (*high maintainability*), serta mengeliminasi potensi konflik merge Git antar-pengembang.
+
+---
+
+## 10. Audit Perlindungan Kode Rekan Tim (*Co-Developer Commit Protection Protocol*)
+1. **Prinsip Non-Regresi Kode Rekan Developer**:
+   * Dalam proyek kolaboratif multi-pengembang (seperti riwayat commit rekan developer `"Hendris"` di `adminShuttleV3`), AI Agent memiliki kebijakan mutlak: **TIDAK BOLEH mengubah, merusak, atau menimpa hasil development yang telah di-commit oleh rekan pengembang tanpa izin**.
+2. **Wajib Audit Check Pasca-Development**:
+   * Setiap kali suatu sesi pekerjaan (fitur baru, modifikasi, perbaikan bug/fix, refactoring) dinyatakan selesai sebelum diserahkan ke pengguna, AI Agent **WAJIB melakukan audit check**:
+     * Menjalankan inspeksi Git (`git blame`, `git log`, atau `git diff`) pada berkas-berkas yang disentuh.
+     * Memverifikasi apakah ada baris kode, fungsi, struktur tabel, atau rute milik rekan pengembang lain yang terhapus, tergeser, atau termutasi.
+3. **Protokol Human-in-the-Loop & Analisis Dampak (Jika Terpaksa Diubah)**:
+   * Jika ditemukan bahwa penyelesaian suatu task menuntut perubahan pada kode milik rekan developer lain:
+     * AI Agent **DILARANG KERAS** langsung mengedit atau menimpanya secara sepihak.
+     * AI Agent **WAJIB STOP dan mengajukan konfirmasi eksplisit kepada pengguna**.
+     * AI Agent wajib menjelaskan berkas/baris kode yang terdampak, urgensi teknisnya, serta analisis dampak terhadap fitur lain sebelum mengambil tindakan.
+
+---
+
+## 11. Bahasa Penyimpanan Database (Inggris) vs. Tampilan Antarmuka (Indonesia)
+1. **Penyimpanan Database (Storage Layer)**:
+   * Seluruh nilai data yang disimpan ke database (*storage layer*), seperti nama hari (`Monday`, `Tuesday`, `Wednesday`, `Thursday`, `Friday`, `Saturday`, `Sunday`), status transaksi (*ENUM* / *constants* seperti `scheduled`, `departed`, `arrived`, `finished`, `canceled`), tipe, dan kode internal **WAJIB menggunakan Bahasa Inggris baku**.
+2. **Tampilan Antarmuka (UI Localization Layer)**:
+   * Seluruh teks pada lapisan antarmuka pengguna (*UI display layer*), seperti label form, tabel, badge status, modal, toast notifikasi, dan pesan konfirmasi, **WAJIB disesuaikan menggunakan Bahasa Indonesia** (atau bahasa lokal aplikasi) yang ramah, santun, dan mudah dipahami pengguna awam.
+
+---
+
+## 12. Panduan Set Data Uji Manual (*Manual Testing Data Set*) Pasca-Pengembangan Form
+1. **Wajib Sajikan Set Data Contoh Pengujian Form**:
+   * Setiap kali menyelesaikan pembuatan atau perubahan modul formulir (*form tambah / edit*), AI Agent WAJIB menyajikan panduan pengujian manual berupa contoh set data input nyata yang dapat langsung diisi oleh pengguna pada form antarmuka browser.
+2. **Wajib Rinci Representasi Data Database**:
+   * AI Agent WAJIB menyajikan perbandingan representasi data persisnya yang masuk ke dalam baris tabel database (nama kolom, format data string/JSON/ENUM, dan tipe nilainya) agar pengguna dapat melakukan testing mandiri dan mencocokkan (*cross-check*) ke database/phpMyAdmin dengan mudah.
+
+---
+
+## 13. Standar Import Header (Zero Inline FQCN) & Error Logging Wajib
+1. **Larangan Mutlak Inline FQCN**:
+   * Dilarang memanggil class menggunakan namespace inline di dalam tubuh method (seperti `\Illuminate\Support\Facades\Log::error(...)` atau `\Carbon\Carbon::now()`). Seluruh class wajib di-import di header file menggunakan `use`.
+2. **Wajib Error Logging Tanpa Menelan Error (*No Silent Catch*)**:
+   * Setiap pengecualian (*exception*) wajib dicatat via `Log::error(...)` sebelum mengembalikan respons gagal (`ServiceResult::failed(...)` atau JSON error).
+
+---
+
+## 14. Standar Zona Waktu Dinamis (Larangan Hardcode Timezone)
+1. **Wajib Ikuti `config('app.timezone')` / `APP_TIMEZONE`**:
+   * Seluruh fungsi tanggal/waktu di backend (`Carbon::now()`, `Carbon::today()`, `Carbon::parse()`) maupun helper frontend wajib mengikuti timezone konfigurasi aplikasi.
+   * **DILARANG KERAS** melakukan hardcode string timezone statis (seperti `'Asia/Makassar'`) di Service, Repository, Model, maupun helper JavaScript.
+
+---
+
+## 15. Audit Wajib Skenario Celah Lapangan (Review, Planning, Evaluasi & Fix-Bug)
+1. **Tidak Boleh Di-skip di Tahap Manapun**:
+   * Setiap proses **Review**, **Planning**, **Evaluasi**, dan **Fix-Bug** WAJIB mencakup pengecekan proaktif celah skenario lapangan:
+     1. **Sinkronisasi State-Machine Lintas Menu**: Pastikan tombol aksi (`can_cancel`, `can_mutate`, `can_checkin`, `can_pay`), guard repository (Single Source of Truth Guard), dan tampilan view lain sejalan.
+     2. **Batas Waktu Real-Time (`ETD` / `expired_at`)**: Memastikan batas operasional nyata (jam berangkat, kadaluarsa pembayaran, urutan cetak dokumen persiapan) tidak bertabrakan atau mengunci secara prematur.
+     3. **Integritas Tabel Terkait & Log Audit**: Tabel induk vs tabel relasi (`forwards`, `trackings`, `manifests`) tetap sinkron tanpa duplikasi log maupun status yatim (*orphaned status*).
+     4. **Penanganan Kegagalan & Kondisi Pinggiran**: Skenario cetak ulang manifest, ganti supir/armada mendadak, pembatalan setelah penjadwalan, dan konsistensi timezone.
+
+---
+
 ### Ringkasan Cepat: Do's and Don'ts
 
 | Area | ✅ WAJIB DILAKUKAN | ❌ DILARANG KERAS |
@@ -100,4 +175,12 @@ Dokumen ini memuat **invarian mutlak** yang wajib dipatuhi oleh setiap AI Agent 
 | **Playwright** | Jalankan HANYA jika diminta eksplisit oleh user (Akun: `superahmad` / `password123`) | Menjalankan Playwright otomatis tanpa instruksi pengguna |
 | **Komentar Kode** | Tulis komentar ringkas (1-2 baris), fungsional & ramah developer tim | Banner ASCII panjang, dekoratif berlebihan, atau mengutip rujukan aturan AI |
 | **Teks & Label UI** | Gunakan istilah umum dan ramah pengguna (misal: "Password :") | Memunculkan jargon teknis (misal: "Password (16 Karakter):", "injeksi", regex) |
+| **Routing Modular** | Pisahkan rute per resource di `routes/partials/[resource].php` | Menumpuk semua rute baru di `routes/web.php` |
+| **Sisa Iterasi (Dead Code)** | Hapus tuntas kode versi lama saat revisi berlanjut | Membiarkan dead code atau zombie comment menumpuk |
+| **Proteksi Commit Rekan** | Audit `git blame`/`git diff` & konfirmasi dampak sebelum edit | Menimpa hasil kerja/commit rekan developer secara sepihak |
+| **Dual-Language Data** | Nilai ENUM, hari (`Monday`), status DB wajib Bahasa Inggris baku | Menyimpan nama hari/status berbahasa lokal ke tabel DB |
+| **Testing Form** | Sajikan contoh set data uji manual & representasi kolom DB | Membiarkan user tanpa panduan cross-check pengujian form |
+| **Import & Logging** | Import via `use` di header file & catat error via `Log::error` | Menulis inline FQCN atau melakukan silent catch tanpa log |
+| **Zona Waktu Dinamis** | Gunakan `config('app.timezone')` / `APP_TIMEZONE` secara dinamis | Hardcode timezone statis (misal `'Asia/Makassar'`) |
+| **Audit Celah Lapangan** | Audit skenario celah lintas-menu, batas `ETD`, & tabel relasi | Melewatkan audit state-machine saat Review atau Fix-Bug |
 | **Knowledge** | Catat setiap bug dan solusinya ke `.agents/knowledge/` | Mengabaikan dokumentasi problem-solving |

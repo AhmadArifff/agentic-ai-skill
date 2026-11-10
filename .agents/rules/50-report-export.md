@@ -69,3 +69,21 @@ Untuk referensi mendalam terkait sintaks kolom, metadata header, palet tema warn
 * **Skill**: `.agents/skills/excel-export/SKILL.md`
 * **API Reference**: `.agents/skills/excel-export/references/fastxlsxwriter-api.md`
 * **Schema Reference**: `.agents/skills/excel-export/references/report-exporter-schema.md`
+
+---
+
+## 4. Standarisasi Tampilan Tombol Ekspor di Blade (Settlement & Report Pill Button Standard)
+Setiap tombol yang memicu endpoint `exportExcel()` wajib menggunakan styling kapsul hijau yang selaras dengan modul Settlement:
+
+```blade
+<div class="dt-buttons">
+    <a href="{{ route('[route-export-excel]', $params ?? []) }}" class="btn btn-success btn-sm buttons-excel buttons-html5" id="btn-export-excel" title="Download Excel" style="border-radius: 50rem;">
+        <span class="fa fa-file-excel me-1"></span> Download Excel
+    </a>
+</div>
+```
+
+* **Pembungkus wajib**: `<div class="dt-buttons">` (mengaktifkan CSS settlement `#03D87F !important`, padding `.25rem .5rem !important`, dan font-size `0.71rem !important`).
+* **Kelas tombol wajib**: `btn btn-success btn-sm buttons-excel buttons-html5` dengan `style="border-radius: 50rem;"`.
+* **Icon wajib**: `<span class="fa fa-file-excel me-1"></span>` (Font Awesome solid sheet icon).
+* **Teks label**: `Download Excel`.

@@ -94,3 +94,26 @@ Gunakan token warna lembut (*soft palette*) untuk membedakan kategori data secar
   </a>
   ```
 * Menjaga tabel tetap padat (*compact*), estetis, dan sejajar sempurna dengan baris data lainnya.
+
+---
+
+## 6. Standarisasi Tombol Ekspor Excel (Settlement & Report Pill Button Standard)
+Seluruh tombol aksi unduh/ekspor laporan file Excel (`.xlsx`) pada modul Laporan, Settlement, maupun Detail Data WAJIB mematuhi standarisasi visual seragam yang selaras dengan modul Settlement (`public/css/assets/custom.css`):
+
+* **Pembungkus Wajib**: Wajib dibungkus elemen dengan class **`dt-buttons`** agar aturan CSS global settlement aktif.
+* **Kelas Tombol Wajib**: `btn btn-success btn-sm buttons-excel buttons-html5` dengan `style="border-radius: 50rem;"`.
+* **Warna Latar**: Hijau Emerald Settlement (`#03D87F !important` via `.dt-buttons .buttons-excel`).
+* **Tipografi & Ukuran**: Ramping dan proporsional (font size `0.71rem !important`, `font-weight: 500`, padding `.25rem .5rem !important`, `box-shadow: none`).
+* **Icon Dokumen**: Icon lembar solid Excel Font Awesome: `<span class="fa fa-file-excel me-1"></span>`.
+* **Label Teks**: `Download Excel`.
+* **Template HTML Blade (Tautan `<a>` untuk Download Langsung)**:
+  ```blade
+  <div class="dt-buttons">
+      <a href="{{ route('[route-export-excel]', $id ?? []) }}" class="btn btn-success btn-sm buttons-excel buttons-html5" id="btn-export-excel" title="Download Excel" style="border-radius: 50rem;">
+          <span class="fa fa-file-excel me-1"></span> Download Excel
+      </a>
+  </div>
+  ```
+* **Larangan**:
+  * ❌ DILARANG menggunakan tombol kotak bersudut siku (`rounded-0` atau default btn tanpa kapsul) maupun menggunakan icon selain `<span class="fa fa-file-excel me-1"></span>`.
+  * ❌ DILARANG menghilangkan wrapper `.dt-buttons` dan class `buttons-excel buttons-html5`.

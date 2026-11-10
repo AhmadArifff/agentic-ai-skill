@@ -24,23 +24,29 @@ Setiap permintaan pengembangan fitur baru, perbaikan bug tampilan, bug logika, m
 
 ### Tahap 2: Penyusunan Dokumen Review & Analisis Dampak (Decide)
 Sebelum menyentuh kode aplikasi, AI menyajikan dokumen review kepada pengguna yang berisi:
-1. **Status Fitur / Bug Saat Ini**.
-2. **Hasil Komparasi dengan Sistem Referensi**.
-3. **Analisis Dampak Sebelum & Sesudah (Before vs After Flow)**:
+1. **Status Fitur / Bug Saat Ini & Tabel Terdampak Saat INSERT**:
+   * Rincikan tabel-tabel database yang terdampak saat operasi simpan/INSERT pada fitur baru (tabel utama, tabel relasi/pivot, kolom kunci, serta foreign key terkait).
+2. **Deklarasi Data Engine Strategy (WAJIB)**:
+   * Nyatakan tegas apakah fitur beroperasi via **`PURE DIRECT DB CRUD`** (100% kueri database lokal) atau **`HYBRID / MICROSERVICE API`** (terhubung ke API eksternal/pusat).
+   * Konfirmasikan apakah tim backend eksternal **perlu atau TIDAK PERLU** membuat endpoint baru, dan gunakan *Contract-First JSON Payload* bila diperlukan.
+3. **Hasil Komparasi & Audit Skenario Celah Lapangan (WAJIB Tidak Boleh Di-skip)**:
+   * Komparasi 4-dimensi dengan sistem referensi (Database, Logic, Service, UI & Reusable Component).
+   * Audit menyeluruh kemungkinan skenario celah lapangan (*edge-cases*): sinkronisasi status antar-menu (*Single Source of Truth Guard*), guard batas waktu (`ETD` / kadaluarsa), kesesuaian aksi tombol UI vs backend guard, risiko duplikasi log tracking, dan integritas tabel anak/relasi (`forwards`, dll).
+4. **Analisis Dampak Sebelum & Sesudah (Before vs After Flow) dengan Analogi Nyata (WAJIB)**:
+   * **Analogi Dunia Nyata Sederhana**: Sertakan 1 analogi operasional nyata agar nilai inti (*core values*) fitur langsung dipahami oleh pemangku kepentingan non-teknis.
    * **Before**: Bagaimana sistem/halaman berjalan saat ini beserta kendala/bug-nya.
    * **After**: Bagaimana alur sistem baru setelah fitur diadopsi atau bug diperbaiki.
    * **Dampak**: Komponen apa saja yang terpengaruh (routing, controller, tabel, performa).
-4. **Skrip SQL Manual (Jika Dibutuhkan)**:
-   * Jika ada pendaftaran menu (`menus`), hak akses (`permissions`), atau skema kolom baru, sediakan query SQL manual siap pakai untuk phpMyAdmin. **Jangan lakukan injection CRUD langsung ke database**.
-5. **Rincian Tabel Database Terdampak Operasi INSERT**:
-   * AI Agent WAJIB secara eksplisit merinci tabel-tabel database yang terdampak saat operasi simpan/INSERT pada menu baru (tabel utama, tabel relasi/pivot, kolom kunci, serta foreign key terkait).
+5. **Skrip SQL Manual (Jika Dibutuhkan)**:
+   * Jika ada pendaftaran menu (`menus`) atau hak akses (`permissions`) yang belum tersedia di DB, sediakan query SQL manual siap pakai untuk phpMyAdmin. **Jangan menyertakan SQL dummy data bisnis dan jangan lakukan injection CRUD langsung ke database**.
 
 ### Tahap 3: Menunggu Konfirmasi Pengguna (Approval Gate)
 * **DILARANG KERAS** mulai memodifikasi atau membuat file sebelum pengguna menyatakan persetujuan secara eksplisit terhadap hasil review dan alur yang diajukan.
 
-### Tahap 4: Eksekusi Terarah & Pengujian (Act)
+### Tahap 4: Eksekusi Terarah, Evaluasi Celah & Pengujian (Act)
 * Terapkan perubahan sesuai cakupan yang disepakati (*laser-focused*).
-* Uji coba render view atau validasi kueri.
+* Lakukan **Evaluasi Celah Lintas-Menu (*Post-Fix Field Gap Check*)**: pastikan perubahan/fix bug tidak meninggalkan inkonsistensi di menu lain (list/detail/modal/checkin/manifest) maupun hardcode timezone statis.
+* Uji coba render view, validasi kueri, atau syntax lint.
 * Hapus seluruh berkas sementara di `scratch/`.
 * Segarkan cache: `php artisan optimize:clear`.
 
@@ -68,14 +74,15 @@ Format Pencatatan:
 
 ---
 
-## 4. Standar Penulisan Komentar Kode Bersih (Code Comment Hygiene — Anti-Slop)
+## 4. Standar Penulisan Komentar Kode Bersih (Code Comment Hygiene - Anti-Slop)
 Setelah review disetujui dan AI mulai menulis kode, perhatikan etika penulisan komentar berikut:
 
 1. **Ringkas, Sederhana & Langsung ke Tujuan**:
    * Komentar kode harus padat (1-2 baris). Jelaskan *apa/tujuan* fungsional blok kode tersebut, bukan mengulang sintaks yang sudah jelas.
-2. **DILARANG Menulis Komentar Banner Raksasa & Kutipan Aturan AI**:
-   * Dilarang membuat border dekoratif ASCII besar (garis panjang `===`, `---`, blok banner 10 baris).
-   * Dilarang mencantumkan referensi aturan AI seperti `(RULESCODE.md - Bab 7)` atau penanda mesin lainnya. Sistem ini dikerjakan oleh tim developer manusia, sehingga kode harus terlihat bersih, rapi, dan natural.
+2. **Larangan Mutlak Istilah Prompt, Benchmarking Legacy & Meta-Rules AI**:
+   * Dilarang menulis nama sistem referensi lama (misal `admin-sunjaya`, `sunjaya_dev`) atau istilah benchmarking (`100% Parity`) di komentar kode produksi.
+   * Dilarang mencantumkan referensi aturan internal AI (`RULESCODE.md - Bab 7`, `7 Pilar .agents`), catatan defensif Git (`// Tidak mengganggu commit rekan`), atau narasi percakapan (`// Sesuai diskusi chat`).
+   * Dilarang membuat border dekoratif ASCII besar (garis panjang `===`, `---`, blok banner 10 baris). Kode harus bersih dan natural.
 3. **Contoh Komparasi Penulisan Komentar**:
 
 * **CSS / Styling**:
@@ -111,4 +118,17 @@ Setelah review disetujui dan AI mulai menulis kode, perhatikan etika penulisan k
     ```javascript
     // Sinkronisasi scroll horizontal header, body, dan footer
     ```
+
+---
+
+## 5. Disiplin Pembersihan Kode Sisa Iterasi (Dead Code Elimination)
+Dalam siklus development yang melibatkan revisi bertahap (V1 -> V2 -> V3):
+1. **Wajib Purge Saat Iterasi Lanjutan**: Seluruh kode tampilan (Blade/DOM/modal lama), event listener JS, dan method backend usang dari versi sebelumnya yang sudah tidak dipakai lagi **wajib langsung dihapus bersih**.
+2. **Anti-Zombie Code**: Dilarang hanya mematikan kode dengan tanda komentar (`//` atau `/* */`).
+
+---
+
+## 6. Audit Non-Regresi Terhadap Commit Rekan Tim (*Co-Developer Commit Protection*)
+1. **Pemeriksaan Wajib Sebelum Menyelesaikan Task**: Sebelum menyerahkan hasil pengerjaan, jalankan audit Git (`git blame` / `git diff` / `git log`) pada file yang disentuh untuk memastikan tidak ada logika, fungsi, atau rute milik rekan pengembang lain (seperti riwayat commit `"Hendris"` di `adminShuttleV3`) yang terhapus atau tertimpa.
+2. **Prosedur Konfirmasi Human-in-the-Loop**: Jika suatu task mengharuskan penyesuaian pada kode milik rekan tim, AI wajib berhenti dan memaparkan baris terdampak serta *impact analysis* kepada pengguna sebelum melanjutkan.
 

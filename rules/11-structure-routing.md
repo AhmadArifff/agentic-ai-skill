@@ -67,5 +67,28 @@ app/
   ```
 
 ### C. Dilarang Menulis Logic / Closure di File Route
-* ❌ **DILARANG** menulis logic SQL, manipulasi array, atau `View::make()` di dalam Closure `routes/web.php`.
+* ❌ **DILARANG** menulis logic SQL, manipulasi array, atau `View::make()` di dalam Closure file route.
 * Seluruh permintaan wajib didelegasikan ke Controller yang bersangkutan. Pengecualian hanya untuk rute redirect sederhana: `Route::get('/', fn () => redirect()->route('dashboard'));`.
+
+---
+
+## 4. Standar Modular Route Partials (`routes/partials/`)
+
+Untuk menjaga kebersihan basis kode dan **mengeliminasi potensi merge conflict** pada Git saat kolaborasi multi-developer:
+* `routes/web.php` berperan sebagai **Aggregator Utama** yang hanya memuat file-file partial di dalam grup middleware `auth`:
+  ```php
+  Route::middleware('auth')->group(function () {
+      Route::get('dashboards', [DashboardController::class, 'index'])->name('dashboard');
+
+      require __DIR__.'/partials/ticket-transaction.php';
+      require __DIR__.'/partials/promotion.php';
+      require __DIR__.'/partials/voucher.php';
+      require __DIR__.'/partials/schedule.php';
+      require __DIR__.'/partials/master-data.php';
+      // ...
+  });
+  ```
+* **Aturan Penambahan Rute Baru**:
+  1. **Dilarang** menambahkan rute fitur baru langsung ke `routes/web.php`.
+  2. Tempatkan rute pada file yang sesuai di folder `routes/partials/[domain].php` (contoh: rute voucher di `routes/partials/voucher.php`).
+  3. Jika membuat domain modul baru yang belum memiliki file partial, buat file partial baru di `routes/partials/[modul-baru].php` lalu require di `routes/web.php`.

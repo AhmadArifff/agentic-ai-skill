@@ -21,8 +21,9 @@ Gunakan panduan berikut untuk membuka dan mematuhi dokumen spesifik sesuai konte
 | Jika Sedang Mengerjakan... | Buka & Patuhi Dokumen: | Cakupan Utama |
 | :--- | :--- | :--- |
 | **Backend & Business Logic** (`app/**`, `src/backend/**`) | **[10-architecture.md](./rules/10-architecture.md)** | Pemisahan 4-layer: Controller -> Service -> Repository -> Model. Transaction safety & guard clauses. |
-| **Routing & Modul** (`routes/**`, `api/**`) | **[11-structure-routing.md](./rules/11-structure-routing.md)** | Standar import `use` di header, isolasi grup rute controller, pencegahan Git merge conflict. |
-| **Database & Skema Data** (`database/**`, `migrations/**`) | **[20-database.md](./rules/20-database.md)** | Kepatuhan skema ground-truth, indeks foreign key komposit, isolasi soft-delete, dan pencegahan N+1 query. |
+| **Routing & Modul** (`routes/**`, `api/**`) | **[11-structure-routing.md](./rules/11-structure-routing.md)** | Standar import `use` di header, isolasi grup rute controller, dan modular `routes/partials/`. |
+| **Database & Skema Data** (`database/**`, `migrations/**`) | **[20-database.md](./rules/20-database.md)** | Kepatuhan skema ground-truth, migrasi statis `Schema::create`, SQL manual permission, SP & View. |
+| **Database Reasoning (Legacy vs Modern)** | **[21-database-reasoning.md](./rules/21-database-reasoning.md)** | Pemetaan evolusi skema basis data Legacy Monolitik vs Modern Normalized. |
 | **UI Form, Modal & Responsivitas** (`resources/views/**`, `components/**`) | **[30-ui-frontend.md](./rules/30-ui-frontend.md)** | Anti-clipping modal datepicker, Single Title header index tanpa breadcrumb, breadcrumb form, mobile friendly. |
 | **UI Component Reasoning & Z-Index** | **[30-ui-component-reasoning.md](./rules/30-ui-component-reasoning.md)** | Matriks reasoning elemen UI (Toast vs Modal vs Drawer vs Popover vs Inline Alert) dan skala Z-index. |
 | **Tabel Laporan & Data Finansial** (`reports/*`, `settlements/*`) | **[31-ui-reports.md](./rules/31-ui-reports.md)** | Single Unified Table, Zero-Double-Scroll DataTables, Pure Numeric Typography (tanpa "Rp "), pewarnaan semantik. |
@@ -48,7 +49,8 @@ Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah be
 ## 4. Bank Kasus Bug & Solusi (*Knowledge Base*)
 Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara permanen:
 * **[knowledge/README.md](./knowledge/README.md)**: Tata kelola dan format pencatatan kasus bug.
-* **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (Kasus #01, #02, #03, dst.).
+* **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (`Kasus #01` s.d `Kasus #29`).
+* **[knowledge/team-alignment-framework.md](./knowledge/team-alignment-framework.md)**: Pola briefing 3 Kalimat Emas ke stakeholder, Contract-First JSON protocol, & Kamus Zero-Jargon.
 * **[knowledge/hub-and-spoke-sync.md](./knowledge/hub-and-spoke-sync.md)**: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
 * **[knowledge/spoke-adoption-guide.md](./knowledge/spoke-adoption-guide.md)**: Panduan adopsi starter pack, 2 pertanyaan kustomisasi onboarding (Git & DB).
 * **[knowledge/stored-procedures-and-views.md](./knowledge/stored-procedures-and-views.md)**: Blueprint Stored Procedures & Database Views untuk MySQL (`adminShuttleV3`) & Supabase/Postgres.
@@ -57,7 +59,7 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 * **[knowledge/payment-logistics-integrations.md](./knowledge/payment-logistics-integrations.md)**: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
 * **[knowledge/video-retention-engineering.md](./knowledge/video-retention-engineering.md)**: Blueprint video shorts viral (The 3-Second Hook & timeline snapping milidetik).
 * **[knowledge/web3-client-architecture.md](./knowledge/web3-client-architecture.md)**: Blueprint Pure Client-Side Web3 Terminal & anti SSR hydration mismatch.
-* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (31 kasus produksi terverifikasi).
+* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (32 kasus produksi terverifikasi).
 
 ---
 
