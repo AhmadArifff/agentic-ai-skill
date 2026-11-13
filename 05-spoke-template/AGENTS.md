@@ -36,7 +36,7 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
 1. **Aturan Domain Proyek Ini adalah Prioritas Utama**:
    Jika terdapat aturan spesifik di [PRD.md](../PRD.md), `RULES.md`, atau `rules/` lokal, sistem **100% mematuhi aturan lokal tersebut** untuk logika bisnis, skema data, dan alur aplikasi.
 2. **Guardrails Global Tetap Aktif**:
-   Standar keamanan (OWASP, larangan hardcoded secrets), filter anti-slop (bebas em dash, rasio kontras WCAG AA), dan 44 skill global (`skills/`) tetap aktif mengawal kualitas pengiriman (*Mandatory Delivery Gate*).
+   Standar keamanan (OWASP, larangan hardcoded secrets), filter anti-slop (bebas em dash, rasio kontras WCAG AA), dan 45 skill global (`skills/`) tetap aktif mengawal kualitas pengiriman (*Mandatory Delivery Gate*).
 3. **Visual-First Engineering & Visual Anchor Protocol**: Dilarang keras melakukan *blind slicing*. Agen wajib menyajikan ASCII Wireframe di tahap review dan mengklarifikasi Jangkar Referensi (Metode A screenshot di `scratch/ui-references/`, Metode B kiblat desain Untitled UI/Stripe, atau Metode C AI mockup) sebelum menulis kode frontend ([`rules/32-visual-first-engineering.md`](./rules/32-visual-first-engineering.md)).
 4. **Field Edge-Case Audit, Co-Developer Protection & Dynamic Timezone**: Wajib mendeklarasikan Data Engine Strategy saat review (`Direct DB` vs `External API`), memeriksa celah state-machine lintas menu, menjaga timezone dinamis (`config('app.timezone')` / `APP_TIMEZONE`), menyimpan data ENUM/hari DB dalam Bahasa Inggris baku, serta mengaudit Git (`git blame`/`git diff`) agar tidak menimpa commit rekan developer tanpa izin.
 

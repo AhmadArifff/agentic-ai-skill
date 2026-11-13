@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 44 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 45 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 44 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 45 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 44 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 45 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI & Component Registry Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -113,8 +113,9 @@ Seluruh agen dapat memanfaatkan 44 skill terdaftar di `skills/` dan `~/.gemini/c
    - `antislop-human`: Aksesibilitas WCAG AA, skrip pemeriksa kontras matematis `contrast-check.py`, keyboard navigation.
    - `antislop-layoutmobile`: Layout responsif ponsel, eliminasi kebocoran overflow horizontal (R-03), tap target $\ge$ 44px.
    - `antislop-code`: Higienitas komentar kode, penghapusan komentar AI redundan.
-6. **Core Software Engineering, Reporting & Verification**:
+6. **Core Software Engineering, Architecture, Reporting & Verification**:
    - `backend`, `frontend`, `pm`, `qa`, `playwright`, `playwright-skill`, `graphify`, `goal-tracker`, `tech-critic`, `agentic-ai`.
+   - `stack-diagram`: Diagram arsitektur cloud, monorepo, dan service topology engineering-drawing dengan logo resmi (AWS, GCP, Azure, K8s, svgl, devicon), orthogonal routing bebas tabrakan label, serta output multi-format (self-contained HTML offline, PNG light/dark, dan TSX React).
    - `excel-export`: Pipeline ekspor data tabular performa tinggi (FastExcel / FastXlsxWriter streaming vs PhpSpreadsheet, auto column sizing, number formatting, anti-OOM).
 
 ---

@@ -1,0 +1,11 @@
+{
+  "name": "stack-diagram-skill",
+  "version": "1.0.0",
+  "description": "Create cloud-architecture-style diagrams of tech stacks, system architectures, infra layouts, and service topologies with real brand logos",
+  "main": "scripts/build.py",
+  "scripts": {
+    "test": "python scripts/build.py --help"
+  },
+  "author": "caru-ini",
+  "license": "MIT"
+}

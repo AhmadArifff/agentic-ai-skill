@@ -105,3 +105,4 @@ Hindari istilah teknis murni saat menyusun label antarmuka UI maupun penjelasan 
 | *Soft delete record* | **Pengarsipan data non-aktif** (Data lama tetap aman untuk histori laporan). |
 | *Atomic Locking* | **Penguncian sementara saat transaksi** (Mencegah rebutan kursi/saldo secara bersamaan). |
 | *FastXlsxWriter Chunking* | **Ekspor laporan kilat anti-macet** (File langsung terunduh tanpa membebani server). |
+

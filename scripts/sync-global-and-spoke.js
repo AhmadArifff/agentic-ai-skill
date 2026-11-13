@@ -14,7 +14,7 @@ if (!fs.existsSync(globalConfigRules)) {
 // 2. Updated content for agentic-ai-orchestration.md
 const orchestrationContent = `# Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 42 katalog skill, serta protokol proteksi basis data, sesi state, dan rekayasa antarmuka visual-first.
+> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 45 katalog skill, serta protokol proteksi basis data, sesi state, dan rekayasa antarmuka visual-first.
 
 ---
 
@@ -61,7 +61,7 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 2. **Reviewer Independence (No Self-Review)**: Builder tidak boleh mereview kodenya sendiri. Setiap artefak builder wajib melalui verifikasi independen oleh Reviewer (\`qa-engineer\` atau \`tech-critic\`).
 3. **Circuit Breaker Loop Pengerjaan Ulang**: Jika suatu task mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan proses otomatis dan minta klarifikasi langsung kepada pengguna (*Human-in-the-Loop*).
 4. **Session State Consistency**: Selalu periksa dan sinkronkan status \`active_goal\` dan sub-tugas pada \`session-state.json\` agar percakapan panjang tidak mengalami *context drift*.
-5. **Katalog 44 Skill Global**: Seluruh agen dapat memanfaatkan 44 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`teardown\` (3D interactive machine simulator & exploded view) dan \`motionmaxxing\` (motion graphics & viral video retention).
+5. **Katalog 45 Skill Global**: Seluruh agen dapat memanfaatkan 45 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`stack-diagram\` (architecture diagram with official logos), \`teardown\` (3D interactive machine simulator & exploded view) dan \`motionmaxxing\` (motion graphics & viral video retention).
 6. **Proteksi Basis Data Lokal & Tata Kelola SP/View (Zero-Direct-CRUD)**:
    - Pada proyek berbasis MySQL / PostgreSQL / phpMyAdmin (seperti \`adminShuttleV3\` dan \`admin-sunjaya\`), agen **DILARANG KERAS** mengeksekusi kueri mutasi (\`INSERT\`, \`UPDATE\`, \`DELETE\`, \`ALTER\`) langsung ke database lokal secara otonom.
    - Agen hanya bertugas menyusun query SQL terverifikasi agar pengguna sendiri yang mengeksekusinya di phpMyAdmin.
@@ -126,6 +126,30 @@ if (fs.existsSync(masterAgentsMd)) {
     console.log('✅ Synced all ' + folder + '/*.md to .agents/' + folder + '/');
   }
 });
+
+// 5b. Sync skills from root skills/ to internal .agents/skills/ and global config skills
+const rootSkillsDir = path.join(__dirname, '..', 'skills');
+const agentSkillsDir = path.join(__dirname, '..', '.agents', 'skills');
+const globalConfigSkills = path.join(userHome, '.gemini', 'config', 'skills');
+
+if (fs.existsSync(rootSkillsDir)) {
+  fs.readdirSync(rootSkillsDir, { withFileTypes: true }).forEach(entry => {
+    if (entry.isDirectory()) {
+      const srcSkill = path.join(rootSkillsDir, entry.name);
+      const targetAgentSkill = path.join(agentSkillsDir, entry.name);
+      const targetGlobalSkill = path.join(globalConfigSkills, entry.name);
+      
+      if (!fs.existsSync(targetAgentSkill)) {
+        fs.cpSync(srcSkill, targetAgentSkill, { recursive: true, force: true });
+        console.log('✅ Synced skill ' + entry.name + ' to .agents/skills/');
+      }
+      if (!fs.existsSync(targetGlobalSkill)) {
+        fs.cpSync(srcSkill, targetGlobalSkill, { recursive: true, force: true });
+        console.log('✅ Synced skill ' + entry.name + ' to ~/.gemini/config/skills/');
+      }
+    }
+  });
+}
 
 // 6. Sync compatible universal rules & blueprints to admin-sunjaya-dev without overwriting custom DB/bug files
 const adminSunjayaKnowledge = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'knowledge');
