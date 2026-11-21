@@ -152,13 +152,64 @@ Dokumen ini memuat **invarian mutlak** yang wajib dipatuhi oleh setiap AI Agent 
 
 ---
 
+---
+
 ## 15. Audit Wajib Skenario Celah Lapangan (Review, Planning, Evaluasi & Fix-Bug)
 1. **Tidak Boleh Di-skip di Tahap Manapun**:
    * Setiap proses **Review**, **Planning**, **Evaluasi**, dan **Fix-Bug** WAJIB mencakup pengecekan proaktif celah skenario lapangan:
-     1. **Sinkronisasi State-Machine Lintas Menu**: Pastikan tombol aksi (`can_cancel`, `can_mutate`, `can_checkin`, `can_pay`), guard repository (Single Source of Truth Guard), dan tampilan view lain sejalan.
-     2. **Batas Waktu Real-Time (`ETD` / `expired_at`)**: Memastikan batas operasional nyata (jam berangkat, kadaluarsa pembayaran, urutan cetak dokumen persiapan) tidak bertabrakan atau mengunci secara prematur.
-     3. **Integritas Tabel Terkait & Log Audit**: Tabel induk vs tabel relasi (`forwards`, `trackings`, `manifests`) tetap sinkron tanpa duplikasi log maupun status yatim (*orphaned status*).
+     1. **Sinkronisasi State-Machine Lintas Menu**: Apakah tombol aksi (`can_cancel`, `can_mutate`, `can_checkin`, `can_pay`), guard repository, dan tampilan view lain sejalan.
+     2. **Batas Waktu Real-Time (`ETD` / `expired_at`)**: Memastikan batas operasional nyata (jam berangkat, kadaluarsa pembayaran, urutan cetak dokumen) tidak bertabrakan atau mengunci secara prematur.
+     3. **Integritas Tabel Terkait & Log Audit**: Tabel induk vs tabel relasi (`forwards`, `trackings`, `manifests`) tetap sinkron tanpa duplikasi log maupun data yatim (*orphaned status*).
      4. **Penanganan Kegagalan & Kondisi Pinggiran**: Skenario cetak ulang manifest, ganti supir/armada mendadak, pembatalan setelah penjadwalan, dan konsistensi timezone.
+2. **Klasifikasi Wajib: Fokus Core Flow vs Pelengkap Di Luar Core Flow**:
+   * **Prioritas Solusi Utama (`[CORE FLOW]`)**: Setiap solusi perbaikan celah WAJIB langsung menyasar dan merujuk pada **core flow** utama yang mengalami celah agar akar masalah terselesaikan tepat sasaran.
+   * **Pelengkap Di Luar Core Flow (`[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`)**: Jika terdapat penyesuaian preventif atau penanganan *edge case* tambahan untuk melengkapi area di luar core flow utama, AI Agent **tetap wajib mengikutsertakan dan memaparkannya**, tetapi dipisahkan secara eksplisit dari daftar perbaikan core flow dengan label **`[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`**.
+   * **Transparansi Alur & Impact**: Setiap item berlabel di luar core flow WAJIB disertai penjelasan singkat mengapa item tersebut berada di luar core flow serta **pertimbangan dampaknya (*impact analysis*) jika ditambahkan vs jika tidak ditambahkan**, sehingga pengguna memahami alur sistem secara menyeluruh dan dapat memverifikasi keputusan secara sadar sebelum eksekusi.
+3. **Wajib Simulasi Testing Impact Menggunakan Data Nyata (*Data-Driven Impact Simulation*)**:
+   * Setiap pemaparan celah `[CORE FLOW]` maupun `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]` pada tahap Review, Planning, Evaluasi, dan Fix-Bug **WAJIB disertai ilustrasi simulasi uji menggunakan contoh data nyata / record DB aktual** (`Before vs After` atau `Jika Diterapkan vs Jika Diabaikan`) sesuai template pada [`workflows/task-review-protocol.md`](../workflows/task-review-protocol.md) Bagian 3B.
+   * Pengujian dilakukan secara **read-only** (simulasi skrip/logika/query baca) tanpa melanggar Zero-Direct-CRUD.
+
+---
+
+## 16. Kontrak JSON Murni Endpoint GET & DataTables (Zero Raw HTML/Badge)
+1. **Backend Mengembalikan Data Terstruktur Murni (Tanpa Tag HTML)**:
+   * Seluruh endpoint `GET` AJAX/DataTables maupun `JsonResource` **DILARANG KERAS** menyisipkan tag HTML (`<span>`, `<a href>`, `<div>`, `<i>`, `<button>`) di dalam response JSON. Endpoint cukup mengirim nilai mentah yang bersih dan aman, serta wajib dilindungi `try/catch` + `Log::error(...)` agar kegagalan parsing tidak memecah JSON DataTables (spesifikasi backend: [`rules/10-architecture.md`](./10-architecture.md) Bagian 5).
+2. **Frontend Merender Tampilan & Melindungi XSS**:
+   * Pembuatan badge status, warna semantik, multi-line layout, tautan, dan tombol aksi wajib dikerjakan di sisi klien lewat `columns[].render` menggunakan helper `escapeHtml()` (spesifikasi frontend: [`rules/30-ui-frontend.md`](./30-ui-frontend.md) Bagian 12).
+   * Aturan ini **WAJIB diaudit** di setiap tahap: **Review, Planning, Development, Fix-Bug, dan Evaluasi**.
+
+---
+
+## 17. Audit Definisi Database View (Anti-Double Join, Anti-Censorship Filter & Single-Source Projection)
+1. **Wajib Membaca Definisi View Sebelum Menulis Query (Anti-Double Join)**:
+   * Setiap kali sebuah repository mengonsumsi Database View (MySQL View `v_...`), AI Agent **WAJIB** membaca berkas SQL dump terbaru (`transport_system-*.sql`) untuk memeriksa tabel-tabel master apa saja yang **sudah di-join di dalam View tersebut**.
+   * **DILARANG KERAS** melakukan `leftJoin` / `join` ulang di Query Builder Laravel ke tabel master fisik yang sudah di-join di dalam View (anti-2x proses). Contoh: dilarang men-join ulang `routes`, `vehicles`, `vehicle_layouts`, `emoneys`, dan `admins` jika kueri sudah memanggil `v_manifest`.
+   * Jika terdapat kolom master yang belum diekspos oleh View (misal `vehicle_code` atau `layout_name`), AI **WAJIB mendeklarasikannya secara transparan** kepada tim basis data / atasan untuk ditambahkan ke baris `SELECT` View, bukan secara sepihak menambahkan join fisik ganda yang melumpuhkan performa kueri.
+2. **DILARANG Menambahkan Filter WHERE Prematur/Kaku pada View (Anti-Penyensoran Data & Perlindungan Indeks)**:
+   * **DILARANG KERAS** menambahkan filter `WHERE` kaku seperti `->where('vehicle_list_id', '>', 0)->where('driver_id', '>', 0)->whereNotNull('manifest_code')` pada kueri view kecuali jika secara mutlak diminta oleh aturan bisnis.
+   * Dampak negatif filter prematur ini:
+     a) **Penyensoran Data Tidak Sengaja**: Jadwal/manifest yang baru dibuat dan armadanya belum ditentukan (`NULL` / `0`) menjadi **hilang misterius** dari antarmuka pengguna, padahal staf butuh melihatnya dengan status *"Belum Diatur"*.
+     b) **Degradasi Performa**: Kondisi `>` pada view memicu *full table scan* dan merusak optimasi indeks MySQL (~10x lebih lambat).
+3. **Proyeksi Tunggal Bersih (Single-Source Projection via `vm.*` )**:
+   * Seluruh atribut yang sudah diproyeksikan oleh Database View wajib diambil langsung via `vm.*` (atau alias view terkait) tanpa menulis deretan `COALESCE` panjang yang berlebihan di layer repository.
+4. **Lifecycle Mandat (Tidak Boleh Di-skip)**:
+   * Aturan ini **WAJIB diaudit** pada setiap tahap: **Planning, Review, Development, Fix-Bug, dan Evaluasi** (Kasus #41, SSOT: [`rules/21-database-reasoning.md`](./21-database-reasoning.md) Bagian 5).
+
+---
+
+## 18. Standar Pengujian: Alur UI Browser Nyata (In-Admin) vs Query SQL phpMyAdmin (Out-of-Admin)
+1. **(A) Pengujian Alur di Dalam Sistem Admin (In-Admin Flow - Browser UI Flow First)**:
+   * Setiap alur yang memiliki modul/antarmuka di web admin (seperti pemesanan tiket, kirim paket, penugasan armada, input upah harian, check-in, dan form modal) **WAJIB disimulasikan secara nyata melalui antarmuka web peramban (Browser UI Flow via Playwright)**.
+   * Alur wajib mencerminkan interaksi manusia sesungguhnya: membuka halaman aplikasi admin, memilih dropdown/kursi, mengisi form input, dan mengklik tombol simpan di browser.
+   * **DILARANG KERAS** menggunakan jalan pintas (*shortcut*) pembuatan data uji melalui skrip kernel PHP/service backend langsung atau query SQL injeksi, **KECUALI** pengguna secara eksplisit menginstruksikannya (contoh instruksi eksplisit: *"tolong inject data via script/sql saja biar hemat token"*).
+2. **(B) Pengujian Alur di Luar Sistem Admin (Out-of-Admin Flow / External Blockers & Time Fast-Forward)**:
+   * Jika skenario pengujian bergantung pada pemicu yang berada di luar aplikasi web admin (contoh: status manifest telah tiba / `arrived` yang dipicu dari Aplikasi Android Driver, pengajuan penarikan saldo supir / withdrawal dari aplikasi driver, simulasi melewati jam `ETD` / kadaluarsa, atau callback payment gateway), AI **DILARANG KERAS mengeksekusi injeksi skrip atau mutasi database sendiri** (mematuhi Rule #2 Zero-Direct-CRUD).
+   * AI **WAJIB PAUSE**, lalu **MENYEDIAKAN PAKET QUERY SQL MANUAL YANG TRANSPARAN & SIAP PASTE UNTUK DIJALANKAN OLEH PENGGUNA DI PHPMYADMIN** (lengkap dengan penjelasan status, tujuan, cara kerja, dampak, dan kueri pemulihan/rollback).
+   * Setelah pengguna mengonfirmasi query berhasil dijalankan di phpMyAdmin, AI langsung melanjutkan pengujian alur admin di peramban browser.
+3. **Keterikatan Siklus Hidup Menyeluruh (Lifecycle Mandat - Tidak Boleh Di-skip)**:
+   * **Planning & Review**: Wajib mendeklarasikan metode eksekusi data uji secara transparan: **`BROWSER UI FLOW (Playwright)`** untuk alur in-admin, dan **`PAUSE + QUERY SQL PHPMYADMIN`** jika ada ketergantungan pemicu eksternal/waktu di luar admin.
+   * **Development & Fix-Bug**: Validasi perbaikan wajib dipastikan bekerja mulus pada antarmuka web peramban.
+   * **Evaluasi & QA**: Bukti uji wajib menyertakan tangkapan layar (*screenshot*) dari alur antarmuka browser yang nyata (Kasus #42, SSOT: [`workflows/task-review-protocol.md`](../workflows/task-review-protocol.md) & [`workflows/post-dev-qa.md`](../workflows/post-dev-qa.md)).
 
 ---
 
@@ -167,20 +218,25 @@ Dokumen ini memuat **invarian mutlak** yang wajib dipatuhi oleh setiap AI Agent 
 | Area | ✅ WAJIB DILAKUKAN | ❌ DILARANG KERAS |
 | :--- | :--- | :--- |
 | **Alur Kerja** | Awali dengan Review Task mendalam & tunggu persetujuan pengguna | Langsung koding sebelum pengguna konfirmasi setuju |
+| **Routing** | Tempatkan rute secara modular per resource di `routes/partials/[resource].php` | Menumpuk / menambahkan rute baru langsung ke `routes/web.php` |
 | **Mutasi DB** | Sediakan query SQL manual untuk phpMyAdmin | Eksekusi query INSERT/UPDATE/DELETE langsung dari AI/scratch |
-| **Basis Data** | Fokus pada database `transport_system` | Akses DB luar tanpa izin / utak-atik data eksisting |
+| **Basis Data** | Nilai kolom ENUM, hari, status WAJIB Bahasa Inggris (Monday, Tuesday, departed, dll) | Menyimpan nilai hari/status berlabel lokal (Senin, Selasa, dll) ke tabel database |
 | **Migrasi** | Update berkas migrasi sebagai arsip dokumentasi | Menjalankan `php artisan migrate` di terminal |
 | **Permission** | Sediakan SQL permission jika menu baru belum ada | Mem-bypass otorisasi atau memalsukan data mock |
 | **Arsitektur** | Prioritaskan komponen & pola yang sudah ada di `adminShuttleV3` | Menjiplak kode usang yang bertentangan dengan standar saat ini |
 | **Playwright** | Jalankan HANYA jika diminta eksplisit oleh user (Akun: `superahmad` / `password123`) | Menjalankan Playwright otomatis tanpa instruksi pengguna |
+| **Alur Pengujian (Testing Flow)** | Jalankan alur in-admin via browser (Browser UI Flow via Playwright); untuk alur di luar admin (Android Driver/ETD) PAUSE & sediakan query SQL manual untuk phpMyAdmin | Menginjeksi data via skrip kernel PHP/SQL langsung untuk mensimulasikan transaksi bisnis KECUALI diminta eksplisit oleh pengguna |
 | **Komentar Kode** | Tulis komentar ringkas (1-2 baris), fungsional & ramah developer tim | Banner ASCII panjang, dekoratif berlebihan, atau mengutip rujukan aturan AI |
-| **Teks & Label UI** | Gunakan istilah umum dan ramah pengguna (misal: "Password :") | Memunculkan jargon teknis (misal: "Password (16 Karakter):", "injeksi", regex) |
-| **Routing Modular** | Pisahkan rute per resource di `routes/partials/[resource].php` | Menumpuk semua rute baru di `routes/web.php` |
-| **Sisa Iterasi (Dead Code)** | Hapus tuntas kode versi lama saat revisi berlanjut | Membiarkan dead code atau zombie comment menumpuk |
-| **Proteksi Commit Rekan** | Audit `git blame`/`git diff` & konfirmasi dampak sebelum edit | Menimpa hasil kerja/commit rekan developer secara sepihak |
-| **Dual-Language Data** | Nilai ENUM, hari (`Monday`), status DB wajib Bahasa Inggris baku | Menyimpan nama hari/status berbahasa lokal ke tabel DB |
-| **Testing Form** | Sajikan contoh set data uji manual & representasi kolom DB | Membiarkan user tanpa panduan cross-check pengujian form |
-| **Import & Logging** | Import via `use` di header file & catat error via `Log::error` | Menulis inline FQCN atau melakukan silent catch tanpa log |
-| **Zona Waktu Dinamis** | Gunakan `config('app.timezone')` / `APP_TIMEZONE` secara dinamis | Hardcode timezone statis (misal `'Asia/Makassar'`) |
-| **Audit Celah Lapangan** | Audit skenario celah lintas-menu, batas `ETD`, & tabel relasi | Melewatkan audit state-machine saat Review atau Fix-Bug |
-| **Knowledge** | Catat setiap bug dan solusinya ke `.agents/knowledge/` | Mengabaikan dokumentasi problem-solving |
+| **Teks & Label UI** | Gunakan istilah bisnis umum dan ramah pengguna awam (misal: "Password :", "disimpan menjadi harga tarif operasional") | Memunculkan jargon teknis (misal: kata "database", "database operasional", "query", "record", "Password (16 Karakter):", "injeksi") |
+| **Sisa Iterasi (Dead Code)** | Bersihkan/hapus tuntas kode versi lama yang sudah tidak terpakai saat revisi berikutnya | Membiarkan dead code, UI modal usang, atau potongan komentar kode mati menumpuk |
+| **Git / Version Control** | Biarkan seluruh perubahan kode di working tree (*uncommitted*) untuk direview pengguna | Menjalankan `git commit` maupun `git push` (eksekusi commit & push dikelola mandiri oleh user) |
+| **Proteksi Commit Rekan** | Wajib audit non-regresi pasca-dev & konfirmasi dampak jika perlu menyentuh kode rekan developer | Mengubah atau menimpa kode/fitur commit milik rekan secara sepihak tanpa konfirmasi |
+| **Testing Form** | Sajikan set data uji manual & perbandingan representasi data database pada review selesai dev | Meninggalkan user tanpa panduan pengujian atau tanpa kejelasan format data database |
+| **Import & Error Handling** | Import class via `use` di atas file & kembalikan `ServiceResult::failed` | Menulis inline FQCN (`\Illuminate\...::error`) atau menelan error secara bisu (*silent catch*) |
+| **Zona Waktu** | Gunakan `config('app.timezone')` / `Carbon::now()` secara dinamis | Hardcode `'Asia/Makassar'` di kode backend atau frontend |
+| **Modal & Komponen UI Portable** | Pusatkan modal/popup lintas-menu ke 1 Blade partial + 1 JS portabel ber-scope terisolasi, lalu cek semua halaman pemakainya saat Planning, Fix, Dev & Evaluasi (`30-ui-frontend.md` Bag. 13) | Menyalin-tempel HTML modal atau JS handler di banyak menu, atau memakai selector CSS/ID global yang bocor ke halaman induk |
+| **Audit Celah Lapangan** | Lakukan audit skenario celah lintas-menu pada Review, Planning, Evaluasi & Fix-Bug | Melewatkan pengecekan celah state-machine, batas ETD, & tabel anak |
+| **Klasifikasi Celah & Impact** | Fokus solusi ke `[CORE FLOW]`; pisahkan pelengkap `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]` + simulasi testing impact berbasis data nyata | Mencampur perbaikan opsional di luar core flow tanpa penjelasan dampak & ilustrasi uji data |
+| **Endpoint GET / DataTables** | Kembalikan data JSON murni bebas HTML; render badge/aksi di `columns[].render` JS dengan `escapeHtml()` (`10-architecture.md` Bag. 5 & `30-ui-frontend.md` Bag. 12) | Mengirim `<span class="badge">`, `<a>`, atau HTML mentah di payload JSON Service / JsonResource |
+| **Konsumsi Database View** | Baca definisi `CREATE VIEW` di dump SQL terbaru; gunakan `vm.*` tanpa join master ganda; hapus filter `>` prematur | Join ulang ke tabel master yang sudah ada di view (2x proses); filter kaku `vehicle_list_id > 0` yang menyembunyikan jadwal baru |
+| **Knowledge** | Catat setiap bug dan solusinya ke `knowledge/` | Mengabaikan dokumentasi problem-solving |

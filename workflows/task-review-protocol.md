@@ -43,7 +43,7 @@ SOP ini wajib dijalankan oleh AI Agent **sebelum menulis atau mengubah kode apap
 ```
 
 > [!TIP]
-> **Disiplin Eksekusi Koding**: Saat menulis kode aplikasi, gunakan komentar fungsional yang ringkas (1–2 baris). DILARANG menulis komentar banner ASCII raksasa atau mencantumkan kutipan bab aturan internal AI (`RULESCODE.md - Bab X`). Kode harus bersih dan mudah dipahami oleh seluruh tim pengembang.
+> **Disiplin Eksekusi Koding**: Saat menulis kode aplikasi, gunakan komentar fungsional yang ringkas (1-2 baris). DILARANG menulis komentar banner ASCII raksasa atau mencantumkan kutipan bab aturan internal AI (`RULESCODE.md - Bab X`). Kode harus bersih dan mudah dipahami oleh seluruh tim pengembang.
 
 ---
 
@@ -60,11 +60,15 @@ Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan fo
   - **Tabel Utama**: Nama tabel penampung data form utama, tipe kolom, dan primary key.
   - **Tabel Relasi / Pivot**: Tabel anak atau log aktivitas yang ikut terisi record baru.
   - **Keterkaitan Foreign Key / Master**: Relasi ke tabel master pendukung.
+* **Audit Definisi View & Kontrak Pengurutan SP**: Periksa tabel master yang sudah di-join di dalam View tersebut. DILARANG melakukan join ganda ke tabel fisik yang sama di Laravel (anti-2x proses), DILARANG memasang filter `WHERE` kaku (`vehicle_list_id > 0`, `driver_id > 0`) yang menyembunyikan jadwal/manifest baru, proyeksikan kolom langsung via `vm.*` (Kasus #41), dan **WAJIB mempertahankan urutan bawaan (*native ORDER BY*) Stored Procedure** (misal jadwal non-aktif di paling bawah tabel) tanpa menimpanya dengan sorting koleksi sembarangan di PHP (Kasus #43).
 
 ### 2. Strategi Akses Data (Data Engine Strategy) & Komparasi Sistem
 * **Strategi Akses Data (WAJIB)**:
   - **Tipe Engine**: Nyatakan tegas apakah fitur beroperasi secara **`PURE DIRECT DB CRUD`** (100% database lokal) ATAU **`HYBRID / MICROSERVICE API`** (terhubung ke API eksternal/pusat).
   - **Status Keterlibatan Tim Backend Eksternal**: Jelaskan apakah tim API eksternal **perlu atau TIDAK PERLU membuat endpoint baru** (beserta draf kontrak JSON jika perlu).
+* **Deklarasi Metode Eksekusi Pengujian (Testing Execution Method - Kasus #42)**:
+  - **Alur di Dalam Admin**: **`BROWSER UI FLOW (Playwright)`** (standar mutlak untuk menguji alur aplikasi secara end-to-end melalui formulir antarmuka pengguna).
+  - **Alur di Luar Admin**: **`PAUSE + QUERY SQL PHPMYADMIN`** (jika ada simulasi status tiba `arrived` dari Aplikasi Android Driver, pengajuan penarikan supir, atau batas waktu `ETD`). DILARANG keras injeksi skrip/SQL langsung dari AI tanpa izin eksplisit pengguna.
 * **Komparasi 4-Dimensi dengan Sistem Referensi (`admin-sunjaya`)**:
   - **Data Database**: Tabel dan kolom terkait pada `transport_system` vs `sunjaya_dev`.
   - **Logika Bisnis (Logic)**: Validasi dan formula perhitungan.
@@ -73,20 +77,40 @@ Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan fo
 
 ### 3. Analisis Alur Kerja Before vs After (Wajib Analogi Nyata)
 * **Analogi Dunia Nyata Sederhana (WAJIB)**:
-  - Sajikan 1 analogi operasional nyata agar pengguna dan pemangku kepentingan non-teknis langsung memahami nilai inti (*core values*) fitur tanpa jargon kode.
-* **Alur SEBELUM (Before)**:
-  - Bagaimana alur kerja / kondisi kode saat ini.
-  - Kendala, bug, atau ketiadaan fitur yang terjadi.
-* **Alur SESUDAH (After)**:
+  - Sajikan 1 analogi operasional nyata (misal: titip kilat bus antar-kota, kasir bioskop XXI, flight manifest penerbangan, tutup shift minimarket) agar pengguna dan pemangku kepentingan non-teknis langsung menangkap esensi dan nilai inti (*core values*) fitur tanpa pusing dengan istilah teknis.
+* **Alur SEBELUM (Before Flow)**:
+  - Bagaimana alur kerja / kondisi kode saat ini beserta kendala atau bug yang dialami.
+* **Alur SESUDAH (After Flow)**:
   - Bagaimana alur kerja baru setelah fitur diadopsi atau bug diperbaiki.
-  - Peningkatan performa, kemudahan navigasi, atau kebersihan visual.
+  - Peningkatan efisiensi, akurasi data operasional, atau kebersihan visual.
 * **Dampak & Dependensi**:
   - File apa saja yang akan dibuat / diubah dan jaminan non-regresi terhadap commit rekan pengembang lain.
 
+### 3A. Matriks Target Perubahan Eksplisit (WAJIB - Endpoint, File Kode & Konten Spesifik - Kasus #39)
+* Wajib dicantumkan pada **Planning, Review, Development, Fix-Bug, dan Evaluasi** agar sasaran perubahan 100% presisi dan tidak salah sasaran menghapus/mengubah komponen lain:
+  | Endpoint / Halaman (URL) | File Kode (Path) | Bagian / Konten Spesifik | Aksi (Tambah / Ubah / Hapus / Tidak Disentuh) |
+  | :--- | :--- | :--- | :--- |
+  | `/contoh-endpoint` | `public/js/apps/.../file.js` | Kolom `CHECKIN` baris ikon paket | **Hapus** baris paket; pertahankan baris tiket |
+  | `/contoh-endpoint/detail/{id}` | `resources/views/.../detail.blade.php` | Card `Data Paket` | **Tidak Disentuh / Dipertahankan** |
+* **Verifikasi Pasca-Eksekusi**: Setelah koding selesai, cocokkan `git diff --stat` terhadap tabel di atas untuk memastikan 100% perubahan tepat sasaran tanpa efek samping pada file atau bagian lain.
+
 ### 3B. Audit Wajib Skenario Celah Lapangan (Review, Planning, Evaluasi & Fix-Bug)
 * **Konsistensi Lintas Menu & Tampilan**: Periksa apakah aturan/validasi baru sudah sinkron antara halaman order, list, detail, modal, serta menu operasional lain melalui *Single Source of Truth Guard*.
-* **Batas Waktu Real-Time & State-Machine**: Pastikan zona waktu mengikuti `config('app.timezone')` (anti hardcode timezone statis), batas `ETD`/kadaluarsa tidak mengunci prematur saat cetak dokumen persiapan, serta urutan perubahan status valid di semua jalur.
+* **Batas Waktu Real-Time & State-Machine**: Pastikan zona waktu mengikuti `config('app.timezone')` (anti hardcode timezone statis `Asia/Makassar`), batas `ETD`/kadaluarsa tidak mengunci prematur saat cetak dokumen persiapan, serta urutan perubahan status valid di semua jalur.
 * **Integritas Tabel Anak & Audit Log**: Pastikan tabel relasi (`forwards`, `trackings`, dll.) ikut diperbarui dan tidak terjadi duplikasi remark maupun status macet (*stuck*).
+* **Validasi Input Ekstrem & Pergantian Mode Form (Kasus #32)**: Periksa celah angka batas (`percent 1..100`, `0`, nilai negatif), *leading zero*, *paste*, pergantian jenis potongan (`Rp` vs `%`), penempatan error `.input-group`, serta keselarasan validasi backend `FormRequest` (lihat [`30-ui-frontend.md`](../rules/30-ui-frontend.md) Bagian 14).
+* **Portabilitas & Sinkronisasi Komponen Modal Reusable (Kasus #34, #35)**: Jika menyentuh modal popup atau partial lintas-halaman, pastikan HTML partial + JS handler tidak duplikat, ID & CSS terskop ke ID modal (anti-bocor ke halaman pemanggil), Select2/Datepicker mengikat parent modal, state dibersihkan saat `hidden.bs.modal`, dan seluruh halaman pemanggil ikut dicek pada saat Planning, Fix-Bug, Development, maupun Evaluasi (lihat [`30-ui-frontend.md`](../rules/30-ui-frontend.md) Bagian 13).
+* **Integritas Payload JSON Murni Endpoint GET / DataTables (Kasus #17, #47)**: Pastikan endpoint `GET` (`DataTables`, `JsonResource`, API) tidak menyisipkan HTML/badge mentah di response JSON (`10-architecture.md` Bagian 5), memiliki proteksi `try/catch` + `Carbon::parse` aman + filter `search[value]`, dan seluruh tampilan badge/aksi dirender aman di `columns[].render` JS memakai `escapeHtml()` (`30-ui-frontend.md` Bagian 12).
+* **Audit N+1 Query & Prioritas Database Views**: Pastikan endpoint daftar / DataTables tidak mengeksekusi kueri database berulang di dalam perulangan loop baris data (`foreach ($records as $item)`). Jika memerlukan data agregasi lintas tabel (tiket, koli paket, status boarding), wajib memanfaatkan Database View (`v_manifest`, `v_transactions`, `v_package_transactions`) dalam 1 kueri tunggal (*single query*).
+* **Audit Definisi Database View & Single-Source Projection (Anti-Double Join & Anti-Penyensoran Data Baru - Kasus #41)**: Jika modul/fitur mengonsumsi Database View (`v_...`), AI Agent **WAJIB** membaca definisi `CREATE VIEW` pada dump SQL terbaru. Pastikan: (1) Bebas join ganda ke tabel master fisik yang sudah di-join di dalam View (anti-2x proses), (2) Bebas klausa `WHERE` prematur/kaku (seperti `vehicle_list_id > 0`, `driver_id > 0`) yang menyembunyikan jadwal/manifest baru yang armadanya belum ditentukan dari antarmuka staf operasional, (3) Seluruh kolom View diproyeksikan langsung via `vm.*` (Single-Source Projection), dan (4) Jika ada kolom master yang kurang (misal `vehicle_code` atau `layout_name`), komunikasikan secara transparan ke tim database alih-alih me-join ulang di Laravel (SSOT: [`21-database-reasoning.md`](../rules/21-database-reasoning.md) Bagian 5).
+* **Klasifikasi Celah & Solusi (`[CORE FLOW]` vs `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`)**:
+  * Pastikan penyesuaian utama merujuk langsung ke **`[CORE FLOW]`** yang memiliki celah.
+  * Penyesuaian preventif / *edge case* untuk melengkapi area di luar core flow tetap **wajib dicantumkan dan dijelaskan**, namun dipisahkan dengan label **`[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`** beserta **pertimbangan *impact*-nya** (dampak bila ditambah vs bila dilewati) agar pengguna memahami alurnya dan dapat menentukan persetujuan per item.
+* **Simulasi Testing Impact Menggunakan Data Nyata (WAJIB untuk `[CORE FLOW]` & `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`)**:
+  * Setiap skenario celah wajib dilengkapi ilustrasi konkret berbasis **data contoh / baris DB aktual** (simulasi *read-only* tanpa mutasi langsung ke `transport_system`), disajikan ringkas dengan format berikut:
+    - **Tabel Simulasi `[CORE FLOW]`**: `Skenario | Data Uji Input / Record DB | Hasil SEBELUM Fix | Hasil SESUDAH Fix`
+    - **Tabel Simulasi `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]`**: `Opsi & Celah | Contoh Data Uji Nyata | Dampak Jika Diabaikan | Dampak Jika Diterapkan`
+  * Catatan Ruang Lingkup: Simulasi ini melengkapi proses **Review, Planning, Evaluasi & Fix-Bug** agar pengguna paham alur & dampak nyata sebelum eksekusi; sedangkan **Set Data Uji Manual Pasca-Development Form** (*field input form vs kolom DB tersimpan*) tetap disajikan terpisah setelah perubahan form selesai dikerjakan.
 
 ### 4. Status Permission, Konsultasi SP/View & Skrip SQL Manual phpMyAdmin
 * **Status Permission & Menu di `transport_system`**:

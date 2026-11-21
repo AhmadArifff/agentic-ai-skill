@@ -1,64 +1,134 @@
-# Rule 01: Workflow Discipline & OODA Execution
+---
+description: Workflow Discipline, Review Gate & Bug Knowledge Management (Always Loaded)
+always_apply: true
+---
 
-> **Status**: MUTLAK (Pemandu kedisiplinan alur eksekusi multi-agen)
+# 01. Workflow Discipline, Review Protocol & Knowledge Base
+
+Dokumen ini mengatur tata kelola pengerjaan tugas oleh AI Agent agar setiap fitur dan perbaikan bug dikerjakan secara terkontrol, aman, dan terdokumentasi.
 
 ---
 
-## 1. Siklus OODA Loop
-Setiap tugas dijalankan melalui 4 fase berulang:
-- **Observe**: Baca instruksi pengguna, periksa status terkini di `session-state.json`, dan inspeksi kode yang ada.
-- **Orient**: Evaluasi dampak terhadap arsitektur, batasan terkunci (`established_constraints`), dan potensi regresi.
-- **Decide**: Susun rencana terstruktur dan tentukan owner peran pelaksana.
-- **Act**: Eksekusi perubahan kode secara atomik, rapi, dan teruji.
+## 1. Protokol Wajib Review Sebelum Development (Review Gate)
+Setiap permintaan pengembangan fitur baru, perbaikan bug tampilan, bug logika, maupun adopsi menu baru (seperti `schedule` / jadwal perjalanan) **WAJIB melalui 4 tahapan OODA**:
+
+### Tahap 1: Analisis & Komparasi Sistem (Observe & Orient)
+* **Fokus Database**: Periksa skema database `transport_system`. Gunakan file dump SQL (`*.sql`) sebagai sumber referensi.
+* **Komparasi Mendalam**: Bandingkan sistem saat ini (`adminShuttleV3`) dengan sistem referensi legacy (`admin-sunjaya`) pada 4 dimensi:
+  1. **Data Database**: Nama tabel, tipe kolom, dan relasi.
+  2. **Logika Bisnis (Logic)**: Alur proses, formula hitungan, dan validasi.
+  3. **Metode & Service**: Struktur method di Controller/Service/Repository.
+  4. **Tampilan & UX**: Tata letak, kartu summary, filter, tabel, dan warna.
+* **Prinsip Utama Adopsi**:
+  * Utamakan mengadopsi styling, komponen, dan konvensi yang **SUDAH ADA di `adminShuttleV3`** (seperti Laporan CSO, layout card seragam, ReportExporter) daripada menjiplak mentah-mentah kode lama yang sudah usang.
+
+### Tahap 2: Penyusunan Dokumen Review & Analisis Dampak (Decide)
+Sebelum menyentuh kode aplikasi, AI menyajikan dokumen review kepada pengguna yang berisi:
+1. **Status Fitur / Bug Saat Ini & Tabel Terdampak Saat INSERT**:
+   * Rincikan tabel-tabel database yang terdampak saat operasi simpan/INSERT pada fitur baru (tabel utama, tabel relasi/pivot, kolom kunci, serta foreign key terkait).
+2. **Deklarasi Data Engine Strategy (WAJIB)**:
+   * Nyatakan tegas apakah fitur beroperasi via **`PURE DIRECT DB CRUD`** (100% kueri database lokal) atau **`HYBRID / MICROSERVICE API`** (terhubung ke API eksternal/pusat).
+   * Konfirmasikan apakah tim backend eksternal **perlu atau TIDAK PERLU** membuat endpoint baru, dan gunakan *Contract-First JSON Payload* bila diperlukan.
+3. **Hasil Komparasi & Audit Skenario Celah Lapangan (WAJIB Tidak Boleh Di-skip)**:
+   * Komparasi 4-dimensi dengan sistem referensi (Database, Logic, Service, UI & Reusable Component).
+   * Audit menyeluruh kemungkinan skenario celah lapangan (*edge-cases*): sinkronisasi status antar-menu (*Single Source of Truth Guard*), guard batas waktu (`ETD` / kadaluarsa), kesesuaian aksi tombol UI vs backend guard, risiko duplikasi log tracking, dan integritas tabel anak/relasi (`forwards`, dll).
+4. **Analisis Dampak Sebelum & Sesudah (Before vs After Flow) dengan Analogi Nyata (WAJIB)**:
+   * **Analogi Dunia Nyata Sederhana**: Sertakan 1 analogi operasional nyata agar nilai inti (*core values*) fitur langsung dipahami oleh pemangku kepentingan non-teknis.
+   * **Before**: Bagaimana sistem/halaman berjalan saat ini beserta kendala/bug-nya.
+   * **After**: Bagaimana alur sistem baru setelah fitur diadopsi atau bug diperbaiki.
+   * **Dampak**: Komponen apa saja yang terpengaruh (routing, controller, tabel, performa).
+5. **Skrip SQL Manual (Jika Dibutuhkan)**:
+   * Jika ada pendaftaran menu (`menus`) atau hak akses (`permissions`) yang belum tersedia di DB, sediakan query SQL manual siap pakai untuk phpMyAdmin. **Jangan menyertakan SQL dummy data bisnis dan jangan lakukan injection CRUD langsung ke database**.
+
+### Tahap 3: Menunggu Konfirmasi Pengguna (Approval Gate)
+* **DILARANG KERAS** mulai memodifikasi atau membuat file sebelum pengguna menyatakan persetujuan secara eksplisit terhadap hasil review dan alur yang diajukan.
+
+### Tahap 4: Eksekusi Terarah, Evaluasi Celah & Pengujian (Act)
+* Terapkan perubahan sesuai cakupan yang disepakati (*laser-focused*).
+* Lakukan **Evaluasi Celah Lintas-Menu (*Post-Fix Field Gap Check*)**: pastikan perubahan/fix bug tidak meninggalkan inkonsistensi di menu lain (list/detail/modal/checkin/manifest) maupun hardcode timezone statis.
+* Uji coba render view, validasi kueri, atau syntax lint.
+* Hapus seluruh berkas sementara di `scratch/`.
+* Segarkan cache: `php artisan optimize:clear`.
 
 ---
 
-## 2. Review Gate Sebelum Pengembangan
-Sebelum menulis baris kode fitur baru, wajib menjalankan evaluasi 7 pilar sesuai [task-review-protocol.md](../workflows/task-review-protocol.md):
-1. **Scope**: Apakah cakupan tugas jelas dan tidak mengalami scope-creep?
-2. **Schema**: Apakah ada perubahan tipe data, tabel, atau smart contract account?
-3. **Security**: Apakah input disanitasi dan otorisasi divalidasi?
-4. **Performance**: Apakah ada operasi N+1, memory leak, atau loop boros komputasi?
-5. **UX / Accessibility**: Apakah responsivitas layar dan kontras warna memenuhi standar?
-6. **Edge Cases**: Apakah kasus jaringan lambat, saldo tidak cukup, atau input kosong sudah ditangani?
-7. **Rollback Plan**: Apakah perubahan aman dan dapat dikembalikan jika terjadi kegagalan?
+## 2. Manajemen Kasus Bug ke Knowledge Base (`.agents/knowledge/`)
+Setiap kali AI berhasil menyelesaikan perbaikan bug (tampilan, responsive, logic, query DB, atau otorisasi), AI **WAJIB mencatatkan studi kasusnya ke berkas [`.agents/knowledge/bug-cases.md`](../knowledge/bug-cases.md)**:
+
+Format Pencatatan:
+1. **ID & Nama Kasus**: Ringkasan singkat bug.
+2. **Gejala Masalah (Symptom)**: Apa yang salah pada tampilan/logic (sertakan konteks Before).
+3. **Akar Masalah (Root Cause)**: Mengapa bug tersebut terjadi.
+4. **Solusi & Penanganan (Fix Applied)**: File yang diubah dan potongan kode perbaikan (After).
+5. **Pelajaran untuk Sesi Berikutnya (Key Takeaway)**: Aturan pencegahan agar bug serupa tidak terulang.
 
 ---
 
-## 3. Higienitas Kode & Eliminasi Zombie Artifacts
-1. **Bersihkan Kode Sementara**: Hapus console.log debug mentah, komentar sisa iterasi, atau file scratch sementara sebelum tugas ditandai selesai.
-2. **Komentar Kode Berkualitas**: Berikan komentar hanya pada logika yang kompleks atau keputusan arsitektural penting. Hindari komentar berlebihan yang hanya menjelaskan hal sepele.
-3. **Circuit Breaker Loop**: Jika sebuah tugas mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan loop dan minta panduan langsung kepada pengguna.
+## 3. Disiplin Batasan Tugas & Kebersihan Repositori
+1. **Anti Scope-Creep**: Hanya sentuh file yang relevan dengan tugas yang diminta.
+2. **Full English Naming**: Simbol kode (class, function, variable, folder) wajib bahasa Inggris baku.
+3. **Bahasa Indonesia**: Khusus untuk label antarmuka pengguna (UI) dan komunikasi di chat.
+4. **Keamanan Git**: Berkas aturan, knowledge, `.agents/`, `.agent/`, dan file `.sql` telah dimasukkan ke `.gitignore` dan tidak boleh di-force add ke repositori Git.
+5. **Eliminasi Dead Code & Zombie Code**: Dilarang meninggalkan kode mati (*dead code*), logika terbengkalai, atau elemen tampilan sisa iterasi development sebelumnya. Seluruh kode versi lama yang sudah tidak terpakai wajib dihapus tuntas agar basis kode selalu bersih (*clean code*).
+6. **Label UI Bersih & Human-Friendly (Bebas Jargon Teknis)**: Dilarang menampilkan detail/jargon teknis kode ke antarmuka pengguna (seperti `Password (16 Karakter):`, `random string 16 karakter acak`, atau `disanitasi dari karakter injeksi`). Label UI, modal, dan pesan sistem wajib menggunakan istilah umum yang bersih dan mudah dipahami manusia (misal cukup `Password :`).
 
 ---
 
-## 4. Mandatory Tracking via `session-state.json` (Independen dari PRD.md)
-1. **Single Source of Truth Progres**: Setiap fitur baru, perbaikan bug, atau perubahan arsitektur **WAJIB** dicatat statusnya di `session-state.json` (subtasks array, status `in_progress` -> `done`, dan owner role).
-2. **Tidak Bergantung pada PRD.md**: Mengingat banyak proyek nyata tidak memiliki `PRD.md`, agen dilarang berasumsi bahwa PRD adalah satu-satunya acuan progres. `session-state.json` berfungsi sebagai memori sesi independen agar tim dan agen di sesi berikutnya dapat langsung melanjutkan pekerjaan tanpa konflik fitur.
+## 4. Standar Penulisan Komentar Kode Bersih (Code Comment Hygiene - Anti-Slop)
+Setelah review disetujui dan AI mulai menulis kode, perhatikan etika penulisan komentar berikut:
+
+1. **Ringkas, Sederhana & Langsung ke Tujuan**:
+   * Komentar kode harus padat (1-2 baris). Jelaskan *apa/tujuan* fungsional blok kode tersebut, bukan mengulang sintaks yang sudah jelas.
+2. **Larangan Mutlak Istilah Prompt, Benchmarking Legacy & Meta-Rules AI**:
+   * Dilarang menulis nama sistem referensi lama (misal `admin-sunjaya`, `sunjaya_dev`) atau istilah benchmarking (`100% Parity`) di komentar kode produksi.
+   * Dilarang mencantumkan referensi aturan internal AI (`RULESCODE.md - Bab 7`, `7 Pilar .agents`), catatan defensif Git (`// Tidak mengganggu commit rekan`), atau narasi percakapan (`// Sesuai diskusi chat`).
+   * Dilarang membuat border dekoratif ASCII besar (garis panjang `===`, `---`, blok banner 10 baris). Kode harus bersih dan natural.
+3. **Contoh Komparasi Penulisan Komentar**:
+
+* **CSS / Styling**:
+  * ❌ *Salah (Slop / Banner Raksasa)*:
+    ```css
+    /* ==========================================================================
+       STANDARISASI KONTRAS & HIRARKI WARNA TABEL LAPORAN (RULESCODE.md - Bab 7)
+       3-Tier Luminance Hierarchy:
+       1. thead th : Header Kolom Pekat & Berkarakter
+       ========================================================================== */
+    ```
+  * ✅ *Benar (Ringkas & Developer-Friendly)*:
+    ```css
+    /* Header tabel laporan: styling kontras pekat & tegas */
+    ```
+
+* **PHP / Backend Logic**:
+  * ❌ *Salah*:
+    ```php
+    // MENERAPKAN STRICT ARCHITECTURE LAYER BAB 10 DIMANA CONTROLLER MEMANGGIL SERVICE TANPA BYPASS
+    ```
+  * ✅ *Benar*:
+    ```php
+    // Ambil rekap transaksi per outlet untuk data laporan
+    ```
+
+* **JavaScript / DataTables**:
+  * ❌ *Salah*:
+    ```javascript
+    /* IMPLEMENTASI ZERO-DOUBLE-SCROLL BAB 41 DENGAN UNWRAP TABLE RESPONSIVE DAN SINKRONISASI 3 ARAH */
+    ```
+  * ✅ *Benar*:
+    ```javascript
+    // Sinkronisasi scroll horizontal header, body, dan footer
+    ```
 
 ---
 
-## 5. Mandatory Bug & Discrepancy Logging ke Case-Bank
-1. **Catat Setiap Bug Tervalidasi**: Setiap kali ditemukan bug, error runtime, atau ketidaksesuaian hasil setelah development yang berhasil diperbaiki, agen wajib membuat catatan kasus di `.agents/knowledge/cases/` sesuai panduan [record-bug-case.md](../workflows/record-bug-case.md).
-2. **Pembelajaran Berkelanjutan**: Agen AI di sesi percakapan berikutnya wajib memeriksa bank kasus lokal ini sebelum merancang solusi agar tidak mengulangi kesalahan arsitektural yang sama.
+## 5. Disiplin Pembersihan Kode Sisa Iterasi (Dead Code Elimination)
+Dalam siklus development yang melibatkan revisi bertahap (V1 -> V2 -> V3):
+1. **Wajib Purge Saat Iterasi Lanjutan**: Seluruh kode tampilan (Blade/DOM/modal lama), event listener JS, dan method backend usang dari versi sebelumnya yang sudah tidak dipakai lagi **wajib langsung dihapus bersih**.
+2. **Anti-Zombie Code**: Dilarang hanya mematikan kode dengan tanda komentar (`//` atau `/* */`).
 
 ---
 
-## 6. Protokol Sinkronisasi Git (Pull-Before-Build & Pull-Before-Push)
-Untuk proyek dengan alur integrasi GitHub aktif:
-1. **Sebelum Mulai Coding**: Wajib jalankan `git pull --rebase origin <branch>` untuk mengambil pembaruan tim terbaru.
-2. **Setelah Preview & QA Lolos**: Jalankan kembali `git pull --rebase origin <branch>` untuk mendeteksi potensi konflik. Jika bebas konflik atau konflik telah diselesaikan, baru lakukan `git push` ke repositori.
-
----
-
-## 7. Deklarasi Data Engine Strategy, Analogi Bisnis & Evaluasi Celah Lintas-Menu
-1. **Deklarasi Data Engine Saat Review**: Nyatakan tegas apakah fitur menggunakan **Direct DB Lokal** atau **Hybrid / External API** (sehingga developer langsung mengetahui butuh/tidaknya endpoint baru dari tim API eksternal).
-2. **Analogi Dunia Nyata**: Sertakan 1 analogi operasional sederhana pada dokumen review agar nilai inti fitur mudah dipahami oleh atasan maupun pemangku kepentingan non-teknis.
-3. **Post-Fix Field Gap Check**: Setelah eksekusi perubahan selesai, verifikasi ulang konsistensi state-machine di seluruh layar terkait (list, detail, modal, dan mobile).
-
----
-
-## 8. Anti-Meta-Jargon Komentar & Iterasi Purge
-1. **Bersih dari Meta-Rules AI**: Dilarang menuliskan komentar seperti `// Sesuai .agents bab X`, `// 100% Parity...`, atau blok banner ASCII raksasa di dalam file kode produksi.
-2. **Iterasi Purge**: Hapus tuntas kode lama sisa iterasi V1/V2 saat beralih ke V3 tanpa meninggalkan commented-out zombie code.
+## 6. Audit Non-Regresi Terhadap Commit Rekan Tim (*Co-Developer Commit Protection*)
+1. **Pemeriksaan Wajib Sebelum Menyelesaikan Task**: Sebelum menyerahkan hasil pengerjaan, jalankan audit Git (`git blame` / `git diff` / `git log`) pada file yang disentuh untuk memastikan tidak ada logika, fungsi, atau rute milik rekan pengembang lain (seperti riwayat commit `"Hendris"` di `adminShuttleV3`) yang terhapus atau tertimpa.
+2. **Prosedur Konfirmasi Human-in-the-Loop**: Jika suatu task mengharuskan penyesuaian pada kode milik rekan tim, AI wajib berhenti dan memaparkan baris terdampak serta *impact analysis* kepada pengguna sebelum melanjutkan.
 

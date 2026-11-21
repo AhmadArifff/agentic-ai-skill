@@ -191,34 +191,87 @@ Ketika DateRangePicker atau Datepicker diletakkan di dalam Modal Dialog Bootstra
 
 ---
 
-## 12. Standar Bahasa UI Ramah Pengguna & Bebas Jargon Teknis (Human-Friendly UI & Anti-Technical Jargon)
-1. **Prinsip Bebas Jargon Teknis**:
-   * Sistem ini dioperasikan oleh staf admin, agen, dan operator operasional shuttle/paket yang merupakan pengguna awam (non-teknis).
-   * **DILARANG KERAS** menggunakan istilah teknis rekayasa software internal pada antarmuka pengguna, seperti kata `database`, `database operasional`, `query`, `tabel`, `record`, `backend`, `endpoint`, atau rincian teknis internal lainnya.
-2. **Transformasi Copywriting Teknis ➔ Konteks Bisnis Nyata**:
-   * Ganti *"disimpan ke database operasional"* ➔ *"disimpan menjadi harga tarif operasional"* atau *"disimpan ke sistem"*.
-   * Ganti *"YA, SIMPAN KE DATABASE"* ➔ *"YA, SIMPAN TARIF OPERASIONAL"* atau *"YA, SIMPAN PERUBAHAN"*.
-   * Ganti *"Password (16 Karakter):"* ➔ cukup *"Password :"*.
-   * Ganti *"Input disanitasi dari SQL injection"* ➔ cukup *"Karakter khusus tidak diizinkan"*.
-3. **Cakupan Seluruh Elemen Tampilan**:
-   * Aturan ini berlaku mutlak pada seluruh teks label form, alert panduan (`.alert`), dialog konfirmasi/modal (`.modal-title`, `.modal-body`), tombol aksi (`<button>`), tooltip, placeholder input, serta pesan umpan balik Toast (`toastAlert`).
+---
+
+## 12. Standar Rendering DataTables Sisi Klien (`columns[].render` & XSS Escape)
+1. **Wajib Merender Badge, Warna, Link & Tombol di Frontend (Bukan dari JSON Backend)**:
+   * Kolom tabel berbasis AJAX DataTables wajib menerima field data mentah/murni dari endpoint `GET` (lihat [`rules/10-architecture.md`](./10-architecture.md) Bagian 5), lalu merangkai badge Bootstrap (`bg-soft-*`), ikon, penataan multi-baris, dan tombol aksi di callback `columns[].render(data, type, row)` pada berkas JS halaman (`public/js/apps/...`).
+   * Gunakan `'data': null` pada kolom yang menggabungkan beberapa field mentah dalam 1 sel (misal kode + waktu, penumpang terjual vs kapasitas, tombol aksi dinamis).
+2. **Proteksi XSS (`escapeHtml`) Wajib untuk Semua Teks Dinamis**:
+   * Setiap string input pengguna/DB (nama supir, nama penumpang, kode rute, plat nomor, catatan) yang disisipkan ke template HTML string di `render()` **WAJIB dilewatkan melalui helper `escapeHtml()`** terlebih dahulu sebelum masuk ke DOM.
+3. **Penanganan Error AJAX DataTables yang Elegan**:
+   * Matikan alert popup bawaan browser DataTables yang kaku bila diperlukan dengan `$.fn.dataTable.ext.errMode = 'none'` dan tangani `ajax.error` atau event `error.dt` menggunakan `toastAlert('error', ...)` agar pengguna mendapat pesan operasional yang jelas.
+4. **Pemangkasan Payload `ajax.data` Server-Side (Anti-`414 URI Too Long`)**:
+   * Pada DataTables dengan `serverSide: true` dan jumlah kolom banyak (misal 15-39 kolom), `type: 'GET'` bawaan mengirim array `columns[0..N]` hingga ribuan karakter ke query string yang berisiko ditolak server/WAF dengan `HTTP 414 URI Too Long`.
+   * Jika backend tidak memakai sorting/pencarian per-kolom DataTables, pangkas payload di `ajax.data(d)` menjadi field inti saja (`draw`, `start`, `length`, `search: { value }`, dan filter formulir).
 
 ---
 
-## 13. Standar Komponen Modal & Formulir Terpadu Reusable (Single Source of Truth Modal)
-1. **Prinsip Eliminasi Duplikasi Modal (DRY UI Architecture)**:
-   * Jika terdapat antarmuka modal dialog atau formulir yang mengelola entitas bisnis yang sama di $\ge 2$ menu (contoh preseden: Modal Atur Rencana Jadwal / Supir / Armada / Biaya Operasional pada menu Penjadwalan `apps/trip-management/plan`, Kirim Paket `apps/package/order/index`, dan Detail Manifest `apps/trip-management/manifest/detail`):
-     - **DILARANG KERAS** menulis ulang struktur HTML modal `<div class="modal fade" id="...">` secara inline berulang-ulang di setiap file view.
-     - **WAJIB** mengekstraksi modal tersebut menjadi satu file partial view terpadu: `resources/views/apps/[module]/partials/modal-[nama].blade.php`.
-     - Setiap view utama cukup menyertakan komponen tersebut dengan direktif Blade: `@include('apps.[module].partials.modal-[nama]')`.
-2. **Pola Dual-Mode Binding (Server-Side + Client-Side Hydration)**:
-   * Partial modal reusable harus dirancang agar fleksibel dan tangguh digunakan dalam dua mode interaksi:
-     - **Mode Server-Side (Hydrated by Blade)**: Membaca variabel Blade yang di-pass controller (misal `$manifest ?? null`). Atribut `value`, `selected`, atau `action` menggunakan conditional fallback aman:
-       - `action="{{ isset($manifest) ? route('trip-managements.manifests.update-plan', $manifest->code) : '' }}"`
-       - `{{ (isset($manifest) && ($manifest->vehicle_list_id ?? null) == $v->id) ? 'selected' : '' }}`
-     - **Mode Client-Side (Hydrated by JavaScript/AJAX)**: Elemen form tetap mempertahankan ID dan name standar (`#plan_tripcode`, `#vehicle_list_id`, `#driver_list_id`, `#e_toll_card_id`, dsb.) agar skrip JavaScript di halaman index (seperti `plan.js` dan `package-order.js`) dapat melakukan populasi data secara dinamis via AJAX (`$('#plan_tripcode').val(...)`) tanpa hambatan.
-3. **Manfaat & Proteksi Kualitas (Quality Shield)**:
-   * **Zero Code Bloat**: Memangkas ratusan baris kode HTML redundan (~450 baris duplikasi tereliminasi tuntas).
-   * **Sinkronisasi Data Otomatis**: Penambahan field baru (seperti rincian 13 item biaya operasional, KM berangkat/sampai) langsung aktif di seluruh menu terkait tanpa risiko ada menu yang tertinggal atau inkonsisten.
-   * **Kemudahan Pemeliharaan (*Maintainability*)**: Developer hanya perlu memeriksa dan memelihara 1 berkas sumber terpusat.
-   * **Pemeriksaan Wajib di Tahap Review**: AI Agent WAJIB memeriksa ketersediaan komponen modal serupa saat menyusun Review Task agar tidak membuat duplikasi baru.
+## 13. Standar Komponen Modal & Popup Portable Lintas-Halaman (Single Source of Truth)
+Agar modal popup (contoh: `#modal-plan` *Atur Rencana Jadwal & Biaya Operasional*, `#modal-package-mutation`, dll.) dapat dimuat di tampilan mana saja tanpa tumpang tindih, konflik ID, maupun duplikasi kode, wajib terapkan 4 standar berikut:
+
+1. **Pemusatan Blade Partial + Shared JS Handler (Anti-Duplikasi 2 Lapis)**:
+   * **Blade HTML**: Pusatkan ke `resources/views/apps/[domain]/partials/modal-[nama].blade.php` (atau `resources/views/apps/shared/modals/modal-[nama].blade.php` untuk komponen lintas-domain), lalu muat dengan `@include(...)`.
+   * **Shared JS Controller (Anti Copy-Paste JS)**: Logika buka modal, binding Select2, kalkulasi biaya, reset form, dan submit AJAX **DILARANG di-copy-paste** ke masing-masing file JS halaman (`plan.js`, `package-order.js`, `manifest-detail.js`). Ekstrak menjadi 1 berkas JS portabel mandiri (misal `public/js/apps/shared/modal-[nama].js` atau `public/js/apps/[domain]/modal-[nama].js`) yang diekspos sebagai modul/namespace dengan callback.
+   * **Anti-Duplicate Asset Load**: Sertakan skrip JS komponen cukup satu kali menggunakan `@pushOnce('custom-script')` agar tidak termuat ganda bila beberapa partial saling memanggil.
+2. **Isolasi Konteks Halaman Pemanggil (Zero Conflict & Zero CSS Leak)**:
+   * **Prefix ID & Selector**: Seluruh elemen internal modal wajib memakai prefix spesifik modal (misal `#modal_plan_date`, `#modal_tripcode`, `#form-modal-plan`) agar tidak pernah bentrok dengan ID milik halaman induk.
+   * **Scoped CSS & Z-Index**: Aturan CSS khusus modal (tinggi Select2, z-index, styling input) wajib diawali ID modal (contoh: `#modal-plan .select2-container { z-index: 1060 !important; }`). **DILARANG** menulis selector global tanpa prefix modal agar tampilan halaman induk tidak rusak.
+   * **Binding Parent Dropdown & Datepicker**: Select2 wajib mengikat `dropdownParent: $('#modal-[nama] .modal-content')`, dan DateRangePicker mengikat `parentEl: '#modal-[nama]'`.
+   * **Idempotent Event & Reset Bersih**: Daftarkan event listener menggunakan pola aman (`.off('...').on(...)`) dan wajib bersihkan state/input pada event `hidden.bs.modal` agar tidak ada sisa data cache saat modal dibuka berulang kali di halaman yang sama.
+3. **Dual-Mode Binding & Kemandirian Data Master**:
+   * Komponen modal wajib aman terhadap ketiadaan variabel Blade dari controller halaman pemanggil: gunakan fallback aman (`$manifest ?? null`, `$vehicles ?? collect()`) atau dukung *lazy-load AJAX* data dropdown master jika `$vehicles` / `$drivers` belum dikirim oleh controller halaman pemanggil.
+   * Modal **tidak boleh meng-hardcode** pemanggilan fungsi refresh halaman tertentu di dalamnya; seluruh efek pasca-simpan diserahkan ke callback `onSuccess(res)` dari halaman pemanggil.
+4. **Gerbang Audit Wajib di Seluruh Siklus Kerja (Planning, Development, Fix-Bug & Evaluasi)**:
+   * **Planning & Review**: Wajib inventarisasi modal/partial eksisting sebelum mendesain modal baru atau menyambungkan ke halaman baru, serta deklarasikan daftar halaman pemakai (*consumers*).
+   * **Development & Fix-Bug**: Setiap perubahan field, validasi, atau perbaikan bug pada modal reusable wajib memastikan **seluruh halaman pemanggil** tetap sinkron dan tidak regresi.
+   * **Evaluasi Akhir**: Periksa tidak ada HTML modal duplikat, tidak ada logika JS modal yang disalin-tempel antar modul, tidak ada ID bentrok, dan tidak ada CSS bocor di seluruh halaman pemakai.
+
+---
+
+## 14. Proteksi Input Real-Time & Nilai Ekstrem (Percent 1..100, Leading-Zero, Paste & .input-group Error Placement)
+
+Untuk mencegah kelolosan input ekstrem (contoh: mengetik `60000`, `0`, `050`, atau mem-paste nominal Rupiah ke kolom persentase `%`), setiap form transaksi maupun master data wajib mematuhi 5 standar pertahanan input berikut:
+
+1. **Multi-Event Guard Real-Time (Bukan Hanya `keyup` atau `submit`)**:
+   * Pengikatan validasi tidak boleh hanya mengandalkan `keyup` (yang lolos saat *click-right Paste*, *drag-drop*, atau autofill) maupun validasi `submit` semata.
+   * Wajib ikat serentak pada event `input`, `paste`, `blur`, dan `change` pada pemilih jenis potongan (`#value_type` / `#type`).
+2. **Normalisasi Digit & Anti-Leading-Zero Real-Time**:
+   * Bersihkan karakter non-angka dan angka nol di depan (`clean.replace(/^0+(?!$)/, '')`) sehingga `050` langsung ternormalisasi menjadi `50` (atau kosong bila murni karakter tidak valid).
+   * Di mode Rupiah (`price` / `selling_price`), format ribuan (`.` titik ribuan) otomatis mengikuti konvensi input harga.
+3. **Larangan *Silent Auto-Cap* `60000` ➔ `100%` Saat Pergantian Tipe atau Salah Input**:
+   * Saat jenis potongan diubah dari nominal (`Rp`, misal `60.000`) ke persentase (`%`), ataupun ketika pengguna mengetik `60000` / `0` di mode `%`, sistem **DILARANG mengubah diam-diam nilai `60000` menjadi `100`** tanpa tanda error/konfirmasi yang jelas.
+   * Mengubah paksa angka besar menjadi `100` secara senyap berisiko fatal secara finansial: staf/kasir yang berniat memberi diskon `Rp 60.000` justru berisiko menyimpan voucher/promo **Diskon 100% (Gratis)** tanpa sadar.
+   * Berikan indikator merah instan (`is-invalid`) serta pesan kontekstual yang mengarahkan pengguna: apakah nilai persentase di luar `1..100%` atau jenis potongannya perlu dipindahkan ke `Nominal Potongan (Rp)`.
+4. **Kompatibilitas jQuery Validate pada `.input-group` & Input Teks Biasa**:
+   * Callback `highlight` dan `unhighlight` WAJIB ikut men-toggle kelas `is-invalid` / `is-valid` pada input/select standar, bukan hanya `.select2-container`.
+   * Callback `errorPlacement` WAJIB mengecek `element.closest('.input-group')`: jika elemen berada di dalam `.input-group`, letakkan `.invalid-feedback` **setelah `.closest('.input-group')`** (`error.insertAfter(element.closest('.input-group'))`) agar radius pil `.input-group` tidak patah dan teks error tampil utuh di bawah input.
+   * Pada objek `messages` jQuery Validate, hindari mendefinisikan pesan sebagai string tunggal (seperti `value: 'Wajib diisi'`) karena akan menimpa pesan error custom rule (`validPercentRange`). Gunakan format objek per-aturan (misal `value: { required: '...' }`).
+5. **Pertahanan Lapis Backend (`FormRequest`) yang Sinkron**:
+   * `FormRequest` (`rules()` / `after()`) wajib selalu memvalidasi batas nyata per mode (khusus `percent`: angka valid rentang `1..100`, untuk nominal `>= 0` sesuai kebutuhan bisnis) agar payload langsung dari DevTools/Postman tidak pernah menembus aturan antarmuka.
+   * Hindari penghapusan titik sembarangan dengan `dot_replace()` yang berpotensi mengubah pecahan `50.5` menjadi `505` saat tipe `percent`.
+
+---
+
+## 15. Standar Penataan Tombol Modal Footer (Right-Aligned Clustered Action Standard)
+
+Untuk menciptakan konsistensi antarmuka pengguna (*visual alignment*) yang selaras dengan seluruh modul sistem:
+
+1. **Pengelompokan di Pojok Kanan Bawah (`d-flex justify-content-end gap-2`)**:
+   * Seluruh footer modal form/konfirmasi **WAJIB** menempatkan tombol-tombolnya berkumpul di pojok kanan bawah menggunakan kelas `modal-footer bg-light py-2 px-3 border-top d-flex justify-content-end gap-2` (atau padding yang proporsional).
+   * **DILARANG KERAS** menggunakan `d-flex justify-content-between` yang melempar tombol Tutup/Batal ke ujung kiri dan tombol Simpan ke ujung kanan modal, karena merusak fokus ergonomis pengguna (*eye-tracking & mouse travel distance*).
+   * *Pengecualian*: Hanya diperbolehkan jika terdapat kontrol navigasi/tautan tambahan yang sengaja ditempatkan di sisi kiri (misal: link *"Lihat Saldo & Riwayat Supir"* atau *"Cetak Manifest"*).
+2. **Urutan Baku Tombol (Action-First, Dismiss-Last)**:
+   * **Tombol Aksi Utama (Kiri di dalam kluster)**: Tombol aksi utama (seperti `[SIMPAN]`, `[YA, PROSES...]`, `[SELESAIKAN]`) ditulis pertama agar berada di sebelah kiri dari tombol pembatalan.
+   * **Tombol Tutup / Batal (Kanan Luar di dalam kluster)**: Tombol penutup modal (seperti `[Tutup]` atau `[BATAL]`) ditulis setelah tombol aksi utama sehingga berada di posisi paling kanan bawah.
+   * Format HTML standar:
+     ```html
+     <div class="modal-footer bg-light py-2 px-4 border-0 d-flex justify-content-end gap-2">
+         <button type="submit" class="btn btn-sm btn-primary rounded-pill fw-bold px-4" id="btn-submit">
+             <i class="las la-save me-1 font-16"></i> SIMPAN PERUBAHAN
+         </button>
+         <button type="button" class="btn btn-sm btn-secondary rounded-pill font-12 px-3" data-bs-dismiss="modal">
+             Tutup
+         </button>
+     </div>
+     ```

@@ -592,3 +592,304 @@ Dokumen ini mencatat riwayat pemecahan masalah teknis nyata yang telah diselesai
   4. Hapus seluruh hardcode `'Asia/Makassar'` di `PackageDataRepository`, `PackageTransactionRepository`, `InformationInternal`, `helper.js::currentDate()`, serta `AGENTS.md` / `.agents/`, sekaligus mengunci kewajiban **Audit Skenario Celah Lapangan** pada setiap tahapan Review, Planning, Evaluasi, dan Fix-Bug di `AGENTS.md`, `00-core-guardrails.md`, `01-workflow-discipline.md`, dan `task-review-protocol.md`.
 * **Pelajaran (Takeaway)**:
   Aturan penguncian transaksi (`Cancel`, `Mutasi`, `Order Baru`) dan cetak dokumen persiapan tidak boleh mematikan fleksibilitas loket sebelum `ETD` tiba, namun wajib terkunci serentak di seluruh layar begitu `now() >= ETD` atau paket fisik telah di-scan berangkat di outlet asal.
+
+---
+
+### Kasus #30: Konflik Duplikasi Input `max_value` vs `max_transaction` pada Master Voucher Paket & Penyelarasan Audit Celah Lintas-Form
+* **Kategori**: Form Input Collision, Schema Alignment & Validation Consistency
+* **Gejala (Symptom)**:
+  1. Saat membuat Master Voucher Paket bertipe persentase (misal kode `VSR26114C38`, diskon `50%`) dan mengisi kolom **Maksimal Diskon (Rp)** senilai `50.000`, saat diredeem di menu Kirim Paket pada tarif `Rp 200.000` hanya terpotong `Rp 50.000` (`1/4` harga, bukan `50% = Rp 100.000`).
+  2. Ketika admin membuka halaman **Edit Voucher Paket** untuk mengubah atau mengosongkan (mengisi `0`) **Maksimal Diskon (Rp)**, kolom tersebut tampil **kosong**, sedangkan angka `50.000` muncul di kolom bawah **Maximal Transaksi (Rp)**. Setelah disimpan/diperbarui, nilai di database (`max_transaction`) tetap tertahan `50000` dan potongan tetap tertahan `Rp 50.000`.
+* **Akar Masalah (Root Cause)**:
+  1. Tabel `package_vouchers` pada skema database hanya memiliki **1 kolom** yaitu `max_transaction` (`int NULL COMMENT 'untuk maksimum nilai diskon'`), dan tidak memiliki kolom `max_value`.
+  2. Form [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php) memiliki 2 input berbeda untuk 1 kolom tersebut: input atas **Maksimal Diskon (Rp)** (`name="max_value"`, membaca `$data->max_value` yang selalu kosong) dan input bawah **Maximal Transaksi (Rp)** (`name="max_transaction"`, membaca `$data->max_transaction` = `50.000`).
+  3. [`PackageVoucherService::prepareData()`](../../app/Services/Voucher/PackageVoucherService.php) memprioritaskan `max_transaction` lebih dulu daripada `max_value`. Saat tambah baru `max_transaction` kosong sehingga fallback menyimpan `max_value` (`50.000`) ke `package_vouchers.max_transaction`. Saat edit, form selalu mengirim `max_transaction = 50.000` dari input bawah sehingga menimpa penghapusan/perubahan pada `max_value`.
+* **Solusi (Fix Applied `[CORE FLOW]`)**:
+  1. Menghapus input duplikat `Maximal Transaksi (Rp)` pada [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php) dan menyatukan ke 1 input tunggal **Maksimal Diskon (Rp)** dengan `name="max_transaction"` (`id="max_transaction"`) yang langsung menampilkan nilai `(int) $data->max_transaction > 0` beserta keterangan operasional yang jelas bagi staf awam.
+  2. Memperbarui [`initValueTypeDisplay()`](../../public/js/apps/voucher-package/voucher-package-form.js) agar input `#max_transaction` otomatis di-disable saat `value_type !== 'percent'`.
+  3. Menyederhanakan [`PackageVoucherService::prepareData()`](../../app/Services/Voucher/PackageVoucherService.php) dan [`PackageVoucherRequest`](../../app/Http/Requests/Voucher/PackageVoucherRequest.php) (menghapus field dead code `max_value`): jika `value_type === 'percent'` dan nominal `> 0` maka disimpan sebagai integer; jika dikosongkan, diisi `0`, atau tipe bukan `percent`, maka disimpan `null`.
+  4. Mengunci kewajiban **Simulasi Testing Impact Menggunakan Data Nyata (*Data-Driven Impact Simulation*)** untuk setiap temuan `[CORE FLOW]` dan `[DI LUAR CORE FLOW / OPSIONAL PELENGKAP]` pada `AGENTS.md`, `00-core-guardrails.md`, `01-workflow-discipline.md`, dan `workflows/task-review-protocol.md` Bagian `3B`.
+* **Pelajaran (Takeaway)**:
+  Setiap field input di form Blade wajib memiliki pemetaan 1-banding-1 terhadap kolom skema database aktual (`SHOW COLUMNS` / SQL dump), dan peninjauan ulang celah wajib diilustrasikan dengan simulasi data nyata agar tidak ada konflik penamaan maupun kegagalan update saat Edit.
+
+---
+
+### Kasus #31: Penyelarasan Menyeluruh Voucher Paket (Opsi A Rute/Trip, Opsi B Skema Potongan & Batas 100%, Opsi C Jam Keberangkatan & Sync Kode Manual)
+* **Kategori**: Cross-Module Logic Parity, Form UX Clarity & Schedule Time Guard
+* **Gejala (Symptom)**:
+  1. *(Opsi A)* Dropdown `Trip yang Berlaku` pada form Voucher Paket mengisi ID rute (`1`, `2`) alih-alih pasangan outlet (`MCF-PDN`) seperti Promo Paket, sementara `PackageTransactionService::evaluateVoucher()` hanya mengecek `trips` dan tidak pernah memeriksa `routes_id`. Akibatnya voucher ber-`routes_id` lolos di rute mana saja, sedangkan voucher ber-`trips` selalu tertolak.
+  2. *(Opsi B)* Opsi `Tarif Khusus (selling_price)` dan kolom opsional `Harga Beli Voucher (price)` sama-sama berlabel `"Harga Jual (Rp)"`, `original_price` berlabel `"Harga Asli (Tanpa Voucher)"`, serta nilai persentase `> 100%` belum dicegah di Form/FormRequest.
+  3. *(Opsi C)* Batas jam keberangkatan `start_depart_time` - `end_depart_time` di form tidak pernah dievaluasi di Kirim Paket (`package-order.js` juga belum mengirim `etd`/`schedule_id` ke endpoint `calculate-price`), dan pengeditan kode manual di Master Voucher tidak menyinkronkan `package_vouchers_data.voucher_code`.
+* **Akar Masalah (Root Cause)**:
+  Controller form Voucher Paket belum mengirimkan data trip dari `OutletService::getTrip()`, repository paket belum mengecek ketercakupan `routes_id` pada `routes`/`route_transits`, dan `computePricingInternal()` belum meneruskan konteks jadwal (`selectedRouteId` & `scheduledEtd`) ke `evaluateVoucher()`.
+* **Solusi (Fix Applied)**:
+  1. **Tahap 1 (Opsi A)**: Inject `OutletService` di [`PackageVoucherController`](../../app/Http/Controllers/Voucher/PackageVoucherController.php), perbaiki dropdown `#trips` di [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php) memakai kode outlet `DEPART-ARRIVAL`, tambahkan `resolveRouteIdFromSchedule()` & `isSegmentInRoutes()` di [`PackageTransactionRepository`](../../app/Repositories/Package/PackageTransactionRepository.php), serta terapkan validasi `routes_id` dan wildcard `trips` (`ALL-ALL`, `DEPART-ALL`, `ALL-ARRIVAL`, `DEPART-ARRIVAL`) di [`PackageTransactionService::evaluateVoucher()`](../../app/Services/Package/PackageTransactionService.php).
+  2. **Tahap 2 (Opsi B)**: Perjelas opsi `Tarif Khusus / Flat (Rp)`, label dinamis `#label-value` & `#hint-value`, serta label `Harga Beli Voucher (Rp)` / `Harga Pembanding / Coret (Rp)` pada [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php) dan [`voucher-package-form.js`](../../public/js/apps/voucher-package/voucher-package-form.js); tambahkan validasi batas persentase `1..100%` pada JS Validate dan [`PackageVoucherRequest::after()`](../../app/Http/Requests/Voucher/PackageVoucherRequest.php).
+  3. **Tahap 3 (Opsi C)**: Kirim `unscheduled`, `tripcode`, `schedule_id`, `schedule_extra_id`, `etd` pada `recalculatePackagePrice()` di [`package-order.js`](../../public/js/apps/package/package-order.js) (plus tampilkan toast saat ganti jadwal menggugurkan voucher), terapkan validasi rentang jam `start_depart_time` - `end_depart_time` (mendukung rentang lintas tengah malam dan aman dilewati pada mode Titip Loket) di `evaluateVoucher()`, serta sinkronkan perubahan `voucher_code` mode `manual` ke `package_vouchers_data` dengan cek duplikasi pada [`PackageVoucherService::update()`](../../app/Services/Voucher/PackageVoucherService.php) dan [`PackageVoucherDataRepository::existsCodeExceptPackageVoucher()`](../../app/Repositories/Voucher/PackageVoucherDataRepository.php).
+* **Pelajaran (Takeaway)**:
+  Setiap field aturan yang disediakan di halaman Master (rute, trip outlet, jam keberangkatan, skema potongan) wajib terhubung penuh sampai evaluator transaksi agar admin tidak menemui opsi "kosong fungsi" di lapangan.
+
+---
+
+### Kasus #32: Lolosnya Input Persentase Ekstrem (`60000%` / `0%` / Desimal), Kesalahan `.input-group` Error Placement & Bahaya Silent Auto-Cap
+* **Kategori**: Form Input Validation, Financial Safety & jQuery Validate UX
+* **Gejala (Symptom)**:
+  1. Pada form **Master Voucher Paket**, mengetik atau mem-paste angka ekstrem seperti `60000`, `0`, atau `050` ke kolom `Nilai Potongan (%)` tetap diterima tanpa border merah atau peringatan langsung; saat submit gagal, pesan `validPercentRange` tertimpa string `Nilai potongan wajib diisi` dan elemen error menyusup ke dalam `<div class="input-group">` sehingga merusak pembulatan kapsul input.
+  2. Mengganti `Jenis Potongan` dari `Nominal Potongan (Rp)` (bernilai `60000`) ke `Persentase (%)` membiarkan `60000` tetap tampil normal seolah valid.
+  3. Pada form **Promo Paket**, handler JS hanya memantau `keyup` (lolos saat *paste* atau pindah `#type`) dan langsung memotong paksa `> 100` menjadi `100` (*silent auto-cap*, berisiko keliru membuat promo gratis `100%` saat staf bermaksud mengisi `Rp 60.000`), sementara `PackagePromotionRequest` tidak membatasi `1..100` untuk tipe `percent` serta `prepareForValidation()` memakai `(float) str_replace('.', '', ...)` yang mengubah input huruf menjadi `0.0` dan `5.5` menjadi `55`.
+* **Akar Masalah (Root Cause)**:
+  Input `#value` hanya mengikat `allowOnlyNumbers(this)` / `keyup`, `setValidationState()` hanya mewarnai Select2, `errorPlacement` menempatkan error sebelum keluar dari `.input-group`, `messages.value` ditulis sebagai string datar, serta `FormRequest` masih membersihkan titik pada mode `percent` dengan `dot_replace()` / `(float) str_replace()`.
+* **Solusi (Fix Applied)**:
+  1. **Voucher Paket (`[CORE FLOW]` - Opsi Guard A)**: Memperbarui [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php) dan [`voucher-package-form.js`](../../public/js/apps/voucher-package/voucher-package-form.js) dengan guard multi-event (`input`, `paste`, `blur`, `change #value_type`), pembersihan non-digit & *leading zero*, pemisah ribuan otomatis pada mode nominal Rupiah, penandaan error merah instan (`is-invalid`) tanpa silent auto-cap disertai saran pindah ke `Nominal Potongan (Rp)`, penempatan error di luar `.closest('.input-group')`, perbaikan `messages.value: { required: ... }`, serta validasi digit murni `1..100` pada [`PackageVoucherRequest::after()`](../../app/Http/Requests/Voucher/PackageVoucherRequest.php) dan normalisasi tipe pada [`PackageVoucherService::prepareData()`](../../app/Services/Voucher/PackageVoucherService.php).
+  2. **Promo Paket (`[DI LUAR CORE FLOW]` - Disetujui Pengguna)**: Menerapkan guard multi-event Opsi A pada [`promotion-package/form.blade.php`](../../resources/views/apps/promotion-package/form.blade.php) dan [`promotion-package-form.js`](../../public/js/apps/promotion-package/promotion-package-form.js), membersihkan `prepareForValidation()`, menambahkan `after()` `1..100%` dan `messages()` pada [`PackagePromotionRequest.php`](../../app/Http/Requests/Promotion/PackagePromotionRequest.php), serta normalisasi pada [`PackagePromotionService::formatPayload()`](../../app/Services/Promotion/PackagePromotionService.php).
+  3. **Tata Kelola Pengetahuan**: Mengunci standar ini dalam [`.agents/rules/30-ui-frontend.md`](../rules/30-ui-frontend.md) Bagian 14 dan [`.agents/workflows/task-review-protocol.md`](../workflows/task-review-protocol.md) Bagian 3B.
+* **Pelajaran (Takeaway)**:
+  Jangan pernah membatasi angka hanya di `keyup` atau mengubah diam-diam nilai besar (`60000`) menjadi `100%`; tampilkan penanda error instan yang membimbing pengguna mengecek satuan (`%` vs `Rp`), serta jaga konsistensi antara layer JS dan validasi bilangan bulat di `FormRequest`.
+
+---
+
+### Kasus #33: Fallback Tersembunyi `max_used ?: 1` Menolak Voucher `∞ Tanpa Batas` & Belum Aktifnya Evaluasi `Validasi Hp` (`validate_phone`)
+* **Kategori**: Voucher Quota Semantics & Phone Lock Enforcement
+* **Gejala (Symptom)**:
+  Admin membuat Master Voucher Paket (`VSRHJ2611GZ2E`) dengan mengosongkan `Kuota Penggunaan` (`usage_quota = NULL`) dan `Penggunaan Harian` (`max_used = NULL`, bertuliskan placeholder `∞ Tanpa Batas`) serta `Validasi Hp = Tidak`. Setelah dipakai 1 kali pada transaksi `PSNA261112BETA`, klaim ke-2 langsung gagal dengan toast *"Kuota pemakaian kode voucher ini sudah habis."* Di sisi lain, apabila `Validasi Hp = Ya` diaktifkan di form Master Voucher Paket, `PackageTransactionService::evaluateVoucher()` belum pernah memeriksa kesamaan `sender_phone` dengan `used_phone`.
+* **Akar Masalah (Root Cause)**:
+  1. Di [`PackageTransactionService::evaluateVoucher()`](../../app/Services/Package/PackageTransactionService.php), batas per kode memakai fallback `$maxUsed = (int) ($master->max_used ?: 1)` yang memaksa `max_used = NULL` menjadi `1`, bertentangan dengan placeholder form `∞ Tanpa Batas` maupun tampilan tabel `'Bebas'`.
+  2. Label `Penggunaan Harian` tidak mencerminkan fungsi kolom `max_used` yang sebenarnya menghitung total pemakaian per kode selama masa aktif.
+  3. `recalculatePackagePrice()` di [`package-order.js`](../../public/js/apps/package/package-order.js) belum mengirim `sender_phone`, dan `evaluateVoucher()` belum memeriksa `$master->validate_phone === 'y'` terhadap `used_phone`.
+* **Solusi (Fix Applied)**:
+  1. **Tahap 1 (Opsi 1 - `max_used` Benar-Benar Bebas Jika Kosong)**: Menghapus fallback `?: 1` sehingga pembatasan per kode hanya berlaku bila `(int) $master->max_used > 0`, menormalisasi `usage_quota`/`max_used <= 0` menjadi `null` di [`PackageVoucherService::prepareData()`](../../app/Services/Voucher/PackageVoucherService.php), serta memperjelas label form menjadi **`Maks. Pakai per Kode`** di [`voucher-package-form.blade.php`](../../resources/views/apps/voucher-package/voucher-package-form.blade.php).
+  2. **Tahap 2 (Validasi Hp Pengirim)**: Mengirim `sender_phone` pada `recalculatePackagePrice()` di `package-order.js` (disertai re-evaluasi otomatis saat `#sender_phone` berubah atau dipilih lewat autocomplete ketika voucher aktif), serta menambahkan pemeriksaan `validate_phone === 'y'` di `evaluateVoucher()` yang menormalisasi nomor telepon (`normalizePhone62`) terhadap `used_phone` (mewajibkan nomor pengirim terisi pada pemakaian awal dan menolak nomor berbeda tanpa membocorkan nomor pemilik asli).
+* **Pelajaran (Takeaway)**:
+  Setiap fallback default tersembunyi di backend (`?: 1`) yang bertentangan dengan placeholder UI (`∞ Tanpa Batas`) wajib diselaraskan agar admin tidak terkecoh saat uji lapangan, dan setiap sakelar aturan di form master (`validate_phone`) wajib terhubung ke evaluator transaksi.
+
+---
+
+### Kasus #34: Tampilan Select2 Modal Rencana Jadwal (`#modal-plan`) Terlihat "Ter-Cache" dari Jadwal Sebelumnya
+* **Kategori**: Select2 Modal State Synchronization
+* **Gejala (Symptom)**:
+  Setelah mengatur dan menyimpan manifest pada satu jadwal (misal `13:10`), ketika pengguna membuka modal `#modal-plan` untuk jadwal berikutnya (misal `17:10` yang belum ada manifest), header modal sudah berubah ke `17:10` (`Belum Terbit` / `Belum Diatur`), tetapi dropdown `Mobil / Armada`, `Supir`, dan `Kartu Tol (E-Money)` masih menampilkan teks pilihan jadwal `13:10`.
+* **Akar Masalah (Root Cause)**:
+  Ketiga elemen `.select2` (`#modal_vehicle_id`, `#modal_driver_id`, `#modal_emoney_id`) diinisialisasi otomatis oleh [`helper.js`](../../public/js/apps/helper.js), sementara fungsi pengisi modal [`openSchedulePlanModal()`](../../public/js/apps/package/package-order.js) dan [`openPlanModal()`](../../public/js/apps/trip-management/plan.js) hanya memanggil `.val(...)` tanpa `.trigger('change.select2')`, tanpa `dropdownParent: $('#modal-plan .modal-content')`, dan tanpa reset saat `hidden.bs.modal`.
+* **Solusi (Fix Applied)**:
+  Menambahkan `ensurePlanModalSelect2()` (re-inisialisasi bersih dengan `dropdownParent: $('#modal-plan .modal-content')`), helper `setPlanSelectValue()` dengan pemeriksaan opsi valid dan `.trigger('change.select2')`, serta listener `hidden.bs.modal` untuk mereset pilihan Select2 saat modal ditutup pada [`package-order.js`](../../public/js/apps/package/package-order.js) dan [`plan.js`](../../public/js/apps/trip-management/plan.js).
+* **Pelajaran (Takeaway)**:
+  Setiap perubahan nilai `<select>` yang memakai plugin Select2 wajib disertai `.trigger('change.select2')` (atau `.trigger('change')`) agar tampilan widget tetap sinkron dengan nilai DOM sebenarnya, khususnya pada modal reusable yang dibuka berulang kali untuk baris data berbeda.
+
+---
+
+### Kasus #35: FocusTrap Modal Bootstrap 5 Memblokir Input SweetAlert2 & Bug `result.isConfirmed` pada Aksi Detail Paket (v9.5.3)
+* **Kategori**: Bootstrap 5 Modal FocusTrap & SweetAlert2 v9.5.3 Compatibility
+* **Gejala (Symptom)**:
+  Ketika membuka modal rincian paket (`#modal-package-detail`) di menu Kirim Paket lalu mengklik tombol `CANCEL PAKET`, popup SweetAlert2 *"Batalkan Pengiriman Paket?"* muncul dengan kotak input *"Masukkan alasan pembatalan..."*, namun pengguna tidak bisa mengetikkan alasan ke dalam kotak input tersebut. Selain itu, tombol konfirmasi **"Ya, Batalkan"**, **`LUNASI PAKET`**, **`CHECKIN`**, dan tombol Check-in di detail Daftar Paket tidak mengirim request ke server setelah dikonfirmasi.
+* **Akar Masalah (Root Cause)**:
+  1. Modal Bootstrap 5 `#modal-package-detail` mengaktifkan `FocusTrap` secara default (`data-bs-focus="true"`), sehingga fokus `focusin` selalu ditarik kembali dari `.swal2-container` di `document.body`.
+  2. `cancelPackageFromModal()`, `payPackageCodFromModal()`, `checkinPackageFromModal()` di [`package-order.js`](../../public/js/apps/package/package-order.js) serta `#btn-checkin-action` di [`package-data.js`](../../public/js/apps/package/package-data.js) masih memeriksa `if (result.isConfirmed)` saja pada SweetAlert2 v9.5.3 (yang selalu `undefined`).
+* **Solusi (Fix Applied)**:
+  1. Menambahkan `data-bs-focus="false"` pada `#modal-package-detail` di [`order/index.blade.php`](../../resources/views/apps/package/order/index.blade.php) dan hook `onOpen` untuk memfokuskan `Swal.getInput()` di `cancelPackageFromModal()`.
+  2. Menyelaraskan kondisi konfirmasi agar kompatibel penuh dengan SweetAlert2 v9.5.3 (`(result.isConfirmed || !result.dismiss) && noteVal !== ""` untuk input teks pembatalan, dan `result.isConfirmed || result.value === true` untuk dialog konfirmasi Ya/Tidak) di `package-order.js` dan `package-data.js`.
+* **Pelajaran (Takeaway)**:
+  Setiap kali dialog SweetAlert2 dengan input teks dipanggil di atas modal Bootstrap 5, matikan fokus paksa modal induk dengan `data-bs-focus="false"`, dan jangan pernah hanya mengandalkan `result.isConfirmed` pada proyek berbasis SweetAlert2 v9.5.3.
+
+---
+
+### Kasus #37: Penonaktifan Jadwal Ekstra pada Menu Penjadwalan Armada Gagal Akibat Logika Update Terisolasi Jadwal Reguler & Filter Stored Procedure
+* **Kategori**: Trip Management, Extra Schedules & Hybrid Stored Procedure Resolution
+* **Gejala (Symptom)**:
+  Saat tombol status jadwal ekstra (`schedule_type: extra`) di menu Penjadwalan Armada (`/trip-managements/plans`) ditekan untuk dinonaktifkan (`target_status = 'off'`), toast notifikasi menampilkan pesan sukses, namun baris jadwal ekstra tetap berstatus "Aktif" (berwarna hijau).
+* **Akar Masalah (Root Cause)**:
+  1. Pada `SchedulePlanService::toggleStatus`, blok kode non-aktif hanya memeriksa `if ($scheduleType === 'regular')` yang mencatat ke `schedule_offs`. Kondisi untuk `schedule_type === 'extra'` tidak ditangani sama sekali, sehingga nilai kolom `schedule_extras.is_active` tetap bernilai `'y'`.
+  2. Stored Procedure bawaan database (`sp_schedule_daily_route_temps` dan `sp_schedule_daily_route`) memiliki filter hardcode `WHERE se.is_active = 'y'` dan `'on' AS status`. Jika `schedule_extras.is_active` bernilai `'n'`, baris jadwal ekstra dikecualikan oleh Stored Procedure sehingga jadwal ekstra berisiko hilang dari tabel alih-alih tampil dengan status tombol merah "Non-Aktif".
+* **Solusi (Fix Applied)**:
+  1. Menambahkan penanganan `elseif ($scheduleType === 'extra')` pada `SchedulePlanService::toggleStatus` baik saat `$targetStatus === 'off'` (`$this->repository->updateScheduleExtraStatus($scheduleId, 'n')`) maupun `$targetStatus === 'on'` (`$this->repository->updateScheduleExtraStatus($scheduleId, 'y')`).
+  2. Menambahkan metode `updateScheduleExtraStatus` pada `SchedulePlanRepository`.
+  3. Memperkaya `SchedulePlanRepository::getDailySchedulesByRoute` dengan fallback cerdas di layer aplikasi: mencari `ScheduleExtra` bertanggal & rute terkait yang memiliki `is_active = 'n'`, menggabungkannya ke dalam koleksi hasil dengan status `'off'`, dan mengurutkannya secara kronologis berdasarkan `sort_etd`. Hal ini membuat jadwal ekstra non-aktif tetap muncul di tabel dengan tombol merah "Non-Aktif" tanpa perlu mengubah Stored Procedure di MySQL/phpMyAdmin.
+* **Pelajaran (Takeaway)**:
+  Ketika tabel operasional memiliki beberapa tipe jadwal (reguler vs ekstra), pastikan service menangani siklus hidup status dari masing-masing tipe jadwal tersebut. Jika Stored Procedure legacy memfilter data non-aktif, layer Repository dapat melakukan penggabungan cerdas (*merge & sort*) agar staf operasional tetap dapat melihat dan mengaktifkan kembali entitas yang non-aktif.
+
+---
+
+### Kasus #38: Error HTTP 500 Saat Update Biaya Operasional Manifest Akibat Ketiadaan Import PackageStatusGuard
+* **Kategori**: Dependency Import & Namespace Resolution
+* **Gejala (Symptom)**:
+  Saat staf loket/operasional memperbarui rincian biaya operasional perjalanan pada halaman detail manifest (`/trip-managements/manifests/detail/{code}`), sistem memunculkan toast error / HTTP 500, namun data biaya operasional yang diubah sebenarnya sudah berhasil tersimpan dengan benar di database.
+* **Akar Masalah (Root Cause)**:
+  Pada [`app/Services/TripManagement/ManifestService.php`](../../app/Services/TripManagement/ManifestService.php), fungsi `updatePlan` menjalankan kueri update database terlebih dahulu (`$this->repository->updateManifest($manifestCode, $payload)`) yang berhasil mengeksekusi update baris tabel `manifests`. Tepat setelah data tersimpan, sistem memanggil `PackageStatusGuard::syncManifestCrewPackages(...)` untuk menyelaraskan muatan paket kargo ke manifes yang diperbarui. Namun, statement import `use App\Support\PackageStatusGuard;` belum dideklarasikan di header berkas, sehingga PHP memicu fatal error: `Class "App\Services\TripManagement\PackageStatusGuard" not found`.
+* **Solusi (Fix Applied)**:
+  Menambahkan deklarasi import resmi `use App\Support\PackageStatusGuard;` pada bagian atas [`ManifestService.php`](../../app/Services/TripManagement/ManifestService.php).
+* **Pelajaran (Takeaway)**:
+  Setiap kali menggunakan helper atau class lintas-namespace (seperti namespace `App\Support`), selalu pastikan statement `use` telah di-import di bagian atas berkas (mematuhi Rule #20). Jika error terjadi setelah kueri update dieksekusi, periksa logika pasca-simpan (*post-save hooks/guards*) yang dijalankan sebelum respons dikembalikan.
+
+---
+
+### Kasus #39: Salah Sasaran Penghapusan Komponen Akibat Ketiadaan Matriks Target Perubahan Eksplisit (Kolom Check-in Paket DataTable Manifest vs Detail & Cetak Manifest)
+* **Kategori**: Requirement Misinterpretation, UI Precision & Change-Scope Governance
+* **Gejala (Symptom)**:
+  1. Pengguna menginstruksikan penghapusan indikator check-in paket pada **kolom `CHECKIN` di DataTable Daftar Manifest** (`/trip-managements/manifests`) agar kolom `CHECKIN` hanya menampilkan check-in penumpang (`0/0`) tanpa ikon kardus paket (`2/2`).
+  2. Namun saat diverifikasi oleh pengguna, kolom `CHECKIN` pada DataTable Daftar Manifest masih menampilkan ikon kardus paket (`2/2`), sementara **Card Data Paket** di halaman Detail Manifest (`/trip-managements/manifests/detail/{code}`) dan blok **`-- DATA PAKET --`** pada dokumen Cetak Manifest A4 Landscape (`/trip-managements/manifests/print/{code}` & `/packages/checkins/manifest-print`) justru terhapus.
+* **Akar Masalah (Root Cause)**:
+  Instruksi *"untuk di manifest data table checkin paketnya dihilangkan"* keliru ditafsirkan sebagai penghapusan seluruh *tabel data paket* pada halaman detail & cetak manifest, alih-alih menghapus baris *check-in paket* pada kolom `CHECKIN` DataTable halaman index daftar manifest. Karena saat Review/Planning tidak dibuat tabel eksplisit yang memetakan **Endpoint/URL -> File Kode -> Bagian/Konten Spesifik -> Aksi**, kesalahan target tidak terdeteksi sebelum eksekusi.
+* **Solusi (Fix Applied)**:
+  1. **Pemulihan Komponen Salah Sasaran**: Mengembalikan utuh blok `-- DATA PAKET --` pada [`resources/views/apps/trip-management/manifest/partials/print-document.blade.php`](../../resources/views/apps/trip-management/manifest/partials/print-document.blade.php) (tetap dalam orientasi `A4 landscape`) dan memulihkan **Card 3: Data Paket** beserta kalkulasi `$totalPackageWeight` pada [`resources/views/apps/trip-management/manifest/detail.blade.php`](../../resources/views/apps/trip-management/manifest/detail.blade.php).
+  2. **Perbaikan Target Sebenarnya**: Menghapus baris ikon kardus `checkedin_package` dari kolom `CHECKIN` pada [`public/js/apps/trip-management/manifest.js`](../../public/js/apps/trip-management/manifest.js) sehingga hanya menampilkan check-in tiket penumpang (`boarded/booked`), serta menghapus kolom `CHECKIN PAKET` pada ekspor Excel Daftar Manifest di [`app/Services/TripManagement/ManifestService.php`](../../app/Services/TripManagement/ManifestService.php) agar selaras dengan UI.
+  3. **Penguatan Tata Kelola `.agents`**: Menambahkan **Rule #26 (Matriks Target Perubahan Eksplisit)** di `AGENTS.md`, `01-workflow-discipline.md`, dan `task-review-protocol.md` (Bagian `3A`).
+* **Pelajaran (Takeaway)**:
+  Setiap proses **Planning, Review, Development, Fix-Bug, dan Evaluasi** WAJIB memetakan target secara granular hingga level **Endpoint/URL**, **File Kode**, dan **Bagian/Konten Spesifik** (termasuk komponen yang secara eksplisit *TIDAK DISENTUH*). Setelah koding selesai, wajib memvalidasi `git diff` terhadap matriks tersebut agar tidak pernah terjadi salah sasaran penghapusan/perubahan komponen.
+
+---
+
+### Kasus #40: Temuan QA Lintas-Menu Manifest, Check-in Paket & Pengambilan Paket (Tiket Pending Ikut Insentif, Lateness Negatif Carbon v3, Kolom Check-in Salah Hitung, & Auto-Backfill Remark Taking)
+* **Kategori**: Financial Integrity, Date/Time Calculation, DataTables Accuracy & Logistics Tracking Continuity
+* **Gejala (Symptom)**:
+  1. Pada Detail Manifest & Modal Kalkulasi Insentif (`MSNA261118HHEA`), 2 tiket berstatus `book / pending` (belum bayar) ikut dihitung ke `total_ticket_income` (`Rp 1.190.000`) dan komisi supir (`Rp 417.000`), selisih dengan List Manifest (`Rp 850.000`, komisi seharusnya `Rp 315.000`).
+  2. Pada List Manifest, kolom `BERANGKAT AKTUAL` menampilkan `ON TIME +1,7 Jam` karena `ManifestDepartureSynchronizer` mengisi `lateness` (dan di Carbon v3 `diffInMinutes()` sebelumnya sempat bernilai negatif `-69`) tanpa menyetel `depart_status = 'late'`.
+  3. Pada Check-in Paket (`/packages/checkins`), baris `MSNA261118HHEA` menampilkan `BELUM CHECKIN: 2 | CHECKIN: 2 | SELESAI: 0 | TOTAL: 2` karena kolom `CHECKIN` membaca `departed_count` alih-alih `arrived_count`.
+  4. Pada Pengambilan Paket (`/packages/takings`), tombol aksi aktif untuk paket `departed`, namun `checkTaking()` menolak `422` sementara jika langsung diserahkan tanpa check-in, riwayat tracking akan melompati status `arrived`.
+* **Akar Masalah (Root Cause)**:
+  1. `ManifestService::getDetail()` & `calculatePercentageIncentive()` menjumlahkan seluruh hasil `getTicketsByManifest()` tanpa memfilter status pembayaran lunas (`paid` / `ticketed`).
+  2. Carbon v3 mengembalikan selisih bertanda (signed) pada `$actualDepart->diffInMinutes($schedCarbon)`, serta `ManifestDepartureSynchronizer::syncOnPrint()` tidak memperbarui `depart_status = 'late'` saat `lateness > 0`.
+  3. `PackageCheckinService::getTripList()` dan `package-checkin.js` keliru menampilkan `departed_count` pada kolom `CHECKIN` dan menganggap `departed` sudah selesai check-in.
+  4. Ketidakselarasan guard `getTakingList()` vs `checkTaking()` dan ketiadaan auto-backfill tracking `arrived` di `PackageTakingRepository::processTaking()`.
+* **Solusi (Fix Applied)**:
+  1. Menambahkan filter `isTicketPaid()` di [`ManifestService.php`](../../app/Services/TripManagement/ManifestService.php) & [`detail.blade.php`](../../resources/views/apps/trip-management/manifest/detail.blade.php) sehingga hanya tiket lunas (`paid` / `ticketed` / `finished` / `reschedule`) yang masuk pendapatan & komisi supir, serta `isManifestArrived()` menerima `status === 'arrived' || driver_status === 'arrived'`.
+  2. Menggunakan `$schedCarbon->diffInMinutes($actualDepart, true)` dan menyetel `depart_status = 'delay'` (sesuai ENUM `enum('on time','delay','cancel')`) saat `lateness > 0` di [`ManifestDepartureSynchronizer.php`](../../app/Support/ManifestDepartureSynchronizer.php).
+  3. Memperbaiki [`PackageCheckinService.php`](../../app/Services/Package/PackageCheckinService.php) & [`package-checkin.js`](../../public/js/apps/package/package-checkin.js) agar kolom `CHECKIN` menampilkan `arrived_count` murni (`2 + 0 + 0 = 2`).
+  4. Menerapkan Opsi B di [`PackageTakingService.php`](../../app/Services/Package/PackageTakingService.php) & [`PackageTakingRepository.php`](../../app/Repositories/Package/PackageTakingRepository.php): mengizinkan serah terima dari `departed` atau `arrived` dan otomatis menyisipkan 1 baris tracking `arrived` sebelum `finished` bila belum ada.
+* **Pelajaran (Takeaway)**:
+  Selalu pastikan omzet/insentif hanya menghitung transaksi berstatus lunas (`paid`/`ticketed`), gunakan argumen absolut `true` pada `Carbon::diffInMinutes()` di Laravel/Carbon v3, dan jalankan Post-Development QA Tier 1 + Tier 2 Single-Shot saat diminta pengguna untuk menangkap inkonsistensi lintas-menu lebih dini.
+
+---
+
+### Kasus #41: Redundansi Join Ganda (Double Join) & Filter WHERE Prematur pada Database View (`v_manifest`)
+* **Kategori**: Database View Optimization, Query Performance, Data Censorship Elimination & Clean Architecture
+* **Gejala (Symptom)**:
+  1. Kueri data manifest pada menu `/trip-managements/manifests` mengalami *load time* yang lambat (~950 ms) padahal sudah menggunakan MySQL View `v_manifest`.
+  2. Jadwal keberangkatan / manifest yang baru dibuat di mana kru armada atau supirnya belum ditentukan (`vehicle_list_id` atau `driver_id` masih `0` / `NULL`) tidak muncul sama sekali di tabel DataTables (hilang misterius), menyulitkan staf operasional untuk melihat dan mengatur penugasan kru.
+* **Akar Masalah (Root Cause)**:
+  1. Pada `ManifestRepository::getManifestQuery()`, dilakukan `leftJoin` ulang ke tabel master fisik `routes`, `vehicles`, `vehicle_layouts`, `emoneys`, dan `admins`. Padahal tabel-tabel tersebut **sudah di-join di dalam definisi MySQL View `v_manifest`** di level database, sehingga terjadi *double join* (proses 2x yang membebani MySQL).
+  2. Terdapat filter kaku `->where('vm.vehicle_list_id', '>', 0)->where('vm.driver_id', '>', 0)->whereNotNull('vm.manifest_code')` yang menyensor / menyembunyikan jadwal yang armadanya belum diatur, sekaligus merusak optimasi indeks MySQL karena operator perbandingan `>`.
+* **Solusi (Fix Applied)**:
+  1. Berkomunikasi dengan analis database / atasan untuk menyempurnakan `v_manifest` di level MySQL dengan menambahkan 2 kolom yang belum diekspos: `v.code AS vehicle_code` dan `vl.name AS layout_name`.
+  2. Menghapus 5 klausa `leftJoin` master fisik yang redundan dari `ManifestRepository::getManifestQuery()`, menyisakan murni `v_manifest` dan rekap agregasi tiket (`v_transactions`) serta paket (`v_package_transactions`).
+  3. Menghapus 3 klausa `where` pembatas agar seluruh jadwal/manifest muncul secara utuh dengan fallback aman (`-` / "Belum Diatur").
+  4. Menyederhanakan baris `select` menjadi murni `vm.*` (Single-Source Projection) tanpa deretan `COALESCE` panjang, serta memperbarui pembacaan `$item->layout_name` pada `ManifestService::buildManifestMetrics()`.
+* **Hasil & Pelajaran (Takeaway)**:
+  Waktu eksekusi kueri turun drastis dari **~950 ms** menjadi **~100 ms** (**~10x lebih cepat**), data jadwal yang belum ada krunya tetap tampil normal, dan arsitektur repository menjadi sangat bersih. Wajib selalu membaca definisi `CREATE VIEW` pada dump SQL terbaru sebelum menulis kueri di Laravel dan hindari memasang filter `WHERE` kaku yang tidak diminta oleh aturan bisnis.
+
+---
+
+### Kasus #42: Preferensi Mutlak Pengujian Alur Nyata Pengguna (Browser UI Flow First In-Admin vs Query SQL phpMyAdmin Out-of-Admin)
+* **Kategori**: Quality Assurance, Testing Integrity, User Empathy & Browser Automation Standard
+* **Gejala (Symptom)**:
+  Dalam pengujian verifikasi fitur insentif harian supir (`/insentif-daily`), pembuatan 29 tiket uji (mencakup skenario 2 trip full pax 10 orang dan transit) dieksekusi melalui skrip backend (`TicketTransactionService::store` via PHP script), bukan dengan mengemudikan browser secara nyata selayaknya staf loket/admin yang melakukan pemesanan tiket di web admin. Meskipun hasil kalkulasi insentif dan logika 2 trip full pax terbukti berjalan 100% akurat, pengguna merasa kecewa karena preferensi pengujian yang diharapkan adalah pengujian alur nyata aplikasi melalui antarmuka web (browser UI flow) untuk membuktikan bahwa form reservasi tiket dan alur aplikasi admin benar-benar berfungsi dengan baik di lapangan.
+* **Akar Masalah (Root Cause)**:
+  AI mengambil inisiatif pintas (shortcut) injeksi skrip backend dengan motif efisiensi token LLM dan kecepatan waktu eksekusi, tanpa mengklarifikasi atau mendeklarasikan preferensi metode eksekusi pengujian terlebih dahulu kepada pengguna. Hal ini melanggar ekspektasi pengguna yang mengutamakan verifikasi alur operasional nyata staf admin/loket di antarmuka browser.
+* **Solusi (Fix Applied)**:
+  1. Menetapkan **Rule #28 (Standar Pengujian: In-Admin vs Out-of-Admin)** pada `AGENTS.md` dan `.agents/rules/00-core-guardrails.md` Bagian 18: - **Alur di Dalam Admin**: Setiap pengujian alur bisnis pengguna (pemesanan tiket, paket kargo, kasir) WAJIB disimulasikan secara nyata melalui antarmuka browser (Playwright UI automation). Injeksi skrip/SQL DILARANG KERAS kecuali jika pengguna secara eksplisit memberikan instruksi tertulis (misal: *"inject via script/sql saja"*). - **Alur di Luar Admin (External/Time Blockers)**: Jika pengujian membutuhkan pemicu dari luar sistem admin (contoh: armada tiba/`arrived` dari Aplikasi Android Driver, pengajuan penarikan saldo supir / withdrawal dari aplikasi driver, atau batas waktu `ETD`), AI **DILARANG mengeksekusi injeksi/mutasi database sendiri** (Rule #2 Zero-Direct-CRUD). AI **WAJIB PAUSE dan menyediakan paket query SQL manual yang siap paste untuk dijalankan pengguna di phpMyAdmin**.
+  2. Menambahkan deklarasi wajib metode eksekusi pengujian pada `.agents/workflows/task-review-protocol.md` (Pilar 2 & Tip 8).
+  3. Memperbarui `.agents/workflows/post-dev-qa.md` Bagian 2B & 4A untuk menegaskan protokol pause phpMyAdmin dan alur UI browser.
+* **Pelajaran (Takeaway)**:
+  Efisiensi teknis dan penghematan token tidak boleh mengorbankan integritas pengujian alur nyata yang diharapkan pengguna. Selalu gunakan Browser UI Flow untuk alur yang ada di admin, dan sediakan paket query SQL phpMyAdmin untuk alur yang berasal dari luar sistem admin. Jangan pernah melakukan injeksi langsung ke database operasional.
+
+---
+
+### Kasus #43: Pengurutan Koleksi Menimpa Kontrak Stored Procedure (Jadwal Non-Aktif Naik ke Atas Tabel Penjadwalan)
+* **Kategori**: Database ORDER BY Contract Integrity, Repository Collection Sorting & UI Expectation Alignment
+* **Gejala (Symptom)**:
+  Pada menu Penjadwalan Armada (`/trip-managements/plans`), baris jadwal keberangkatan yang berstatus **Non-Aktif** (seperti jam `17:00` pada rute Cirebon - Semarang tanggal 19-11-2026) tampil naik ke tengah-tengah tabel, terselip di antara jam aktif `16:00` dan `19:30`. Kondisi ini memicu teguran dari atasan karena seharusnya seluruh jadwal yang berstatus non-aktif berada di bagian paling bawah tabel, persis selaras dengan respons bawaan Stored Procedure database.
+* **Akar Masalah (Root Cause)**:
+  Stored Procedure bawaan database (`sp_schedule_daily_route_temps` dan `sp_schedule_daily_route`) secara baku telah memiliki klausa pengurutan:
+  `ORDER BY CASE WHEN schedules_combined.status = 'on' THEN 0 WHEN schedules_combined.status = 'off' THEN 1 ELSE 2 END, etd ASC`.
+  Namun, pada iterasi penanganan jadwal ekstra sebelumnya di [`SchedulePlanRepository.php`](../../app/Repositories/TripManagement/SchedulePlanRepository.php), ditambahkan kode:
+  `$results = $results->sortBy('sort_etd')->values();`.
+  Baris sorting tersebut secara agresif menimpa (*overwrote*) urutan bawaan Stored Procedure karena hanya mengurutkan koleksi murni berdasarkan kolom `sort_etd` tanpa memperhitungkan bobot status aktif vs non-aktif.
+* **Solusi (Fix Applied)**:
+  1. Memperbaiki logika pengurutan pada [`SchedulePlanRepository.php`](../../app/Repositories/TripManagement/SchedulePlanRepository.php) dengan menggunakan multi-level sorting bertingkat yang 100% selaras dengan Stored Procedure:
+     ```php
+     $results = $results->sortBy(function ($item) {
+         $statusRank = ($item['status'] === 'on') ? 0 : 1;
+         return sprintf('%d_%s', $statusRank, $item['sort_etd']);
+     })->values();
+     ```
+  2. Memverifikasi hasil visual di browser via Playwright: jadwal aktif (`07:00` s.d `23:00`) tersusun rapi berurutan di atas, dan jadwal non-aktif (`17:00` reguler serta jadwal ekstra off) turun ke baris paling bawah tabel.
+  3. Mengunci aturan **Preservasi Kontrak Pengurutan Database (`ORDER BY Integrity`)** ke dalam **Rule #27** di `AGENTS.md`, [`.agents/rules/21-database-reasoning.md`](../rules/21-database-reasoning.md) Bagian 5, dan [`.agents/workflows/task-review-protocol.md`](../workflows/task-review-protocol.md) Tip 7.
+* **Pelajaran (Takeaway)**:
+  Ketika mengonsumsi data dari Stored Procedure atau Database View yang telah memiliki klausa `ORDER BY` terstruktur, jangan pernah menimpa urutan tersebut di layer aplikasi/koleksi PHP dengan sorting satu kolom yang ceroboh. Jika perlu melakukan penggabungan data tambahan (seperti entitas ekstra non-aktif), terapkan skema pengurutan bertingkat yang menghormati hierarki status ranking bawaan database.
+
+---
+
+### Kasus #44: Focus Trap Modal Bootstrap pada Select2 (Input Pencarian Tidak Bisa Diketik karena Kehilangan Fokus)
+* **Kategori**: Frontend UI/UX, Bootstrap Modal Focus Enforcement & Select2 Dropdown Attachment
+* **Gejala (Symptom)**:
+  Pada modal Distribusi Upah & Insentif Harian Supir (`#modal-daily-incentive-form`), dropdown pilihan supir berhasil berubah menjadi Select2 dengan kotak pencarian (*live search*), namun pengguna **sama sekali tidak bisa mengetikkan huruf apa pun ke dalam kotak pencarian** (kursor tidak berkedip atau ketikan keyboard tidak masuk).
+* **Akar Masalah (Root Cause)**:
+  1. Elemen `<select>` diberi atribut `class="select2"` di Blade. Pada berkas global [`public/js/apps/helper.js`](../../public/js/apps/helper.js), terdapat inisialisasi otomatis `$(".select2").select2();` pada `$(document).ready` tanpa parameter `dropdownParent`. Hal ini menyebabkan kontainer dropdown Select2 di-attach langsung ke elemen `<body>`.
+  2. Dialog modal Bootstrap memiliki atribut bawaan `tabindex="-1"` yang mengaktifkan listener *enforceFocus*. Ketika pengguna mengklik kolom pencarian Select2 yang berada di `<body>` (di luar modal), Bootstrap menganggap ada elemen eksternal yang mencuri fokus, sehingga Bootstrap secara agresif memutus fokus kursor dan memindahkannya kembali ke modal (misal tombol tutup `.btn-close`).
+* **Solusi Baku Enterprise (Fix Applied)**:
+  1. Hapus class `select2` dari tag `<select id="modal-select-driver">` di Blade agar tidak diinisialisasi secara prematur oleh `helper.js` ke `<body>`.
+  2. Hapus atribut `tabindex="-1"` dari kontainer `<div class="modal fade" id="modal-daily-incentive-form" ...>` (selaras dengan standar modal terpadu pada [`modal-plan.blade.php`](../../resources/views/apps/trip-management/partials/modal-plan.blade.php)).
+  3. Gunakan `dropdownParent: $('#modal-daily-incentive-form .modal-content')` saat inisialisasi kustom di JavaScript dan lakukan `select2('destroy')` terlebih dahulu jika elemen sudah pernah terinisialisasi.
+  4. Tambahkan event auto-focus pada `select2:open` agar kursor langsung berkedip di kotak pencarian saat dropdown dibuka:
+     ```javascript
+     $(document).on('select2:open', '#modal-select-driver', function () {
+         setTimeout(function () {
+             var searchField = document.querySelector('.select2-container--open .select2-search__field');
+             if (searchField) searchField.focus();
+         }, 50);
+     });
+     ```
+* **Pelajaran (Takeaway)**:
+  Seluruh dropdown Select2 yang berada di dalam Modal Bootstrap WAJIB memiliki `dropdownParent` yang mengarah ke kontainer modal (`.modal-content`), TIDAK BOLEH menggunakan class generic `select2` yang di-hook oleh `helper.js`, dan modal dialog sebaiknya tidak memakai `tabindex="-1"` guna mencegah focus trapping agresif dari Bootstrap.
+
+---
+
+### Kasus #45: Kebocoran Istilah Sistem Eksternal & Rujukan Tata Kelola AI pada Komentar Kode (Code Comment Hygiene & Zero-Outflow Standard)
+* **Kategori**: Code Quality, Clean Code, Comment Hygiene & Production Code Security
+* **Gejala (Symptom)**:
+  Pada puluhan berkas yang telah dikembangkan sebelumnya (mencakup Controller Laporan & Settlement, Service, Repository, Form Request, Blade View, dan skrip JavaScript di `public/js/apps/`), ditemukan komentar-komentar kode yang secara eksplisit mencantumkan nama sistem referensi eksternal (`admin-sunjaya`, `sunjaya_dev`), rujukan aturan tata kelola internal AI (`RULESCODE.md - Bab X`, `Standar Bab 34 & 43`), serta kata komparasi `legacy`. Hal ini membuat kode produksi tampak tidak profesional, menimbulkan kesan kebocoran informasi internal (*leaked references / outflow*), dan berisiko membingungkan tim pengembang manusia maupun stakeholder ketika membaca berkas kode sumber `adminShuttleV3`.
+* **Akar Masalah (Root Cause)**:
+  Ketika menyusun implementasi atau melakukan paritas alur bisnis, AI terbawa konteks instruksi dan analisis komparasi dari obrolan, lalu secara otomatis menuliskan catatan sitasi eksternal tersebut ke dalam DocBlock PHP, komentar inline baris, anotasi HTML di Blade, serta header file JS. Hal ini melanggar etika higienitas komentar kode profesional (*clean code comment hygiene*).
+* **Solusi Baku Enterprise (Fix Applied)**:
+  1. Menjalankan audit menyeluruh dan pembersihan massal (*batch cleanup*) pada 52 berkas terdampak di `app/`, `resources/views/`, dan `public/js/` hingga mencapai **0 temuan (0 matches)** pada `git grep -n -E "admin-sunjaya|RULESCODE|sunjaya_dev"`.
+  2. Mengganti seluruh komentar bocor menjadi komentar murni teknis fungsional, ringkas (1–2 baris), dan fokus 100% pada entitas internal `adminShuttleV3` tanpa menyebut sistem eksternal atau meta-jargon aturan AI: - Mengubah `Mengikuti formula admin-sunjaya (...)` ➔ `Memproses data settlement paket dan menghitung metrik finansial`. - Mengubah `Sesuai admin-sunjaya ota.blade.php & Bab 42 RULESCODE` ➔ `4 KPI Summary Cards`. - Mengubah `Standar RULESCODE.md Bab 34 FastXlsxWriter` ➔ `Ekspor ke format Excel Native OpenXML (.xlsx) menggunakan ReportExporter`. - Mengubah `from legacy form field` ➔ `dukungan field input`. - Mengubah `Kartu Ringkasan Atas 3 Kolom Sesuai Sistem Legacy` ➔ `Kartu Ringkasan Atas 3 Kolom Informasi Paket`.
+  3. Mempertegas **Rule #6 (Zero-Outflow References Standard)** pada `AGENTS.md` dan [`.agents/rules/01-workflow-discipline.md`](../rules/01-workflow-discipline.md) Bagian 4, serta mewajibkan eksekusi pengecekan `git grep -n -E "admin-sunjaya|RULESCODE|sunjaya_dev" app/ resources/views/ public/js/` pada setiap akhir siklus development.
+* **Pelajaran (Takeaway)**:
+  Komentar kode produksi hanya boleh menjelaskan *apa* dan *tujuan fungsional* dari kode yang bersangkutan dalam lingkup `adminShuttleV3`. DILARANG KERAS menyisipkan nama proyek referensi luar (`admin-sunjaya`, `sunjaya_dev`), istilah `legacy`, atau pasal aturan AI (`RULESCODE.md`). Seluruh kode harus tampak bersih dan ditulis secara alami oleh tim developer manusia profesional.
+
+---
+
+### Kasus #46: Inkonsistensi Kolom View Agregasi Paket pada DataTables Manifest (`v_package_transactions` vs `v_package_transaction_forwards` & Resolusi `depart_at_main`)
+* **Kategori**: Database Views, DataTables Query, High-Volume Aggregation & Cargo Manifest
+* **Gejala (Symptom)**:
+  Ketika mengakses endpoint AJAX DataTables Manifest (`/trip-managements/manifests/data`), sistem mengalami Error 500 dengan log MySQL:
+  `SQLSTATE[42S22]: Column not found: 1054 Unknown column 'vpt.depart_at_main' in 'on clause'` pada query join ke Database View paket.
+* **Akar Masalah (Root Cause)**:
+  Di MySQL `transport_system`, terdapat dua view paket yang dibuat oleh tim analis database:
+  1. `v_package_transaction_forwards`: Bersumber dari `package_transactions` dengan kolom `tripcode` dan **`depart_at_main`**.
+  2. `v_package_transactions`: Bersumber dari `package_transaction_forwards` dengan kolom `tripcode` dan **`depart_at`**.
+  Ketika kueri di `ManifestRepository::getManifestQuery` dan `OperationalDailyRepository` ditulis, pengembang memanggil nama view `v_package_transactions`, namun menuliskan nama kolom `depart_at_main` (karena meniru join tiket `vt.depart_at_main`). Akibat ketidakcocokan nama view vs kolom fisik view, MySQL menolak query.
+* **Solusi Baku Enterprise (Fix Applied)**:
+  1. **Opsi 2 Ditetapkan Sebagai Standar Aktif**: Mengarahkan join ke Database View `v_package_transaction_forwards as vpt` dengan klausa:
+     ```php
+     ->leftJoin('v_package_transaction_forwards as vpt', function ($j) {
+         $j->on('vpt.depart_at_main', '=', 'vm.date')
+           ->on('vpt.tripcode', '=', 'vm.tripcode');
+     })
+     ```
+     Hal ini memastikan keselarasan nama kolom `depart_at_main` pada seluruh view perjalanan (Tiket & Paket) sesuai arahan manajemen Sunjaya.
+  2. **Dokumentasi Panduan Switching Opsi 1**:
+     Menyediakan panduan lengkap di `.agents/knowledge/stored-procedures-and-views.md` untuk beralih ke `v_package_transactions` via `depart_at` jika di masa depan fitur transit multi-leg lintas hari diaktifkan.
+* **Pelajaran (Takeaway)**:
+  Selalu lakukan inspeksi struktur fisik Database View via `DESCRIBE v_...` atau `SHOW CREATE VIEW` sebelum menulis klausa `leftJoin` di QueryBuilder Laravel, terutama ketika nama view memiliki kemiripan penamaan (*forwards* vs non-*forwards*).---
+
+### Kasus #47: Kolom Aksi & NO Kosong pada Ekspor Excel DataTables serta Hardcoded Server-Side Order
+* **Kategori**: DataTables Client-Side Export, Server-Side Ordering, Dynamic Column Mapping
+* **Gejala (Symptom)**:
+  1. Pada menu Data Reservasi Online (`/ticket-transactions/online`), saat menekan tombol "Download Excel", kolom **Aksi** dan kolom **NO** tidak muncul / kosong pada lembar spreadsheet Excel.
+  2. Ketika pengguna mengklik header kolom pada tabel (baik kolom Aksi, Keberangkatan, Kursi, Penumpang, maupun kolom lainnya) untuk melakukan pengurutan ASC/DESC, urutan baris data tidak berubah sama sekali di antarmuka.
+* **Akar Masalah (Root Cause)**:
+  1. Pada konfigurasi `excelHtml5` di `ticket-online.js`, array `exportOptions.columns` dimulai dari index `[1, ...]` sehingga kolom 0 (Aksi) terlewat. Sementara kolom 1 (NO) didefinisikan dengan `data: null` dan nomor urut diisi via DOM `rowCallback`. Karena `excelHtml5` membaca struktur data array (bukan DOM HTML), nilai kolom NO diekspor sebagai kosong/null.
+  2. Pada layer Repository (`TicketOnlineDataRepository.php`), logika pengurutan di-hardcode ke `$query->orderBy('t.created_at', 'DESC');` tanpa membaca array `$request->input('order')` yang dikirimkan oleh DataTables saat pengguna mengklik header kolom.
+* **Solusi Baku Enterprise (Fix Applied)**:
+  1. **Konfigurasi Ekspor Excel Komprehensif**: - Mengikutsertakan kolom 0 s.d 16 pada `exportOptions.columns`. - Menambahkan handler `exportOptions.format.body(data, row, column, node)` yang mengonversi tombol HTML Aksi menjadi label teks `"Confirmed"` / `"Belum Dikonfirmasi"`, mengisi kolom NO dengan `row + 1`, serta membersihkan tag markup HTML dari teks kolom lainnya. - Menyediakan fungsi `render` pada kolom 1 (NO) untuk memastikan nilai nomor baris selalu terdefinisi secara independen dari `rowCallback`.
+  2. **Pemetaan Pengurutan Dinamis Server-Side ($orderColumns)**: - Membaca array `$request->input('order')` di `TicketOnlineDataRepository.php` dan memetakannya ke kolom database yang tepat (`0 => t.confirm_cso_at`, `3 => t.ticket_code`, `4 => t.booking_code`, `5 => dep.name`, `6 => arr.name`, `7 => t.depart_at`, `9 => t.passenger_name`, `10 => phone`, `11 => CAST(t.passenger_seat AS UNSIGNED)`, `13 => t.total_price`, `14 => t.payment_status`, `15 => cso.name`, `16 => t.confirm_cso_at`). - Mengaktifkan `orderable: true` pada kolom 0 (Aksi) di JavaScript dengan data sumber `confirm_cso_at`.
+* **Pelajaran (Takeaway)**: - Pada DataTables dengan `serverSide: true`, fitur sorting klik header kolom WAJIB ditangani secara eksplisit di layer Repository melalui pembacaan parameter `order` dari HTTP Request. - Untuk ekspor Excel DataTables, kolom yang menggunakan `data: null` atau elemen tombol wajib dilengkapi dengan `exportOptions.format.body` agar isi sel spreadsheet terisi teks murni yang informatif.

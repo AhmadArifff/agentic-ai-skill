@@ -90,8 +90,8 @@ console.log('✅ Updated ~/.gemini/config/rules/agentic-ai-orchestration.md');
 
 // 3. Copy universal rules to global config rules
 const uiReasoningSrc = path.join(__dirname, '..', 'rules', '30-ui-component-reasoning.md');
-const coreGuardrailsSrc = path.join(__dirname, '..', '05-spoke-template', 'rules', '00-core-guardrails.md');
-const workflowDisciplineSrc = path.join(__dirname, '..', '05-spoke-template', 'rules', '01-workflow-discipline.md');
+const coreGuardrailsSrc = path.join(__dirname, '..', 'rules', '00-core-guardrails.md');
+const workflowDisciplineSrc = path.join(__dirname, '..', 'rules', '01-workflow-discipline.md');
 const visualFirstSrc = path.join(__dirname, '..', 'rules', '32-visual-first-engineering.md');
 
 [
@@ -113,21 +113,46 @@ if (fs.existsSync(masterAgentsMd)) {
   console.log('✅ Synced master AGENTS.md to ~/.gemini/config/AGENTS.md');
 }
 
-// 5. Sync ALL rules, knowledge, workflows from root to internal .agents/
+// 5. Sync ALL rules, knowledge, workflows from root to internal .agents/ AND 05-spoke-template/
 ['rules', 'knowledge', 'workflows'].forEach(folder => {
   const rootDir = path.join(__dirname, '..', folder);
   const agentDir = path.join(__dirname, '..', '.agents', folder);
-  if (fs.existsSync(rootDir) && fs.existsSync(agentDir)) {
+  const spokeDir = path.join(__dirname, '..', '05-spoke-template', folder);
+
+  if (fs.existsSync(rootDir)) {
     fs.readdirSync(rootDir).forEach(file => {
       if (file.endsWith('.md')) {
-        fs.copyFileSync(path.join(rootDir, file), path.join(agentDir, file));
+        const srcFile = path.join(rootDir, file);
+        if (fs.existsSync(agentDir)) {
+          fs.copyFileSync(srcFile, path.join(agentDir, file));
+        }
+        if (fs.existsSync(spokeDir)) {
+          fs.copyFileSync(srcFile, path.join(spokeDir, file));
+        }
       }
     });
-    console.log('✅ Synced all ' + folder + '/*.md to .agents/' + folder + '/');
+    console.log('✅ Synced all ' + folder + '/*.md to .agents/' + folder + '/ and 05-spoke-template/' + folder + '/');
   }
 });
 
-// 5b. Sync skills from root skills/ to internal .agents/skills/ and global config skills
+// 5b. Sync scripts from root scripts/ to internal .agents/scripts/ and 05-spoke-template/scripts/
+const rootScriptsDir = path.join(__dirname, '..', 'scripts');
+const agentScriptsDir = path.join(__dirname, '..', '.agents', 'scripts');
+const spokeScriptsDir = path.join(__dirname, '..', '05-spoke-template', 'scripts');
+
+if (!fs.existsSync(agentScriptsDir)) fs.mkdirSync(agentScriptsDir, { recursive: true });
+if (!fs.existsSync(spokeScriptsDir)) fs.mkdirSync(spokeScriptsDir, { recursive: true });
+
+['qa-kernel.php'].forEach(scriptFile => {
+  const src = path.join(rootScriptsDir, scriptFile);
+  if (fs.existsSync(src)) {
+    fs.copyFileSync(src, path.join(agentScriptsDir, scriptFile));
+    fs.copyFileSync(src, path.join(spokeScriptsDir, scriptFile));
+    console.log('✅ Synced script ' + scriptFile + ' to .agents/scripts/ and 05-spoke-template/scripts/');
+  }
+});
+
+// 5c. Sync skills from root skills/ to internal .agents/skills/ and global config skills
 const rootSkillsDir = path.join(__dirname, '..', 'skills');
 const agentSkillsDir = path.join(__dirname, '..', '.agents', 'skills');
 const globalConfigSkills = path.join(userHome, '.gemini', 'config', 'skills');
@@ -152,13 +177,12 @@ if (fs.existsSync(rootSkillsDir)) {
 }
 
 // 6. Sync compatible universal rules & blueprints to admin-sunjaya-dev without overwriting custom DB/bug files
-const adminSunjayaKnowledge = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'knowledge');
-const spViewsKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'stored-procedures-and-views.md');
-const teamAlignKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'team-alignment-framework.md');
-
 if (fs.existsSync(adminSunjayaRules)) {
   if (fs.existsSync(uiReasoningSrc)) fs.copyFileSync(uiReasoningSrc, path.join(adminSunjayaRules, '30-ui-component-reasoning.md'));
   if (fs.existsSync(visualFirstSrc)) fs.copyFileSync(visualFirstSrc, path.join(adminSunjayaRules, '32-visual-first-engineering.md'));
+  const adminSunjayaKnowledge = path.join('C:', 'Users', 'ASUS', 'Documents', 'Web Dev', 'sunjaya', 'Roleback', 'admin-sunjaya-dev', '.agents', 'knowledge');
+  const spViewsKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'stored-procedures-and-views.md');
+  const teamAlignKnowledgeSrc = path.join(__dirname, '..', 'knowledge', 'team-alignment-framework.md');
   if (fs.existsSync(adminSunjayaKnowledge)) {
     if (fs.existsSync(spViewsKnowledgeSrc)) fs.copyFileSync(spViewsKnowledgeSrc, path.join(adminSunjayaKnowledge, 'stored-procedures-and-views.md'));
     if (fs.existsSync(teamAlignKnowledgeSrc)) fs.copyFileSync(teamAlignKnowledgeSrc, path.join(adminSunjayaKnowledge, 'team-alignment-framework.md'));

@@ -145,3 +145,18 @@ class SettlementPackageRepository
 * **Aturan Mutlak**:
   * ❌ **JANGAN** memanggil Model di Controller atau Service.
   * Model hanya boleh berinteraksi dengan **Repository**.
+
+---
+
+## 5. Standar Kontrak JSON Murni Endpoint GET & DataTables (Zero Raw HTML/Badge)
+1. **DILARANG Mengirim Tag HTML / Badge Mentah di Payload JSON**:
+   * Seluruh endpoint `GET` (DataTables AJAX, `JsonResource`, maupun API list/detail) **WAJIB hanya mengembalikan data terstruktur murni** (*primitive scalar*: string teks polos, integer/float numerik, boolean, ISO timestamp, URL bersih, atau array/object data).
+   * **DILARANG KERAS** menyisipkan markup HTML (`<span class="badge ...">`, `<a href=...>`, `<div>`, `<i>`, `<br>`, atau tombol HTML `<button>`) di dalam Service, Repository, maupun `JsonResource`.
+   * Pengecualian khusus format karakter seperti `'∞'` gunakan karakter Unicode langsung, bukan entitas HTML (`&infin;`).
+2. **Keamanan Data, Anti-Error 500 & Pencarian Server-Side DataTables**:
+   * Lapisan `Service` pada endpoint DataTables/AJAX wajib membungkus pengambilan & pemetaan data dalam `try/catch` yang mencatat error via `Log::error(...)` (import via `use`) serta mengembalikan JSON terstruktur kosong + flag pesan eror (status HTTP `500`), bukan HTML stack-trace/exception yang memicu `DataTables Ajax error`.
+   * Parsing filter tanggal/parameter eksternal di `Repository` (misal `daterange` via `Carbon::parse`) wajib dilindungi blok `try/catch` agar input tidak valid tidak menjatuhkan query.
+   * Jika DataTables memakai `serverSide: true`, `Repository` wajib memproses parameter `search[value]` secara aman pada kolom bisnis yang relevan.
+3. **Alur Tanggung Jawab (*Separation of Concerns*)**:
+   * **Backend (`Repository -> Service -> Resource/Controller`)**: Kueri, kalkulasi metrik/status mentah, format data murni (`type`, `status`, `delay_minutes`, `booked_count`, `net_profit`, dll.).
+   * **Frontend (`public/js/apps/...`)**: Rendering visual badge, warna, ikon, link detail, dan tombol aksi via `columns[].render` dengan sanitasi XSS (`escapeHtml()`), sesuai [`rules/30-ui-frontend.md`](./30-ui-frontend.md) Bagian 12.

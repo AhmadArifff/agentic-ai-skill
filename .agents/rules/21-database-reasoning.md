@@ -189,3 +189,34 @@ Setiap kali AI Agent menerima tugas membuat fitur baru, merevisi logika bisnis, 
 | Rute Tambahan / Transit | `schedule_connections` | `route_transits` & `schedule_transits` |
 | Harga Hari Khusus | `schedule_prices` | `schedule_price_days` |
 | Surcharge Musiman | *Tidak ada* | `schedule_price_surcharges` |
+
+---
+
+## 5. Kebijakan Prioritas Database Views & Stored Procedures (Anti N+1 Protocol)
+
+1. **Prioritas Database View untuk Kueri Agregasi Berulang**:
+   - Jika suatu menu menampilkan data tabular yang membutuhkan metrik dari multi-tabel (`COUNT` tiket, `SUM` nominal pendapatan, koli paket, atau ketersediaan kursi), pengembang dan AI Agent **WAJIB memprioritaskan kueri langsung ke Database View (`v_...`)**.
+   - **DILARANG KERAS** memecah pengambilan data menjadi sub-kueri berulang di dalam perulangan PHP/Service (pola N+1), karena query berulang dengan kalkulasi tanggal (`DATE(COALESCE(...))`) pada tabel fisik akan melumpuhkan performa aplikasi (> 3 detik vs < 1 detik).
+2. **Pola Konsumsi di Layer Repository**:
+   - Kueri ke Database View dikelola di lapisan `Repository` menggunakan `DB::table('v_manifest as vm')` dengan klausa `leftJoin` ke tabel/view lain dalam **1 kueri tunggal (*single trip query*)**.
+   - Lapisan `Service` menerima data yang sudah teragregasi secara lengkap dan hanya melakukan kalkulasi finansial / formatting waktu di memori PHP (*in-memory*).
+3. **Penyelarasan dengan Tim Basis Data (Zero-Direct-CRUD)**:
+   - Jika ditemukan kebutuhan agregasi data baru yang berat dan belum diakomodasi oleh View yang ada, AI Agent **DILARANG membuat view langsung di database**. Sediakan draf query SQL `CREATE VIEW` atau `CREATE PROCEDURE` untuk dieksekusi tim database di phpMyAdmin.
+   - Blueprint teknis selengkapnya: [`knowledge/stored-procedures-and-views.md`](../knowledge/stored-procedures-and-views.md).
+4. **Audit Definisi View Terlebih Dahulu (Anti-Double Join / Anti-2x Proses)**:
+   - Sebelum menambahkan `leftJoin` di Query Builder Laravel yang memanggil Database View, AI Agent **WAJIB membaca berkas SQL dump terbaru (`transport_system-*.sql`)** untuk memeriksa tabel apa saja yang *sudah di-join di dalam View tersebut*.
+   - **DILARANG KERAS** melakukan join ulang ke tabel master fisik yang sudah ada di dalam View (misal me-join ulang `routes`, `vehicles`, `vehicle_layouts`, `emoneys`, `admins` padahal `v_manifest` sudah memuat relasi tersebut).
+   - Melakukan join ganda mengakibatkan MySQL memproses tabel yang sama sebanyak 2 kali dan melipatgandakan waktu eksekusi kueri (~10x lebih lambat, dari ~100ms melonjak ke ~950ms).
+5. **Larangan Filter WHERE Prematur/Kaku pada View (Anti-Penyensoran Data & Perlindungan Indeks)**:
+   - **DILARANG KERAS** menambahkan filter `WHERE` kaku seperti `->where('vehicle_list_id', '>', 0)->where('driver_id', '>', 0)->whereNotNull('manifest_code')` pada kueri view kecuali secara eksplisit diwajibkan oleh aturan bisnis.
+   - Filter kaku ini terbukti berbahaya karena:
+     a) **Menyembunyikan Data Baru**: Jadwal operasional atau manifest yang baru dibuat tetapi supir/armadanya belum ditentukan (`NULL`/`0`) menjadi **hilang misterius** dari antarmuka web, padahal staf butuh melihatnya dengan status *"Belum Diatur"*.
+     b) **Degradasi Performa Indeks**: Operator pembanding `>` pada view memicu *full table scan* dan merusak optimasi indeks MySQL.
+6. **Proyeksi Tunggal Bersih (Single-Source Projection via `vm.*` )**:
+   - Seluruh kolom yang sudah diproyeksikan oleh View wajib diambil langsung via `vm.*` tanpa perlu menulis deretan `COALESCE(...)` panjang yang redundan di repository.
+7. **Sinergi Komunikasi dengan Tim Basis Data**:
+   - Jika terdapat kolom dari tabel master yang belum diekspos oleh View (misal `v.code` atau `vl.name`), AI Agent **WAJIB mendeklarasikannya secara transparan** kepada atasan / analis database untuk ditambahkan ke baris `SELECT` View database, bukan mengakali dengan join fisik ganda di Laravel. Aturan ini wajib diterapkan pada setiap tahap **Planning, Review, Development, Fix-Bug, dan Evaluasi** (Kasus #41).
+8. **Preservasi Kontrak Pengurutan Stored Procedure & Database View (Anti-Overwriting Database ORDER BY)**:
+   - Ketika repository mengonsumsi data dari Stored Procedure (`sp_...`) atau Database View yang telah memiliki klausa `ORDER BY` terstruktur (misal pada `sp_schedule_daily_route_temps`: jadwal aktif `on` terlebih dahulu diurutkan `etd ASC`, lalu seluruh jadwal non-aktif `off` di paling bawah tabel), layer aplikasi/repository Laravel **WAJIB MEMATUHI DAN MEMPERTAHANKAN KONTRAK PENGURUTAN BAWAAN TERSEBUT**.
+   - **DILARANG KERAS menimpa urutan database** dengan melakukan sorting ulang koleksi murni berdasarkan satu kolom (misal: `$results->sortBy('sort_etd')`) yang mengakibatkan baris non-aktif naik ke atas tabel di antara jadwal aktif.
+   - Jika ada penggabungan entitas tambahan di layer aplikasi (seperti jadwal ekstra non-aktif yang di-merge di PHP), pengurutan wajib menggunakan multi-level sorting bertingkat yang identik dengan kontrak Stored Procedure: status ranking (`on` -> 0, `off` -> 1) lalu `sort_etd ASC` (Kasus #43).

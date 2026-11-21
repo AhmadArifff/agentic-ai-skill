@@ -36,6 +36,7 @@ Gunakan panduan berikut untuk membuka dan mematuhi dokumen spesifik sesuai konte
 ## 3. Direktori Prosedur Kerja Baku (*Workflows*)
 Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah berikut:
 * **[workflows/task-review-protocol.md](./workflows/task-review-protocol.md)**: **[WAJIB]** Protokol Review Task Sebelum Development (Evaluasi 7 Pilar & Persetujuan Pengguna).
+* **[workflows/post-dev-qa.md](./workflows/post-dev-qa.md)**: SOP Post-Development QA on-demand (Tier 1 Fast Kernel & Rollback-Safe QA via `qa-kernel.php` & Tier 2 Playwright Browser Flow).
 * **[workflows/new-module.md](./workflows/new-module.md)**: Langkah pembuatan modul CRUD / domain baru end-to-end.
 * **[workflows/new-prd-feature.md](./workflows/new-prd-feature.md)**: Siklus hidup pembuatan fitur berbasis PRD (PRD -> DB -> Types -> API -> UI -> QA -> Gate).
 * **[workflows/new-report.md](./workflows/new-report.md)**: Langkah pembuatan modul Laporan Tabular dan Finansial.
@@ -49,7 +50,7 @@ Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah be
 ## 4. Bank Kasus Bug & Solusi (*Knowledge Base*)
 Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara permanen:
 * **[knowledge/README.md](./knowledge/README.md)**: Tata kelola dan format pencatatan kasus bug.
-* **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (`Kasus #01` s.d `Kasus #29`).
+* **[knowledge/bug-cases.md](./knowledge/bug-cases.md)**: Daftar riwayat kasus bug tervalidasi (`Kasus #01` s.d `Kasus #47`).
 * **[knowledge/team-alignment-framework.md](./knowledge/team-alignment-framework.md)**: Pola briefing 3 Kalimat Emas ke stakeholder, Contract-First JSON protocol, & Kamus Zero-Jargon.
 * **[knowledge/hub-and-spoke-sync.md](./knowledge/hub-and-spoke-sync.md)**: Protokol Master Hub (`agentic AI`) vs Child Spokes (`E-Comerce-BucketFlowers`, `adminShuttleV3`, dll).
 * **[knowledge/spoke-adoption-guide.md](./knowledge/spoke-adoption-guide.md)**: Panduan adopsi starter pack, 2 pertanyaan kustomisasi onboarding (Git & DB).
