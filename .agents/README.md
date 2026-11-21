@@ -64,7 +64,8 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 45 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 46 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/archify/SKILL.md](./skills/archify/SKILL.md)**: Diagram interaktif mandiri (*standalone HTML*) dan One-Page Explainer (10 tipe diagram: architecture, workflow, sequence, dataflow, lifecycle, ERD, class, tree, timeline, waterfall), path tracing, dark/light theme, ekspor image/SVG/WebM, dan verifikasi CLI (`node bin/archify.mjs finalize`).
 * **[skills/stack-diagram/SKILL.md](./skills/stack-diagram/SKILL.md)**: Diagram arsitektur cloud, monorepo, dan system layout dengan logo resmi vendor (AWS, GCP, Azure, K8s, svgl, devicon), orthogonal arrow routing, dan output self-contained HTML/PNG/TSX.
 * **[skills/teardown/SKILL.md](./skills/teardown/SKILL.md)**: Simulator 3D mesin interaktif offline single-file HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
 * **[skills/motionmaxxing/SKILL.md](./skills/motionmaxxing/SKILL.md)**: Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas senior motion designer (seek-safe GSAP, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg).

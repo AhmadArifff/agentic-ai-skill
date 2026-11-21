@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "skillId": "archify",
+  "channel": "stable",
+  "version": "3.2.0",
+  "publishedAt": "2026-10-19T00:20:11Z",
+  "source": {
+    "repository": "https://github.com/tt-a1i/archify",
+    "ref": "v3.2.0",
+    "treeSha": "39069dd190f574064fe410aa3af1b6dfd98a522c"
+  },
+  "artifact": {
+    "sha256": "70e210265c59f24dcbdf2a502ff671104b5454e7ee7d3554aecd86bad32384f5"
+  },
+  "summary": "Adds one-page answers with cited sources, interactive diagrams and image/PDF export, plus clearer node indexes, update notices and portability fixes.",
+  "releaseNotes": "https://github.com/tt-a1i/archify/releases/tag/v3.2.0",
+  "severity": "normal"
+}
