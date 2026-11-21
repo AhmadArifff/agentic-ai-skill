@@ -59,7 +59,7 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 * **[knowledge/payment-logistics-integrations.md](./knowledge/payment-logistics-integrations.md)**: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
 * **[knowledge/video-retention-engineering.md](./knowledge/video-retention-engineering.md)**: Blueprint video shorts viral (The 3-Second Hook & timeline snapping milidetik).
 * **[knowledge/web3-client-architecture.md](./knowledge/web3-client-architecture.md)**: Blueprint Pure Client-Side Web3 Terminal & anti SSR hydration mismatch.
-* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (32 kasus produksi terverifikasi).
+* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (34 kasus produksi terverifikasi).
 
 ---
 

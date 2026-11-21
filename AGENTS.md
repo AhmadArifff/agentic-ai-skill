@@ -156,8 +156,8 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
-   - **32 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **29 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #29` di `knowledge/bug-cases.md`).
-   - Mencakup preseden arsitektur: financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.
+   - **34 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **29 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #29` di `knowledge/bug-cases.md`).
+   - Mencakup preseden arsitektur: diagram alur interaktif Archify, topologi cloud stack-diagram, financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.
 4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
    - `team-alignment-framework.md`: Pola komunikasi 3 Kalimat Emas ke stakeholder, Contract-First JSON protocol untuk API eksternal, Pre-Development Sanity Gate, dan Kamus Zero-Jargon.
    - `financial-ledger-transactions.md`: Blueprint pemisahan tabel request vs disbursement penarikan insentif supir dengan atomic locking dan `width_code`.

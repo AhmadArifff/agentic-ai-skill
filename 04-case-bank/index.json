@@ -1,9 +1,9 @@
 {
   "version": "1.3.0",
-  "updated_at": "2026-10-16T21:50:00.000Z",
-  "total_cases": 32,
+  "updated_at": "2026-11-21T11:55:00.000Z",
+  "total_cases": 34,
   "categories": {
-    "pattern": 30,
+    "pattern": 33,
     "anti_pattern": 1
   },
   "cases": [
@@ -599,6 +599,52 @@
         "form-layout",
         "validateWithBag",
         "toast-notifications"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261121-archify-interactive-architecture-explainer",
+      "title": "Pembuatan Diagram Alur Interaktif & One-Page Explainer Mandiri untuk Transaksi Finansial Terdistribusi Berbasis Archify",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261121-archify-interactive-architecture-explainer.yaml",
+      "domain_tags": [
+        "archify",
+        "diagram",
+        "sequence",
+        "explainer",
+        "interactive",
+        "html",
+        "architecture",
+        "financial-ledger",
+        "concurrency"
+      ],
+      "dual_approval": {
+        "qa_engineer": "approved",
+        "tech_critic": "approved"
+      }
+    },
+    {
+      "case_id": "case-20261121-stack-diagram-cloud-architecture",
+      "title": "Visualisasi Topologi Infrastruktur Cloud & Monorepo Tooling Berbasis Stack-Diagram dengan Logo Vendor Resmi dan Orthogonal Arrow Routing",
+      "status": "verified_case",
+      "category": "pattern",
+      "file": "cases/case-20261121-stack-diagram-cloud-architecture.yaml",
+      "domain_tags": [
+        "stack-diagram",
+        "cloud-architecture",
+        "infra",
+        "topology",
+        "laravel",
+        "redis",
+        "mysql",
+        "docker",
+        "nginx",
+        "diagram",
+        "html"
       ],
       "dual_approval": {
         "qa_engineer": "approved",

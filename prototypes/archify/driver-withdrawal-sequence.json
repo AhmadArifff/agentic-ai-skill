@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "diagram_type": "sequence",
+  "meta": {
+    "title": "Financial Ledger Driver Withdrawal & Atomic Lock Sequence",
+    "output": "prototypes/archify/driver-withdrawal-sequence.html",
+    "viewBox": [
+      1120,
+      680
+    ],
+    "column_fit": "spread",
+    "animation": "trace",
+    "quality_profile": "showcase"
+  },
+  "participants": [
+    {
+      "id": "driver",
+      "type": "external",
+      "label": "Driver Mobile",
+      "sublabel": "Flutter App"
+    },
+    {
+      "id": "gateway",
+      "type": "frontend",
+      "label": "API Gateway",
+      "sublabel": "Nginx / Cloudflare"
+    },
+    {
+      "id": "ledger_svc",
+      "type": "backend",
+      "label": "Ledger Service",
+      "sublabel": "Laravel 4-Layer"
+    },
+    {
+      "id": "redis_lock",
+      "type": "database",
+      "label": "Redis Lock",
+      "sublabel": "Atomic Mutex (10s)"
+    },
+    {
+      "id": "db_master",
+      "type": "database",
+      "label": "MySQL Master",
+      "sublabel": "InnoDB Transaction"
+    },
+    {
+      "id": "bank_gw",
+      "type": "messagebus",
+      "label": "Bank Gateway",
+      "sublabel": "BCA / Mandiri API"
+    }
+  ],
+  "segments": [
+    {
+      "from": 145,
+      "to": 280,
+      "label": "Request & Mutex Lock"
+    },
+    {
+      "from": 290,
+      "to": 455,
+      "label": "Balance Verification & Bank Transfer"
+    },
+    {
+      "from": 465,
+      "to": 565,
+      "label": "Disbursement Ledger & Lock Release"
+    }
+  ],
+  "messages": [
+    {
+      "id": "m1",
+      "from": "driver",
+      "to": "gateway",
+      "y": 160,
+      "label": "POST /api/driver/withdraw",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m2",
+      "from": "gateway",
+      "to": "ledger_svc",
+      "y": 195,
+      "label": "Forward request (Bearer Token)",
+      "variant": "default"
+    },
+    {
+      "id": "m3",
+      "from": "ledger_svc",
+      "to": "redis_lock",
+      "y": 230,
+      "label": "SET withdraw:driver:{id} NX EX 10",
+      "variant": "security"
+    },
+    {
+      "id": "m4",
+      "from": "redis_lock",
+      "to": "ledger_svc",
+      "y": 265,
+      "label": "Lock Acquired (OK)",
+      "variant": "return"
+    },
+    {
+      "id": "m5",
+      "from": "ledger_svc",
+      "to": "db_master",
+      "y": 300,
+      "label": "BEGIN; SELECT balance FOR UPDATE",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m6",
+      "from": "db_master",
+      "to": "ledger_svc",
+      "y": 335,
+      "label": "Balance: Rp 1.500.000 (Sufficient)",
+      "variant": "return"
+    },
+    {
+      "id": "m7",
+      "from": "ledger_svc",
+      "to": "db_master",
+      "y": 370,
+      "label": "INSERT request_withdrawals (PENDING)",
+      "variant": "default"
+    },
+    {
+      "id": "m8",
+      "from": "ledger_svc",
+      "to": "bank_gw",
+      "y": 405,
+      "label": "POST /v1/disbursement (width_code)",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m9",
+      "from": "bank_gw",
+      "to": "ledger_svc",
+      "y": 440,
+      "label": "HTTP 200 (DISBURSED)",
+      "variant": "return"
+    },
+    {
+      "id": "m10",
+      "from": "ledger_svc",
+      "to": "db_master",
+      "y": 475,
+      "label": "INSERT disbursement_withdrawals & COMMIT",
+      "variant": "emphasis"
+    },
+    {
+      "id": "m11",
+      "from": "ledger_svc",
+      "to": "redis_lock",
+      "y": 510,
+      "label": "DEL withdraw:driver:{id} (Release Lock)",
+      "variant": "dashed"
+    },
+    {
+      "id": "m12",
+      "from": "ledger_svc",
+      "to": "driver",
+      "y": 545,
+      "label": "HTTP 200 (Withdrawal Success)",
+      "variant": "return"
+    }
+  ],
+  "activations": [
+    {
+      "participant": "gateway",
+      "from": 160,
+      "to": 555,
+      "type": "frontend"
+    },
+    {
+      "participant": "ledger_svc",
+      "from": 190,
+      "to": 550,
+      "type": "backend"
+    },
+    {
+      "participant": "redis_lock",
+      "from": 225,
+      "to": 270,
+      "type": "database"
+    },
+    {
+      "participant": "db_master",
+      "from": 295,
+      "to": 480,
+      "type": "database"
+    },
+    {
+      "participant": "bank_gw",
+      "from": 400,
+      "to": 445,
+      "type": "messagebus"
+    }
+  ],
+  "cards": [
+    {
+      "dot": "emerald",
+      "title": "Financial Ledger Guard",
+      "items": [
+        "Pemisahan tegas tabel request vs disbursement penarikan insentif.",
+        "Atomic locking 10 detik via Redis mencegah klik ganda atau race condition.",
+        "Transaksi database InnoDB dengan SELECT ... FOR UPDATE menjamin saldo akurat."
+      ]
+    },
+    {
+      "dot": "cyan",
+      "title": "Idempotency & Rollback",
+      "items": [
+        "Gunakan width_code unik per transaksi untuk mencegah double transfer bank.",
+        "Jika gateway perbankan timeout, status ditahan di PENDING untuk rekonsiliasi.",
+        "Kunci Redis selalu dilepas di blok finally."
+      ]
+    }
+  ]
+}

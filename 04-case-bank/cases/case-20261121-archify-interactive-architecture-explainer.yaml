@@ -1,0 +1,54 @@
+case_id: "case-20261121-archify-interactive-architecture-explainer"
+title: "Pembuatan Diagram Alur Interaktif & One-Page Explainer Mandiri untuk Transaksi Finansial Terdistribusi Berbasis Archify"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-11-21T11:50:00Z"
+last_validated: "2026-11-21T11:55:00Z"
+
+domain_tags:
+  - "archify"
+  - "diagram"
+  - "sequence"
+  - "explainer"
+  - "interactive"
+  - "html"
+  - "architecture"
+  - "financial-ledger"
+  - "concurrency"
+
+context_and_problem:
+  description: "Pada sistem transaksi finansial dan penarikan insentif supir dengan konkurensi tinggi, developer dan stakeholder membutuhkan visualisasi alur panggilan API, penguncian mutex Redis, dan transaksi database InnoDB yang detail dan mudah dipahami tanpa bergantung pada screenshot gambar statis yang buram atau layanan SaaS berbayar yang terkunci."
+  symptoms_or_triggers:
+    - "Diagram Mermaid statis di Markdown sulit dibaca pada alur multi-layer dengan >10 langkah dan tidak mendukung zoom/pan atau pelacakan alur interaktif."
+    - "Tim produk dan engineer sering salah paham mengenai kapan kunci Redis dilepas dan di mana letak idempotency token, menyebabkan bug race condition di lapangan."
+    - "Screenshot diagram cepat usang saat terjadi revisi arsitektur dan tidak dapat diekspor menjadi format vektor berkualitas tinggi."
+
+proposed_solution:
+  summary: "Gunakan keahlian Archify (skills/archify) dengan CLI mandiri (bin/archify.mjs render sequence) untuk mengompilasi spesifikasi JSON-IR deklaratif menjadi berkas HTML mandiri interaktif dengan path tracing animasi, zoom-pan browser, dan kartu dokumentasi arsitektur terintegrasi."
+  key_mechanisms:
+    - "Spesifikasi Sequence JSON-IR memetakan 6 partisipan (Driver Mobile, API Gateway, Ledger Service, Redis Lock, MySQL Master, Bank Gateway) dengan rentang aktivasi presisi."
+    - "Pemberian jeda vertikal minimum 28px antar pesan sekuensial yang berbagi area horizontal untuk memenuhi gerbang layout otomatis Archify."
+    - "Kompilasi menjadi satu berkas HTML mandiri (driver-withdrawal-sequence.html) dengan font, SVG, dan logika interaktivitas inlined (zero-dependency, offline ready)."
+    - "Kartu catatan arsitektur menyajikan guardrail transaksi (Financial Ledger Guard & Idempotency Rollback) langsung di samping diagram alur."
+  trade_offs:
+    advantages:
+      - "Interaktif penuh di semua browser modern tanpa koneksi internet (zoom, pan, path tracing, dark/light theme)."
+      - "Mendukung ekspor langsung ke PNG resolusi tinggi, SVG, maupun video animasi WebM dari tombol navigasi browser."
+      - "Layout divalidasi secara matematis oleh CLI Archify sebelum dipublikasikan, mencegah garis panah menumpuk."
+    drawbacks:
+      - "Ukuran berkas HTML mandiri berkisar ~800KB karena memuat runtime penampil interaktif dan pustaka SVG internal."
+      - "Penyusunan koordinat y pada pesan sekuensial membutuhkan disiplin jarak minimal 28px agar lolos validasi CLI."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-11-21T11:53:00Z"
+    test_evidence: "Diuji pada Chromium headless dan browser desktop. Berkas driver-withdrawal-sequence.html ter-render sempurna tanpa console error. Seluruh kontrol zoom, pan, tombol toggle tema gelap/terang, dan kartu catatan responsif 100%."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-11-21T11:54:00Z"
+    fallacy_check_notes: "Solusi mematuhi prinsip anti-slop. Tidak menggunakan dekorasi animasi palsu; setiap garis pesan dan status aktivasi mencerminkan eksekusi kode riil penarikan dana supir (Laravel Service -> Redis Lock -> MySQL Transaction -> BCA API). Memenuhi prinsip pemisahan Builder vs Reviewer."
+
+code_reference_or_snippet: |
+  // Menjalankan render diagram sekuensial Archify
+  node skills/archify/bin/archify.mjs render sequence prototypes/archify/driver-withdrawal-sequence.json prototypes/archify/driver-withdrawal-sequence.html

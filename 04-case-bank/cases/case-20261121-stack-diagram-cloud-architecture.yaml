@@ -1,0 +1,56 @@
+case_id: "case-20261121-stack-diagram-cloud-architecture"
+title: "Visualisasi Topologi Infrastruktur Cloud & Monorepo Tooling Berbasis Stack-Diagram dengan Logo Vendor Resmi dan Orthogonal Arrow Routing"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-11-21T11:51:00Z"
+last_validated: "2026-11-21T11:55:00Z"
+
+domain_tags:
+  - "stack-diagram"
+  - "cloud-architecture"
+  - "infra"
+  - "topology"
+  - "laravel"
+  - "redis"
+  - "mysql"
+  - "docker"
+  - "nginx"
+  - "diagram"
+  - "html"
+
+context_and_problem:
+  description: "Dalam penyusunan dokumen PRD dan arsitektur teknis sistem shuttle antarkota dengan konkurensi tinggi (AdminShuttleV3), tim rekayasa membutuhkan diagram topologi infrastruktur cloud yang profesional, mencantumkan logo vendor resmi, dan memisahkan kelompok servis (Application Layer vs Persistence Layer) tanpa garis panah yang menabrak label teks."
+  symptoms_or_triggers:
+    - "Diagram arsitektur manual sering menggunakan logo vendor tidak resmi, buram, atau memiliki latar belakang warna yang pecah saat dicetak atau beralih ke mode gelap."
+    - "Garis panah alur data sering memotong teks label (menabrak kotak teks) sehingga membingungkan pembaca mengenai relasi antar komponen."
+    - "Ketergantungan pada tool online berbayar (Lucidchart, Eraser) menyulitkan penyimpanan diagram sebagai kode sumber (Diagram-as-Code) yang dapat diverifikasi oleh Git."
+
+proposed_solution:
+  summary: "Gunakan keahlian stack-diagram (skills/stack-diagram) dengan mesin build Python standar (scripts/build.py) untuk mengompilasi draf HTML berbasis template kertas milimeter (engineering graph paper) menjadi diagram mandiri dengan font Geist dan JetBrains Mono serta ikon vendor tersemat sebagai base64 Data URI."
+  key_mechanisms:
+    - "Pembagian kontainer grup terstruktur (Docker Cloud Cluster dengan sub-group Application Layer dan Persistence & Cache Layer)."
+    - "Simpul komponen (Client, Nginx Gateway, Laravel API, Redis Atomic Lock, MySQL Master) ditempatkan pada ubin putih elegan dengan logo vendor SVG tajam."
+    - "Rute panah ortogonal (orthogonal routing) dengan label monospaced (HTTPS, fastcgi, SET NX EX 10, SELECT ... FOR UPDATE) menggunakan halo pelindung teks agar garis tidak menembus kata."
+    - "Semua font dan ikon disematkan langsung sebagai base64 Data URI sehingga berkas HTML dapat dibuka offline tanpa jaringan internet."
+  trade_offs:
+    advantages:
+      - "Tampilan teknis standar industri setara diagram referensi AWS/GCP resmi."
+      - "Mendukung mode terang dan gelap otomatis melalui CSS tokens custom properties."
+      - "Berkas HTML mandiri ringan (~97KB) dan dapat disimpan langsung di repositori Git tanpa dependensi eksternal."
+    drawbacks:
+      - "Penempatan koordinat kotak grup dan simpul manual membutuhkan kalkulasi posisi (left, top, width, height) yang teliti."
+      - "Ekspor ke gambar PNG beresolusi tinggi membutuhkan pustaka Playwright/Chromium terpasang."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-11-21T11:53:30Z"
+    test_evidence: "Diuji pada Chromium dan Firefox. Berkas admin-shuttle-architecture.html berukuran 97KB terbuka instan tanpa aset eksternal yang gagal dimuat. Garis koneksi panah terbukti melintang rapi tanpa menabrak label teks. Mode tema terang dan gelap bekerja presisi."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-11-21T11:54:30Z"
+    fallacy_check_notes: "Solusi mematuhi prinsip anti-slop R-01 s.d R-38. Tidak ada efek visual kosmetik berlebih (semua kotak dan warna memiliki arti fungsional: Application vs Persistence). Logo vendor tidak diwarnai ulang secara sembarangan."
+
+code_reference_or_snippet: |
+  // Mengompilasi draf diagram menjadi berkas HTML mandiri
+  python skills/stack-diagram/scripts/build.py prototypes/stack-diagram/admin-shuttle-architecture.draft.html prototypes/stack-diagram/icons prototypes/stack-diagram/admin-shuttle-architecture.html --fonts skills/stack-diagram/assets/fonts
