@@ -1,0 +1,732 @@
+# Security Model
+
+This document describes the security architecture of WebBrain — what the extension can do, what it trusts, how it handles credentials, and how it defends against prompt injection.
+
+For vulnerability disclosure, see [SECURITY.md](../SECURITY.md).
+
+---
+
+## Extension Privileges
+
+### Permissions
+
+```json
+{
+  "permissions": [
+    "sidePanel", "activeTab", "contextMenus", "tabs", "tabGroups",
+    "scripting", "storage", "notifications", "webNavigation", "webRequest",
+    "debugger", "downloads", "alarms", "unlimitedStorage", "offscreen",
+    "privateNetworkAccess", "tabCapture",
+    "clipboardWrite", "clipboardRead"
+  ],
+  "host_permissions": ["<all_urls>", "http://localhost/*", "http://127.0.0.1/*", "http://*/*"]
+}
+```
+
+(This is the Chrome MV3 manifest. Firefox MV2 grants a narrower set —
+`activeTab`, `menus`, `webNavigation`, `webRequest`, `dns`, `storage`,
+`unlimitedStorage`, `tabs`, `tabGroups`, `notifications`, `downloads`,
+`alarms`, `clipboard*`, `<all_urls>` — and has no
+`debugger`/`offscreen`/`tabCapture`/`sidePanel`/`scripting`/`privateNetworkAccess`,
+see Firefox Differences below.)
+
+| Permission | Risk | Mitigation |
+|---|---|---|
+| `<all_urls>` | Content script injection anywhere — the agent can read and interact with any page the user visits | A turn needs an action mode (Act or Dev) before clicks/types/navigation, and only the user's own request grants one: in their own words or with `/act` or `/dev` (see **Automatic mode selection** below). Ask mode is read-only. General browser-tab creation, enumeration, activation, and run retargeting are not exposed as model-callable tools. The one OTP-skill-gated Mid/Full reader internally selects an already-open supported mailbox and returns only bounded service-matching content; it exposes no tab catalog. Candidate inspection is read-only, while opening a selected message requires Act/Dev and mailbox-host click permission because it may mark mail read. Its disposable inactive clone consumes exact message continuations to completion or fails closed. |
+| `debugger` | CDP access provides trusted events and full DOM/network control on any tab | The debugger is attached only to the target tab while a CDP-backed run or mode-scoped Dev diagnostics own it. Run cleanup closes run-scoped WebMCP state and detaches unless Dev diagnostics remain active; conversation cleanup and tab removal drain all owners and detach. |
+| `webRequest` | Can observe XHR/fetch metadata for requests made by the active page | API mutation observer is on by default; it keeps only a bounded in-memory per-tab buffer for repeated-click shortcut hints and opaque same-origin replay. `fetch_url`, `read_page_source` and `research_url` also read the server address of their own requests while they run, to discard responses from blocked addresses (see **Local network blocking**). |
+| `dns` (Firefox only) | Can resolve hostnames | Used only by `fetch_url`, `read_page_source` and `research_url` to resolve the target hostname before sending, so a name that resolves to a blocked address is refused without contacting it. |
+| `downloads` | Can save files to the user's Downloads folder without prompting, and read the browser's download history | Only the agent's explicit download-capable tool calls (`download_files`, `download_file`, `download_resource_from_page`, `download_social_media`, download-job skill tools) use this, and each is gated by the capability × origin permission prompt. `list_downloads` and `read_downloaded_file` see only the conversation's own downloads: files those tools saved, and downloads that started while a WebBrain run was active on the tab (a download names no tab, so concurrent runs share one). Listed files carry their basename, not the local path. Reading any other file from the history needs the user's approval of that exact file on WebBrain's card ("Read this file once"); an unattended run cannot ask and reads nothing. |
+| `alarms` | Can wake scheduled jobs in future browser sessions | `schedule_resume` / `schedule_task` are gated; the user-authored `/watch` slash command can also create a page-bound 30–120 second conditional poll. |
+| `offscreen` | An offscreen document can make HTTP requests immune to user CSP, run local inference, or play audio without an open panel | Used for the localhost LLM proxy, the optional endpoint-free WebGPU text and vision providers, tab recording, validated download staging, the local controller bridge, and successful `/watch /beep` tones. The text provider receives the same bounded conversation and allowlisted tool schemas that would be sent to another active provider; dedicated local vision receives only its screenshot/prompt. Model files are downloaded from Hugging Face, while inference stays in the worker. Watch audio receives only a style selector, never page content or an arbitrary URL. |
+| `sidePanel` | Opens the extension side panel UI | The panel is user-invoked (toolbar click / `Alt+Shift+W`). No model-callable tool opens it silently; it only hosts the chat UI the user already sees. |
+| `activeTab` | Temporary access to the currently active tab when invoked | Scoped to the tab the user invoked the extension on. Reads stay read-only in Ask mode; writes still require Act/Dev plus the capability × origin gate. |
+| `contextMenus` (`menus` on Firefox) | Adds right-click menu entries | Menu entries only surface user-invoked prompts (selection context, page actions). Invoking one still routes through the normal Ask/Act tool gating — it grants no silent capability. |
+| `tabs` / `tabGroups` | Can see tab titles/URLs and group membership | Used for run scoping, tab selection, and conversation recovery. General tab creation, enumeration, activation, and run retargeting are not exposed as model-callable tools. |
+| `scripting` (Chrome only) | Can inject content scripts / execute code in pages | Injection targets the user's own open tabs and runs the same audited content scripts (`accessibility-tree.js`, teacher capture, visual indicator). Arbitrary page JS execution (`execute_js`) is a Dev-only tool and always passes the capability × origin gate. |
+| `storage` / `unlimitedStorage` | Persists settings, traces, workflows, and model files locally | Data stays in `chrome.storage.local` / IndexedDB on the user's machine. Cloud Sync encrypts credentials, autofill, and memory in an AES-GCM envelope before egress; the sync password never leaves the device. |
+| `webNavigation` | Observes navigation events (URL, tab, frame transitions) | Used to scope runs to the current page family, detect navigations mid-run, and invalidate stale element references. It exposes no page content by itself. |
+| `notifications` | Can show OS-level notifications | Used as a completion fallback for restricted or discarded background tabs, including scheduled runs. The message is the current tab title, falling back to its URL, so page-controlled titles and sensitive URL components may appear on OS notification surfaces or in notification history. Run output, page bodies, and trace payloads are not intentionally included. |
+| `tabCapture` (Chrome only) | Can capture tab audio/video | Used only for the explicit slash-driven tab/screen recording flow. Recording starts on a user command and stops on completion; there is no background capture. |
+| `clipboardWrite` / `clipboardRead` | Can write to / read from the clipboard | Writes place agent-produced snippets the user asked for; reads support paste-driven tasks. Clipboard content entering a prompt is treated like other untrusted input and never exfiltrated except as the user's requested result. |
+| `privateNetworkAccess` (Chrome only) | Allows requests to local/private-network LLM endpoints | Required for llama.cpp / Ollama / LM Studio on localhost or LAN. Agent network tools block URLs written with private or loopback IP literals and localhost names by default; `fetch_url`, `read_page_source` and `research_url` also block hostnames that resolve to those addresses (see **Local network blocking**). Cloud-metadata IP literals (169.254.169.254) and listed metadata or `*.internal`/`*.local` hostnames remain blocked even when local access is enabled. |
+| `http://localhost/*`, `http://127.0.0.1/*`, `http://*/*` host permissions | Lets the extension call local-model servers and plain-HTTP endpoints | Localhost entries exist for local LLM servers (llama.cpp, Ollama, LM Studio). Provider inference and discovery requests to a user-configured HTTP endpoint use the provider transport directly and do not pass the agent-tool permission prompt. Model-callable network tools such as `fetch_url` and `research_url` are separately subject to the capability × origin gate; `connect-src *` in the extension CSP does not waive that gate. |
+
+### Authentication
+
+The extension runs **inside the user's authenticated browser session**. There is no separate "AI account" — every site the user is logged into (GitHub, Gmail, banking, internal tools) is accessible to the agent with the user's full permissions, exactly as if they were clicking themselves.
+
+The system prompt explicitly tells the model:
+> "You do NOT need API tokens, OAuth flows, or 'permission to act on the user's behalf'. The browser session already has all that."
+
+This is a feature (it makes the agent useful with zero setup) but also the most important risk: **the agent can do anything the user can do in a browser**.
+
+---
+
+## Credential Handling
+
+### Experimental Local D1 Decisions
+
+D1 is an optional finite-decision provider, not a chat generator or browser
+executor. Explicit consent controls download/load: the checkbox in
+Settings → Models → Decision, or the Chrome install guide's optional **Download local
+models** button, whose note names D1, its size and its source. The control
+handler accepts only the extension's own Settings page (`settings.html`) and, for status, the
+GPU check, download and stop only, its own install guide page; load, unload,
+removal and consent stay in Settings. The guide's download may name
+the chat model to download after D1, and only a shipped, selectable WebGPU
+preset is queued. The guide writes no decision settings. Auto uses D1 only after that consent, while the download is complete
+and its Load request stands, and never in place of a saved choice; with Compass
+as the chat provider, D1 takes only the completion and scheduled checks, and
+Compass's managed route keeps semantic decisions. Chrome uses its shared offscreen
+document and a separate Worker; Firefox attempts its background-page Worker only
+when hardware WebGPU and OPFS are available. Software adapters and inadequate
+buffer limits are rejected, but other capable devices are not declared validated.
+Only immutable, checksummed model/config/tokenizer data is downloaded from Hugging
+Face. Packaged JavaScript/WASM is never loaded from that repository. Inline images
+are accepted; page-selected remote image URLs cannot turn D1 into a fetch proxy.
+
+Page text/pixels stay untrusted and existing redaction/wrapping remains in place.
+Disabling outsourcing or Strict Secret Mode discards the Worker and its GPU
+sessions; cached weights remain until explicitly removed. A caller that stops
+waiting cancels only its own request; the Worker's deadline discards a stalled
+inference session. Neither invents an answer. While the user's Load in
+Settings → Models → Decision stands, a reload after a restart reads only the verified cache and never
+downloads. CPU/WASM control/shape
+fallback is disclosed, not represented as pure GPU. A positive experimental D1
+judgment alone cannot establish completion: independent LLM or existing checks
+still apply, including deterministic recipient/payment/download/authorization
+and workflow requirements. The active LLM's existing data-flow policy still
+applies to any independent fallback verification.
+
+### Encrypted Cloud Sync
+
+Cloud Sync is an optional subscriber feature. Supported provider API-key
+credentials, profile
+autofill, and user memory are encrypted before network egress in an authenticated
+AES-GCM envelope. The service stores opaque ciphertext and hashed, revocable sync
+tokens. Revision-based compare-and-swap prevents silent concurrent overwrite.
+The sync password is never sent or persisted and cannot be recovered by WebBrain.
+Legacy OAuth access and refresh token stores are explicitly outside the sync scope.
+
+### Detection
+
+After every `set_field` / `type_ax` call, `credential-fields.js` checks whether the filled field is a credential input. Triggers:
+
+1. `<input type="password">`
+2. `autocomplete="current-password" | "new-password" | "one-time-code"`
+3. Field name / id / aria-label / placeholder / label text matches `SENSITIVE_NAME_RE`
+
+The regex: `pwd|password|passwd|secret|token|api[-_\s]?key|otp|2fa|mfa|credential|recovery[-_\s]?code|backup[-_\s]?code|access[-_\s]?token|refresh[-_\s]?token|client[-_\s]?secret|private[-_\s]?key|seed[-_\s]?phrase|passphrase|pin[-_\s]?code`
+
+### Sign-in passwords the user never gave
+
+WebBrain types into an existing account's password field only a password the
+user gave, or text the user approved on WebBrain's card (guard
+`credential-not-provided`; `credential-fields.js` `isSignInPasswordField`).
+The field is one with
+`autocomplete="current-password"`, one whose name, id or label names the
+current password, or any other password input that is not left out.
+Left out are fields whose name, id or label names a new or repeated
+password, an API key or a token; fields whose form's submit control says it
+creates an account ("Create account", "Sign up", "Register", "Join"); and
+fields that share their form with another visible password field (a new
+password and its confirmation) when the form shows no sign-in: neither a
+field that names the account nor a button that signs in ("Log in", "Sign
+in" and their translations; not "Next"). A sign-in's second password field
+(a bank's "Password" and "PIN" with "Log in", or an off-screen autofill
+decoy beside an email field) does not make the form a sign-up's: such a
+field is read as a lone one, and a sign-up whose account field nothing else
+marks ("Email", two passwords and "Submit") asks for its "Password" while its
+"Confirm password" stays a new password. A field with
+`autocomplete="new-password"` is a new password too, unless it is its form's
+only password field, its name or label does not say new, and the form signs
+in: its submit control says "Log in" or "Sign in" (or a translation), or
+another of its buttons does while none creates an account. Many sign-in
+forms mark their password that way to stop the browser's autofill, so such a
+field is guarded, and a value typed into it is no password WebBrain set.
+Any other password input is a lone password field. It counts as a
+sign-in's, and the reason the model reads names the sign-in evidence when
+the page shows some:
+
+- a field of its form that names the account: an email or phone (`tel`)
+  input, one with autocomplete `username`, `email` or `tel`, a text or
+  number field whose name, id, label (`<label>`, `aria-label`,
+  `aria-labelledby`), placeholder or title, or the label of the web
+  component it sits in, says user, login, email, account, identifier, phone,
+  mobile, customer, member, client, number or "ID" (and those words in a
+  dozen other languages), or a hidden input named for the account of a
+  password step (`username`, `login`, `login_hint`, `email`, `identifier`,
+  `account_name`; not a generic id such as `user_id` or `flow`);
+- a button of its form that signs in, re-authenticates or goes on to the
+  next step ("Sign in", "Log in", "Login", "Next", "Continue", "Enter",
+  "Verify", "Unlock", "Authenticate", "Confirm", and those words in German,
+  French, Spanish, Portuguese, Italian, Dutch, the Nordic languages, Finnish,
+  Czech, Slovak, Hungarian, Romanian, Greek, Hebrew, Arabic, Persian,
+  Turkish, Russian, Polish, Vietnamese, Indonesian, Thai, Hindi, Japanese,
+  Chinese and Korean): the first submit control or any other visible button,
+  a `type=button` or `role=button` control, or a button component whose
+  label is slotted in, named by its text, `aria-label`, `aria-labelledby` or
+  title;
+- a name or label that says sign-in, login or account ("Account password").
+
+Without such evidence, one kind of lone password field is left out: a field
+whose name, id or label names a network's key (Wi-Fi, WLAN, wireless, WPA,
+WEP, SSID, hotspot, network key, network security key), so "generate a
+strong Wi-Fi password" on a router page is typed. Only wireless words count:
+"Network password" is how many companies name the directory (AD or SSO)
+account's password, so a lock page's lone "Network password" with "OK" asks,
+and SSID, WEP and WPA must not continue a longer word ("sessid", "passid"),
+though a separator may join them (`ssid_pass`, `router_wpa_key`). Every
+other lone password field counts as a sign-in's
+even with no evidence, because a sign-in can show none that WebBrain reads:
+a re-authentication with only a password and "Confirm" or "OK", a "NetID"
+and "Password" form with "Submit" (WebBrain does not know every name for an
+account), a PIN step whose account is a generic hidden id. Typing a guessed
+password there unasked can lock the account, while asking costs the user one
+click on WebBrain's card when the field turns out to be no sign-in's. So
+"fill out this form with random info" on a form's lone "Password" with
+"Submit" asks once before the random value is typed.
+
+A field's form is its form owner; for a field in a web component's shadow
+root, which has no form owner, the `<form>` around the component across
+shadow boundaries; outside a `<form>`, the form-less part of its document,
+across open shadow roots (fields and buttons inside some other form do not
+count). A form without a visible button of its own (one a dialog footer
+submits) also reads the form-less buttons of its document. Outside a form,
+the visible password fields counted are every form-less one of the document,
+so a form-less sign-in shown beside a form-less sign-up counts three, and
+there is no submit control: a button that creates the account, with none
+that signs in, makes it a sign-up's. So beside a "Log in" button the
+sign-in's field is guarded, and so is the sign-up's own "Password" unless
+its name, label or autocomplete marks it as new (its confirmation stays a
+new password).
+
+A username and password form with a "Submit" button, or a password step with
+"Next", is guarded: a random value there is a guessed credential, and the
+user can give a literal one. Only a value typed into a field read as a new
+password counts later as a password WebBrain set (a network's key and a
+sign-in's PIN do not), and only on the site of that field.
+`content.js` `_fieldMeta` and, in Chrome, the CDP selector probe
+(`cdp-client.js` `probeRichTextToolbarSelector`) report these facts
+(`passwordFields`, `usernameFields`, `formSubmitText`, `buttonTexts`, the
+nearest eight button texts, and `formless` for a field in no form) by
+calling the same function, `rich-text-toolbar-heuristic.js`
+`passwordFieldFacts`, which both routes already load; field metadata without
+`usernameFields` comes from a route that did not read the form, and its lone
+password field counts as a sign-in's, a network's key included. The
+new-account, new-password, network-key and label rules are English. The rule
+errs towards guarding: a sign-up form with one password field, no
+`autocomplete="new-password"`, and a label and submit control that do not say
+it creates an account (for example "Email", "Password" and "Next" or
+"Submit"), the same with a "Confirm password" field (its "Password" asks), a
+Wi-Fi key in a setup wizard labelled only "Password", a settings form
+that sets a password ("Room password" with "Save"), or a sign-up's only
+password field marked `new-password` whose form also holds a "Log in"
+button and no control that says it creates the account ("Continue" beside
+"Log in") is treated as a sign-in's: a password the model makes up there
+asks on the card.
+
+The site the card names, and the site an answer is kept for, is the field's
+own: the tab's for the top frame, a subframe's own site for a field in a
+frame, so a sign-in iframe from another origin (a bank's or an identity
+provider's inside a shop's page) is named by its host, and an answer given
+for the page does not cover it. A frame at `about:blank` or `about:srcdoc`
+has the site of the frame above it. The top frame's site comes from the
+tab's address by the same rule, so a top page at `about:blank` (a popup
+another page wrote into), `data:` or an address the tab does not report has
+none; a `blob:` page has its creator's site. When the preflight named no
+frame, the guard asks each frame for the field on its own (a write with no
+frame goes to every frame that has WebBrain's content script, and a probe
+sent to all of them took the first answer, often a frame's that does not
+hold the field), and the frame that holds it gives the site; the document
+that answered must be of that frame's site. A selector or focused field that
+is a sign-in password field in more than one frame has no one site. A field
+whose site cannot be read (one of those, a `data:` frame, a frame that is
+gone) is refused without a card, and the model is told to ask the user. The
+typing-target preflight's own probe of a ref, selector or index asks only
+the top frame, whose answer it is bound to.
+
+A password counts as given when it appears whole in the user's own messages
+in this conversation (without the page context WebBrain adds), a text file
+they attached, a clarify answer they typed or chose, the WebBrain profile
+when it is enabled, a note the user wrote in WebBrain's local memory when
+memory is enabled, a MemCode recall result, or, on the same site, a
+new-password field WebBrain filled earlier in the conversation (signing in to
+an account it created). The agent keeps the passwords it set this way in
+memory for the tab, each with the site of its field's frame, read before
+the write went out (a submit may navigate elsewhere): the frame the
+typing-target preflight resolved, or else the frame the guard's own probe
+of each frame found holding the field. The preflight probes only the top
+frame, so a password set in a sign-up frame from another site counts on
+that site, not the page's. A write whose field neither knows (no frame
+answered, or the guard did not probe because the user gave the text or the
+write is not a model's) keeps none. They are kept whether typed alone or in a
+`browser_batch`, so compacting the context does not drop them; a
+conversation restored after the extension restarted reads them from its
+history, folded `browser_batch` answers included, where the fill's result
+names the site (`newPasswordSite`). A password set on one site is not a
+source for a sign-in on another, and one whose site could not be read (or
+saved before the site was recorded) counts nowhere.
+
+WebBrain's local memory refuses text that says "password", "token" and the
+like, but keeps a note such as "QA portal login: qa-tester / value". Only
+active notes the user wrote count (`user-memory.js`
+`userAuthoredMemoryRecords`): `source` `manual` with confidence 1, saved with
+`/memory --add`, edited in Settings, or brought in with that source by a
+memory or config import or Profile Sync. Notes auto-capture saved (`source`
+`auto`, from a chat turn, clarification answers or a completed form alike)
+do not: an extraction model wrote them from the turn, whose final assistant
+reply and clarify questions can quote the page, and the note does not say
+which part it came from. An auto-capture rewrite of a note the user wrote
+makes it `auto`; the user's edit in Settings that changes the text makes it
+`manual` with confidence 1 again. Auto-capture saving the same words as a
+note the user wrote (up to case and punctuation) leaves that note, its text,
+source and confidence as they were, and the user's own save of the same
+words takes the note over with their text. Before this rule, an auto-capture
+rewrite of a user's note kept `source` `manual` with the extraction model's
+text and confidence; such notes in an existing store are not counted, since
+that confidence is below 1, unless the model reported exactly 1.0 (which
+nothing in the record tells apart), until the user edits them in Settings.
+Like the profile, local memory is not a source in a Cloud bot-memory session,
+whose prompt carries neither.
+
+A value that is a credential word or a stock login ("password", "pass",
+"username", "admin", "root", "test", "demo", ...) counts only where a message
+sets it as a value: quoted, after ":", "=" or "is", after a word such as
+"password", in a pair such as "admin/admin", or as a whole reply. "I don't
+know the password" or "log in to the admin panel" does not give it. Page text
+is not a source: a page could otherwise sign the run in to an account of its
+choosing.
+
+The check runs before anything is typed, on calls the model makes through the
+tool batch (a saved workflow's replay of the user's own steps is not
+checked), against the field the typing-target preflight resolved; when
+nothing tells it the target is a password field, the text is typed as before.
+Where the dispatch would type into another field than that one (by default,
+Chrome's focused `type_text` whose bound field lost focus types into the
+field focused now, and a `type_text` selector the preflight did not pin
+types into the selector's current match), that field is checked the same way
+before anything is typed: a two-step sign-in that focuses its password field
+after the username step's Next took the guess there with no card.
+Without a target from the preflight, a `type_text` with no selector is
+checked against the field it types into, which in Firefox is the field the
+last click focused when focus has since gone to the page or to that field's
+own component (a virtual keypad
+that blurs its clicked password field took a guess with no card).
+It holds in lean mode and with or without Strict checks.
+
+Text from none of those sources is not refused outright: the places WebBrain
+reads are not all the places a user can give a password (a test form's
+documented login, a password kept where WebBrain does not look), and a wrong
+refusal left the run stuck. The batch pauses the call and asks on
+WebBrain's own hard card, which waits outside the action's deadline: "Type
+this into a sign-in password field on {host}?", {host} being the field's own
+site (above), with the reason (not a
+password the user gave in this conversation, their profile or their saved
+notes) and the text masked, its first character and a dot for each other
+character (only dots under four characters); the submit card likewise shows
+a password field as `[password redacted]` rather than its value. With strict secret
+handling the card shows none of it. The answers are "Type it" and "Don't type
+it".
+
+- **Type it** runs the call again through the same typing-target preflight
+  and types only into the field and on the site the card named: the
+  re-resolved target must still be a sign-in password field with the same
+  tag, name, id, autocomplete and labels in the same frame, or nothing is
+  typed (`credential_field_changed`). The text then counts as given on that
+  site for the rest of the run (a digest of it is kept in memory, never the
+  text), so the same text does not ask again there; other text, another site
+  or a new run asks again. The tool result notes that the user approved it.
+- **Don't type it**, a timeout answer posted for the card, an unattended
+  scheduled run (which cannot show a card) and a caller without a card all
+  refuse with the refusal the model reads: ask for the credentials or end
+  the run as partial, naming them, and ask for the password to set if the
+  form in fact creates an account. The same text on that site is refused
+  without another card for the rest of the run.
+- The card never times out. Cloud runs and the MCP server relay it as
+  `needs_user_input` (`unverifiedStepConfirmation`, answers `once` / `deny`,
+  the masked text in the structured prompt) for the caller to answer or
+  cancel; Stop and corrections cancel it.
+
+New-password fields, one-time codes, API keys and network keys are not
+checked, since a run may create an account's password, read a code from the
+user's mailbox, copy a key a page issued, or generate a Wi-Fi password the
+user asked for. A field a password manager
+filled is not affected: the check stops typing, not the click that submits
+the form.
+
+When the user answers a clarify question with consequence "credentials", a
+reply that withholds them or declines ("I don't have them", "No", "Do not
+sign in"; English) gets a result note that says not to guess and to end
+partial. Any other reply, including an approval such as "Sign in" for a saved
+password or a mailbox code, gets a note to continue with what it gives or
+approves, without guessing.
+
+### Strict Secret Mode
+
+When enabled (Settings → Permissions & privacy → "Strict secret handling"), the agent:
+
+- **Is instructed never to quote credentials** in summaries, assistant text, or tool-call arguments — even when the user explicitly asks
+- The `done` tool description is swapped for `DONE_TOOL_STRICT`, which adds a hard prohibition
+- After filling a sensitive field, `CREDENTIAL_NOTE_STRICT` is injected into the tool result
+- The planner is told (`PLANNER_STRICT_SECRET_RULE`) not to copy a credential from the task into the plan's summary, steps, deliverables, notes or risks; the agent that carries out the plan types the value from the user's message
+
+Those four are prompt-level, so they hold only as far as the model complies.
+In every run, a value the agent filled into a field detected as sensitive
+(`set_field` or `type_ax`, and `type_text` or `iframe_type` when the page
+reports the field it typed into) is held in memory for the conversation and
+struck by exact match (also URL-encoded) from what the model writes to its
+scratchpad and progress ledger, which are pinned into later requests and saved
+with the conversation. The planner's approved plan, which is pinned there too,
+loses it as well: a plan pinned once the value is known is pinned without it,
+and a plan pinned earlier (a password the request gave, written into a step
+before it was typed) is struck when the value becomes known, together with the
+run's own copies of the plan (the execution guard's text and its recovery
+anchor). The plan stays the app's: its `[Approved plan — …]` marker line is
+never struck. Short values are everywhere in ordinary text, so a value
+of digits only shorter than six digits (a 4-digit PIN) is never struck, and any
+other value under eight characters, or a longer one of digits only (a one-time
+code), is struck only as a whole token, not inside a longer word or number.
+The values are never stored on their own: a conversation restored after the
+browser stopped the extension's worker rebuilds them from its own fill calls
+and their results (also when the run loop appended a note to a result). A value
+that becomes known after the model already wrote it down (a password it
+generated, then typed) is also struck from the model's own text in the existing
+scratchpad and from its ledger rows' labels, reasons and fields; the app's
+`[auto]` scratchpad lines and a row's `target`, `url` and `href`, which the
+runtime may have written, are left as they are. A restored conversation gets
+this scrub before the model's next note, once its run has said whether it may
+keep credentials. Overlapping values are struck as one stretch. A ledger value
+under a field name that says it holds a credential is replaced too: names
+ending in a credential word (`password`, `password_confirmation`, `passcode`,
+`otp`, `cvv`, `client_secret`), or in `token`, `code`, `key` or `pin` after a
+word that makes it one (`access_token`, `sms_code`, `api_key`, `card_pin`, or
+`pin` alone), but not `token_count`, `next_page_token`, `zip_code`, `pincode`,
+`map_pin` or `secretary`. Row ids stay as written, since they are the rows'
+identity. A Cloud run whose final answer is delivered privately keeps its
+notes.
+Cloud runs add a redaction layer underneath that does not:
+
+- Tool results are cut down to success and HTTP status, tool arguments to the few scalar fields a caller needs to score the run, and streamed or final model prose is replaced outright
+- Any value the run **types into a page, sends in a request body, or reads from a field with a credential-shaped name** is remembered and struck by exact match from everything published afterwards — clarification questions, warnings, the final answer, the structured result
+- The trace and persistence copies of a structured result go further and replace every string and number, since no caller contract depends on them
+- Terminal answers retain ordinary visited URLs (article links the run touched), with only credential-shaped URL components struck. Trace update rows still withhold page URLs and arbitrary tool payloads.
+
+**Where it stops.** A secret the model only ever *reads* out of ordinary page
+text — a one-time code in the body of an inbox message, say — is never seen in a
+form the redactor can recognize. If the model then repeats it in a clarification
+or a final answer, only the prompt-level rules above stand in the way. The
+same holds for the scratchpad, the approved plan and the progress ledger: a
+secret the user only typed into chat, or that was never filled into a detected
+field (Chrome's selector form of `type_text` reports no field details), is not
+known to the redactor (so a plan review card shown before the value is typed,
+and the requests sent before then, depend on the planner's instruction), a
+ledger row id is kept even when it holds one, and the model's original
+tool-call arguments stay in the conversation until they are summarized away.
+Strict mode raises the cost of a leak
+considerably; it is not a guarantee that survives a model that ignores its
+instructions.
+
+When disabled (the default — this is a personal-computer tool, not a third-party deployment):
+
+- The model gets soft hygiene guidance ("prefer generic phrasing unless the user asks for the value")
+- The user can ask to see credentials and the model will show them
+- The `done` tool description still encourages tidy summaries
+
+### Profile Auto-Fill
+
+Users can store a short profile (name, email, throwaway password) in Settings → Memory. This text is appended to the system prompt when enabled. Warnings in the UI:
+
+- Stored in plaintext in `chrome.storage.local`
+- Sent to the LLM provider on every turn as part of the system prompt
+- Do not put passwords for important accounts here
+
+---
+
+### Cloud Bridge Browser Approval
+
+The Cloud Bridge lets a controller send `cloud_*` run commands to the browser. By default (no token) it behaves as before. When a Cloud Bridge token is configured the bridge adds an opt-in approval step:
+
+- Each socket sends a `hello` with a fresh nonce and browser/extension/platform info, then is *pending*. The backend must first prove it holds the token (an HMAC over both sides' nonces); only then does the extension send its own proof with `browserId` and `installationId`. The token is never sent, so a program that takes the loopback port first learns nothing reusable, and `connection_approved` is ignored until the backend has proved itself. The backend must answer `connection_approved` before any command runs. Earlier commands get `connection_not_approved` (403) and never reach the background.
+- The old hello that carried the token is kept only behind the deprecated `webbrainCloudBridgeLegacyBearerAuth` flag, for backends that have not implemented the challenge yet.
+- Approval is **per socket**: a reconnect, URL change or identity change starts pending again. `connection_rejected` closes the socket and stops auto-reconnect, and cancels any pending reconnect timer.
+- The token is a Cloud Bridge credential, distinct from provider API keys. It is stored in `chrome.storage.local` and is never included in the bridge `status`.
+- Without a token nothing is authenticated: whichever program listens on the configured port first can send `cloud_*` commands. The local MCP server, the LM Studio plugin and WebBrain Cloud use this mode today, and it only runs once the bridge is turned on.
+- The URL stays restricted to `ws://` on localhost, and the allowed actions stay limited to the `cloud_*` run operations rather than general browser APIs. The bridge sends connection metadata (such as the configured URL) and run data (`tabId`, `finalUrl`, `content` and `result`), which may contain sensitive page data.
+
+**Where it stops.** The permission prompts raised during a cloud run (navigate, click, …) are answered by the backend through `cloud_respond`, including "always". An approved backend is therefore effectively an operator of that browser. Approval is per socket and is not persisted. The backend can revoke it with `connection_rejected`, which closes the socket and stops auto-reconnect. Disabling the bridge or changing its URL or identity also closes the active socket; a replacement needs fresh approval if a token remains configured. Details: [cloud-bridge-browser-approval.md](cloud-bridge-browser-approval.md).
+
+### Local Bridge Pairing
+
+The MCP server and the LM Studio plugin listen on loopback, where any local process can connect and send the extension's `hello`. They therefore pair with the extension through a shared key: each new socket gets a random nonce and is trusted only after returning an HMAC-SHA256 of it keyed with the pairing key. The key is generated on the user's machine (`~/.webbrain/bridge-key`, owner-only), pasted once under **Settings → Bridge → Pairing key**, stored in `chrome.storage.local`, never sent over the socket, and never included in the bridge `status`. An unpaired socket receives no commands and cannot replace the paired extension; a wrong proof closes it with code `4001`, after which the extension stops reconnecting until the settings change. This protects the bridges from impostor clients; it does not authenticate the bridge to the extension.
+
+---
+
+## Prompt Injection Defenses
+
+The primary threat: a malicious page crafts content that, when read by the agent and fed to the LLM, causes the model to execute unintended actions.
+
+### Defense Layers
+
+| Layer | Mechanism |
+|---|---|
+| **Untrusted-content wrapping** | Page-derived tool results are wrapped in `<untrusted_page_content>` markers (`_wrapUntrusted` + `UNTRUSTED_CONTENT_TOOLS`) so the model treats them as data, not instructions. See [prompt-injection-defense.md](prompt-injection-defense.md). |
+| **Capability × origin gate** | Before a consequential tool runs (click/type/navigate/execute_js/network/download/…), the agent requires a `(capability, host)` grant — Allow once / Always / Deny. Language-agnostic, deterministic, human-in-the-loop (`permission-gate.js`). The card's **Dangerously skip permissions** button turns the whole gate off, after a dialog asks for how long: **This session only** (`skipPermissionPromptsThisSession` in `storage.session`, cleared when the browser restarts) or **Forever** (`askBeforeConsequentialActions: false`, as `/dangerously-skip-permissions`). It is not offered on an upload card, and it does not waive WebMCP's mandatory gates. |
+| **Upload file binding** | `upload_file` puts a local file into a page's file input, and the page can read it as soon as it lands, so the approval names the exact file and host instead of the host alone. The card shows the file name, its saved path and, for a download, the web address it came from, with Allow once / Don't allow and no Always; a host-wide "always" upload grant no longer approves a file, while a standing deny still refuses. A file the user attached to the run, or one the run's own download tools saved, follows the normal gate: the approval covers that file on that host until the next turn, and with prompts off it attaches without a card. Any other local file (an older download, or a Chrome `filePath` that is not a download of this run) gets its own card on every call, even with prompts off or after `/dangerously-skip-permissions`, and a scheduled run that does not ask for confirmation refuses it. The handler attaches nothing if the file it resolves is not the one approved. Both builds (Firefox has no `filePath`). |
+| **PDF read target** | `read_pdf` with an explicit `url` asks for network permission on the site of the document it will fetch. When that url is WebBrain's own PDF viewer page, the card names the site of the PDF the viewer shows, not the extension id in the viewer's address. A `file:` url names no site: while prompts are on it is refused instead of being charged to the current page's grant, and the PDF open in the tab can still be read by calling `read_pdf` without a url. Both builds. |
+| **Tool result cap** | Individual tool results truncated at 8,000 chars (`_limitToolResult`). Injected text beyond that is silently dropped. |
+| **Ask/Act/Dev mode** | Ask mode exposes only semantic read-only tools. Clicks/types/navigation need an action mode, which only the user's own request grants (see **Automatic mode selection**). Act exposes the selected provider tier's normal tools. Dev requires Mid/Full tier and adds source/style/page-inspection tools for developer debugging. |
+| **Automatic mode selection** | Always on; the side panel has no mode toggle. The user's own request takes the place of the toggle as the action authorization: a turn enters Act or Dev only on a sure decision-model answer to `run_mode` about the user's words and run state, or on a `request_action_mode` call from a read-only Ask turn that quotes the user's latest message word for word (enclosing quotation marks, a trailing full stop, letter case and curly quotes aside) (for Retry or Continue of a read-only run, the continued task's own words; WebBrain's continuation text never counts) and that the page-free `run_mode` question, asked again, confirms. Page text, titles and addresses never reach the route, and an unsure, slow or failed route starts read-only. A selected-text scope, the standalone window, Cloud runs, context-menu prompts and messages that carry page text always stay in Ask. The action run's planner gate, permission gates and confirmation cards apply as in a mode the user chose, except that in Try planning a turn that the same decision request is sure is a short, direct task (`plan_need`) runs the gate's compact intent check instead of the full planner. |
+| **Tiered tool exposure** | Provider tiers (`compact | mid | full`) limit the normal browser-agent surface for smaller models. Compact gets the smallest action surface; Mid adds common task tools; Full adds advanced UI/DOM fallbacks. Compact Dev is blocked. |
+| **Plan before Act** | When enabled, action-mode runs first produce a structured plan and wait for side-panel approval before any browser tool executes. In Try mode, a planner that still fails after its retry (invalid JSON, an inconsistent intent, or a failed request) lets that turn continue without a plan, under the normal safeguards and with a warning; its mutation intent stays unknown, so a read cannot count as proof that a change was made. Strict stops. Also in Try, a turn that automatic mode routed with a sure `plan_need: direct` answer runs only the compact intent check and shows no plan card: `direct` is an authorizing choice (0.85 threshold) for a short, single-purpose job, and risky work (payments, purchases, bookings, deletion, bulk changes, credentials, messages to several people) answers `plan`. A `direct` answer about a request cut to fit the decision model is not used. Strict, and plan review set to Always, plan every turn. Scheduled runs can auto-approve the plan only through scheduler policy. |
+| **Skill import boundary** | Skills can expose read-only HTTP tools and download-job tools through a `webbrain-tools` manifest. Importing or keeping the skill enabled is the trust decision for the declared HTTPS endpoint; declared skill tools use `credentials: "omit"` and should mark third-party results `resultPolicy: "untrusted"`. Download-job skill tools still require an action mode and the normal Downloads permission gate before saving files. |
+| **WebMCP boundary** | Experimental WebMCP is on by default, so its tools and prompt guidance enter ordinary model requests unless the user opts out under Settings → Bridge. Chrome page-registered names, descriptions, schemas, frame URLs, annotations, outputs, and errors are page-controlled and always use the untrusted-content wrapper. Calls use opaque IDs. Ask may list tools but cannot invoke them. Because a callback can run arbitrary page logic, every invocation requires Act/Dev, fresh per-call confirmation, and a permission grant for the actual registration-frame origin; a page-authored `readOnly` hint never bypasses those gates. Missing/opaque frame identity fails closed, and the frame plus effective HTTP(S) security origin are revalidated immediately before dispatch to prevent navigation races from borrowing an old grant. |
+| **API mutation override** | A per-conversation `/allow-api` flag *waives* the permission prompt for write-method network egress (`fetch_url`/`research_url` with POST/PUT/PATCH/DELETE) in Act and Dev. The default-on persistent setting under Settings → Advanced allows those requests without `/allow-api`; on a new install each host still gets the network permission prompt, while installs from before that change keep the waiver (see [`/allow-api` Flag](#allow-api-flag)). Ask stays read-only: an Ask run, including a turn that automatic mode starts in Ask, refuses a write-method request whatever these say. Neither option waives GET egress or any other capability. Conversation reset clears only the slash-command override. |
+| **Decision models** | Auto (default) uses a downloaded D1 for completion and scheduled checks, whatever the chat provider; while Compass is the chat provider, Compass's managed route answers semantic decisions, and completion checks until D1 is downloaded. Off uses none. In On, OpenRouter, direct TypeSafe and local/custom System One endpoints share independent per-feature switches. Keys are optional for local servers. Compass completion uses its managed decision route unless D1 is downloaded (Auto) or chosen, or the in-browser chat model is chosen. Bounded/redacted task and fresh page evidence are untrusted data. Judges have no browser executor; ordinary tool calls still pass policy, permission and completion layers. Strict Secret Mode, cancellation, quota and cost limits apply. Unavailable or malformed judgments fall through to the active LLM and existing checks. |
+| **`done()` verification** | Decision and tool-free LLM checks prefer vision, then AX. Confident pending/failed outcomes require read-only recovery before another submission. Accepted task-bound proof can satisfy generic evidence despite an unrelated comment form, while explicit recipient, payment, download, authorization and workflow contracts remain required. Existing dialog/form checks are the final fallback. |
+| **Grouped search approval** | A same-site GET form with no credential, payment or hidden token field, and no side-effect action address, shares one task-scoped approval for its navigation, typing and submit when the page's structure marks it as a search: a search landmark, a search-typed field or one whose keyboard says search, code names such as `q` or `query`, a search address, or a submit control a model read, in any language, as only searching or filtering. Words in a field's visible label decide nothing. Every other form keeps its fresh confirmation. |
+| **Duplicate-submit guard** | A second text click on the same caption within 45 seconds on the same tab and URL is blocked when a model read the caption, in any language, as committing something (sending, saving, paying, publishing, creating, confirming and so on). A caption read as anything else, or that could not be read, stays repeatable; app-observed popups, links, fields and draft tools are always repeatable. Both builds. |
+| **Placeholder-value guard** | A form submission whose edited field still holds that field's own placeholder text, the page's example such as `you@example.com` in an email box, is not sent and gets no card unless the user gave that value as a whole answer on one of the current task's cards. The words of a request do not count, whether they give the value or refuse it ("do not use you@example.com"): a text match cannot tell which, in any language, so the model asks and the answer decides. An earlier, unrelated turn's answers do not count either. A field counts as edited when the submit probe sees it differ from its default or WebBrain's own write put the value into that same field in this task, with tracing on or off. The field is matched by its ref, which names one element in one document: the write's own ref, or for a write by selector or focus, the ref its target check resolved. An append whose result does not report the field's whole value counts for whatever the field then holds. A name or id is not enough, since another form, page or frame can reuse it. The receipts are kept in memory and rebuilt from the task's own fill calls and results, so a worker restart does not lose them. In Chrome, a submit control the page probe cannot reach (a closed shadow root) has its form's fields read through the debugger. This holds with confirmations off and in scheduled runs too. The probe checks every field of the form, not only the eight its summary shows, and never reports a password. Without a form, a field `set_field({submit:true})` types into and commits with Enter is checked on its own. The model is told to ask the user for the value. A script (`execute_js`) is not covered: what it fills is not known before it runs. A placeholder without a letter or shorter than three characters (a `1` in a quantity box) does not count, and grouped searches keep their approval. Both builds. |
+| **CLICK occlusion test** | Before clicking, the resolver calls `elementFromPoint()`. If another element is visually on top, the click is refused. |
+| **Modal-scoped click** | When a dialog is open, text clicks are scoped to that subtree so the agent doesn't click a dimmed background element. |
+| **Universal preamble** | Every system prompt includes guidance on cookie banners and paywalls — two common injection vectors that look like benign page content. |
+| **Loop detection** | Three independent detectors stop the agent if it's repeating the same action or oscillating. Repeated click loops may include an exact same-tab XHR/fetch URL+method hint so the agent can switch to `fetch_url` instead of clicking forever. Limits damage from a persistently injected prompt. |
+| **Finance adapters** | Adapters with `category: 'finance'` inject extra confirmation guidance and a warning banner. |
+| **Strict secret handling** | Instructs the model and the planner not to quote credentials, strikes credentials it filled into sensitive fields from its scratchpad, approved plan and progress ledger, and in cloud runs strikes every credential it typed, sent, or read from a labelled field out of what gets published. A secret it only saw in page prose still depends on the instruction. |
+| **Local network blocking** | Local-network access is off by default. When access is off, URLs written with private or loopback IP literals and localhost names are blocked. `fetch_url`, `read_page_source` and `research_url` also check the address a hostname resolved to: the browser reports the server address of each response (for `research_url`, every top-level redirect hop of its hidden tab), and a response from a blocked address is discarded before the model sees it. Firefox also resolves the hostname before sending and refuses it when any answer is blocked. Resolved addresses use the same tiers as literals. Cloud-metadata IP literals (169.254.169.254) and listed metadata or `*.internal`/`*.local` hostnames stay blocked even when local-network access is enabled, as do names that resolve to link-local, CGNAT, multicast or unspecified addresses. See **Resolved-address limits** below. |
+
+### Resolved-address limits
+
+Extensions cannot choose or pin the address a request connects to, so the
+resolved-address check has these limits:
+
+- Chrome has no DNS API for extensions. The request, including its method,
+  headers and body, has already reached the address when its response is
+  discarded, so a write-method request can still change state on a local
+  service. Firefox refuses before sending when its lookup returns a blocked
+  address, but the connection may still use a different answer (DNS
+  rebinding); the response check then applies as in Chrome.
+- With a proxy, Chrome reports the proxy's address. If the proxy is on a
+  loopback or private address, these tools are blocked until local-network
+  access is enabled. Firefox reports the proxy and skips the response check
+  for proxied requests, leaving only its lookup before sending. That lookup
+  uses Firefox's own resolver even when a SOCKS proxy is set to resolve names
+  remotely.
+- If the browser reports no address within 1.5 seconds of the response (for
+  example because the user withdrew the extension's site access for that
+  host), the response is kept.
+- `research_url` checks only its hidden tab's top-level document. Frames and
+  subresources that page loads follow the browser's own private-network
+  rules; the tool does not return their content.
+- Other model-callable requests, such as skill HTTP tools and the download
+  tools, still check only the URL text.
+
+### What is NOT defended
+
+- **The LLM provider itself**: if the provider is compromised or malicious, it sees all conversation content including credentials the user types.
+- **Extension-unique fingerprinting**: websites could detect the content script (pulsing border, `window.__wbElementMap`, custom event handlers).
+- **Timing-channel attacks**: the agent's tool-call latency could be observable from page JS.
+
+---
+
+## Unanswered Questions
+
+When the agent asks a `clarify` question and nobody answers before the clarify
+timeout (Settings → Budgets, default 60 s), the setting **When a question times
+out** decides the answer:
+
+- **Finish the task** (default) keeps the run moving. The option the model named
+  as `finish_option` applies as the user's answer; without one, the model
+  continues with the choice that best completes the task and reports it in its
+  summary. Runs no longer stall because the user stepped away.
+- **Play it safe** selects `options[0]` as a safe default. It authorizes nothing
+  consequential unless the model marked that option `safe_first`; otherwise
+  consequential actions and a success completion stay blocked until the user
+  answers directly.
+
+The model classifies every question with `consequence`. A question whose
+answer would approve a deletion, a payment, credentials, the recipient of a
+message, or a publication the user did not ask for (any `consequence` other
+than `none`, or a recipient `purpose`) always times out to its safe first
+option, whatever the setting, and that answer authorizes nothing, even when
+the model marked it `safe_first`: consequential actions and a success
+completion stay blocked until the user answers directly. So does a question
+the model did not classify: only `consequence: "none"` lets a timeout finish
+the task. Instant (a timeout
+of 0) answers by the same rules. A timed-out answer is never recorded as the
+user's own words in the task authority or the publication contract. WebBrain's
+own confirmation cards (site permissions, form submits, recipients, deletions)
+are separate prompts: they never time out.
+
+The logic lives in `src/*/src/agent/clarify-timeout.js`.
+
+## Guards
+
+WebBrain's own checks on model actions are registered in
+`src/*/src/agent/guard-policy.js`. Only five classes may refuse an action
+outright: the wrong recipient, deleting data, money, credentials, and
+publishing or sending something the user did not ask for. Verification,
+readback, evidence and completion checks leave a note for the model instead,
+and a completion accepted over them tells the user what was not verified.
+Permission gates, host and frame boundaries, CAPTCHA and access walls, and
+loop budgets are not guards and keep their behavior. Settings → Advanced →
+**Strict checks** makes every verification check block again.
+`docs/guards.md` lists what still refuses and the rule for adding a guard.
+
+## `/allow-api` Flag
+
+Set per-conversation via the `/allow-api` slash command in the side panel, or
+persistently with **Always allow API mutations** under **Settings →
+Advanced**. The persistent setting is on by default when absent. Read failures
+and non-boolean stored values grant no authorization. When either option is
+active, the model may make **write-method network requests**:
+
+- `fetch_url` / `research_url` with `method: POST/PUT/PATCH/DELETE`
+
+`/allow-api` (and a Cloud run's own API grant) also waives the permission prompt
+for them. The persistent setting is on by default, so leaving it on is not a
+decision to skip that prompt: a new install stores `apiMutationSitePrompt: true`
+in `storage.local`, and there a write request to a host without a network grant
+shows the normal permission card (Allow once / Always / Deny). Installs from
+before that marker are not migrated and keep the earlier behavior, where the
+setting also waives the prompt. A storage read failure or a malformed marker
+keeps the prompt (`Agent.isApiMutationPromptWaived`).
+
+Neither option waives GET egress, `execute_js`, or any other capability — those
+still go through the capability × origin gate. (`isNetworkMutation` in
+`permission-gate.js` is what `/allow-api` keys off; `execute_js` is its own
+`Capability.EXECUTE_JS` and is always gated.)
+
+The system prompt adds a preamble telling the model to:
+- State the URL, method, and payload in plain text before any destructive API call
+- For the nine supported [CMS content recipes](cms-api-first.md), prefer the
+  official API after capability/auth discovery when task scope, CMS rights and
+  WebBrain mutation permission allow it. Ask remains read-only.
+- For other tasks, default to UI-first; only reach for the API when UI has actually failed
+
+Loop-detection API shortcut hints do not bypass this policy. They can expose
+the exact method and URL the page was already calling, including POST/PATCH/etc.,
+but write-method `fetch_url` / `research_url` calls still require either the
+conversation's `/allow-api` state or the persistent setting (with its per-host
+prompt on new installs). GET requests and
+non-network capabilities still go through the normal capability × origin gate.
+
+Conversation reset clears the slash-command override. It does not change the
+persistent setting, which remains active until the user turns it off.
+
+---
+
+## Trace Data Isolation
+
+The separately configurable **Local feedback diagnostics** setting is enabled
+by default. When ordinary recording is disabled, it keeps only metadata locally,
+bounded to ten completed runs, seven days, 2 MiB total, and 128 KiB per run.
+It cannot enable lossless recording. Disabling it clears automatic records and
+leaves explicit recordings intact.
+
+Feedback prepares a snapshot of the conversation selected when the rating prompt
+opened. A recording cutoff captured before the asynchronous lookup excludes
+later runs, events, screenshots, and completion details, even in the same
+conversation. Untimestamped records are excluded from feedback snapshots;
+mutable byte counters, omission flags, and repair metadata are excluded with
+an explanatory note. Ordinary full-session exports remain unbounded. A dedicated
+dialog must authorize the actual attachment before it leaves the browser: GitHub uploads
+files immediately, even before issue submission.
+Viewing a trace and continuing without it never authorize an upload. The handoff
+is restricted to the chat panel, an exact GitHub repository and destination tab,
+the top frame, an expiring random token, and immutable staged bytes. Transfers
+are chunked; reloads do not automatically repeat an uncertain upload. The user
+reviews and submits the GitHub issue separately. Legacy and lossless feedback
+exports mask credential-shaped data, but this does not anonymize screenshots or
+arbitrary conversation/page content.
+
+The trace recorder (`trace/recorder.js`) writes to IndexedDB on the user's
+machine for bounded automatic feedback diagnostics, when explicitly enabled
+(Settings → Advanced → "Record traces"), or when a local/bring-your-own provider's
+separate **Share queries for research** switch is enabled for that run. The latter
+forces a local record so a bounded,
+content-free diagnostic timeline can be uploaded under that explicit consent.
+The default tier is metadata-only: run records omit user and final assistant
+text; event records keep allowlisted counts, timings, usage, status/error codes,
+tool names/outcome status, and screenshot markers while omitting raw model
+messages, tool schemas, tool arguments/results, and detailed error text. Default
+run records also omit full tab URLs/titles and attachment filenames, and default
+traces do not write screenshot blobs or data URLs to the `shots` store.
+
+The lossless debug tier is off by default and is an opt-in: Record traces
+records it, and an update turns it on once for an install that recorded traces
+without it. A lossless run may retain bounded user/final text, request and response
+payloads, tool schemas/calls/arguments/results, error details, screenshot
+bytes, tab URL/title, and attachment filename metadata. It is visibly marked,
+subject to per-payload, per-run, and aggregate storage bounds, and should be
+treated as sensitive. Export masks
+credential-shaped values in lossless structured data but cannot make page/chat
+content or screenshots non-sensitive.
+
+Saved-workflow compatibility does not restore raw payloads to default traces.
+The recorder holds bounded copies in memory only while the run is active, then
+compiles a successful run into a value-free workflow draft. Only the sanitized
+draft is added to the existing session-scoped conversation recovery record; it is
+cleared with that conversation and becomes durable only after an explicit
+`/workflow --save <name>` command.
+
+The traces page (`ui/traces.html`) reads from local IndexedDB only. Export saves
+a local file; recording and viewing traces perform no telemetry or network
+upload.
+
+These rules apply to newly written trace rows. Historical rows are not migrated
+or rewritten during an extension update and retain the behavior of the version
+that recorded them.
+
+---
+
+## Saved-Workflow Replay Boundary
+
+Saved workflows deliberately do not replay raw trace calls. Compilation uses an
+allowlist, replaces every typed value with a runtime parameter, discards raw
+references, action CSS selectors, coordinates and URL query or fragment data, and binds each action to
+an origin/path family plus a semantic target and postcondition.
+
+Before an action, replay must be on the recorded URL family and find one
+unambiguous target in a fresh accessibility tree. The action is dispatched
+through the same capability-by-origin permission gate, submit confirmation,
+form validation, and trusted-event path as a normal Act run. A known pre-action
+mismatch can be delegated to the Agent with no parameter values. A failed or
+unverified state-changing action whose dispatch cannot be disproved is treated
+as outcome-unknown and is never automatically retried. Replay telemetry and UI
+events redact runtime values and fresh `ref_id` values.
+
+An initial origin/path-family mismatch is one such safe pre-action mismatch.
+Replay passes only the sanitized saved start scope to the Agent, which may
+navigate through the ordinary Act tool path; deterministic replay does not
+navigate directly or gain new authority.
+
+---
+
+## Cookie Banners
+
+Automatic cookie-banner declining (`docs/cookie-banners.md`) injects DuckDuckGo's autoconsent into the extension's isolated world, per navigation, only in tabs the `cookieBanners` setting covers: tabs an Act or Dev run is driving by default, every tab when the user opts in. No cookie-handler content script is registered in the manifest; the wrapper and upstream ESM module are web-accessible resources for dynamic import. The wrapper rechecks coverage before each click and cancels pending handlers whenever Off, Stop, or run completion revokes their coverage. Page JavaScript is reached only through autoconsent's fixed eval snippets, run by name in the frame that asked; CAPTCHA and bot-challenge frames are never injected and their eval requests are refused. Subframes are injected only when a rule names their URL. Its clicks are not model actions and do not pass through guards: they only decline or hide consent dialogs that a bundled rule or one of WebBrain's own rules (`src/<browser>/src/agent/cookie-banner-rules.js`, DOM steps only) recognizes, or, for dialogs no rule knows, that autoconsent's reject-only heuristic recognizes from cookie wording (top frame only; it clicks a reject button and nothing else).
+
+## Firefox Differences
+
+Firefox has no CDP (`debugger` permission), so:
+
+- No trusted events (synthetic `el.click()` only)
+- No full-page screenshots
+- No shadow DOM piercing for closed roots
+- No WebMCP discovery or invocation (the integration uses Chrome's experimental CDP `WebMCP` domain)
+- `execute_js` is a Dev add-on in both builds: Firefox uses its MV2 content-script evaluator, while Chrome uses CDP `Runtime.evaluate`; neither build exposes it in Ask or normal Act
+- Chrome's reversible CSS/element patches are Dev-only and host-permission gated. Console and network diagnostics are Dev-only reads. Event-listener inspection briefly adds and restores an internal target attribute, while element highlighting inserts a temporary overlay; both use the temporary page-modification permission. All page-derived diagnostic results are wrapped as untrusted content. Network headers/bodies are excluded by default and sensitive header names are always redacted before buffering
+- No offscreen document (CORS must be handled by LLM servers)
+- No slash-driven tab/screen recording (Chrome's capture APIs and `recorder/` are absent)
+
+Everything else — the permission gate, untrusted-content wrapping, credential
+detection, loop detection, adapter system, and the **trace recorder** (it ships
+identically in `src/firefox/src/trace/recorder.js`) — is the same.
+
+---
+
+## Reporting Issues
+
+See [SECURITY.md](../SECURITY.md) for the disclosure contact and policy.

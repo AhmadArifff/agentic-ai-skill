@@ -1,0 +1,273 @@
+# Prompt-injection defense — how it works & how not to break it
+
+WebBrain's agent acts **inside the user's authenticated browser session**: it
+can click, type, navigate, run JS, and submit forms *as the logged-in user*. So
+any text it reads from a web page is **attacker-controllable** — a malicious
+tweet, a shared doc, an email, an issue comment, a PDF. The whole point of the
+defenses below is: **page content is DATA, never instructions, and consequential
+actions need a human in the loop.**
+
+If you add a tool, a new way to read the page, or a new place that feeds
+page-derived bytes to the model, read this first. The unit tests can enforce
+*membership* of the registries, but **not** whether you classified a thing
+correctly — that's on you and the reviewer.
+
+The code lives in **both builds** (`src/firefox/...` and `src/chrome/...`). Keep
+them in sync — the test suite asserts the pure modules are byte-identical.
+
+---
+
+## The four layers
+
+1. **Untrusted-content wrapping (Layer 1).** Tool results that carry page-derived
+   bytes are wrapped in `<untrusted_page_content id="<nonce>">…</…>` markers,
+   with any literal marker in the content stripped (breakout defense).
+   - Code: `agent.js` → `_wrapUntrusted(name, content)`; the set
+     `UNTRUSTED_CONTENT_TOOLS` in `permission-gate.js`.
+2. **System-prompt contract (Layer 2).** The prompts tell the model that
+   anything in those markers is data, never instructions, and that only the
+   system prompt and the user's own chat/`clarify` messages are authoritative.
+   - Code: `tools.js` -> `SYSTEM_PROMPT_ASK`, `SYSTEM_PROMPT_ACT`,
+     `SYSTEM_PROMPT_ACT_MID`, `SYSTEM_PROMPT_ACT_COMPACT`, and
+     `SYSTEM_PROMPT_DEV_APPENDIX`, plus `planner.js` -> `PLANNER_SYSTEM_PROMPT`
+     for the Plan-before-Act pre-loop call.
+3. **Capability × origin permission gate (Layer 3).** Before a consequential
+   tool runs, the agent checks a `(capability, host)` grant and prompts the user
+   (Allow once / Always / Deny) if there isn't one. No text inspection, no LLM —
+   the human is the trust anchor.
+   - Code: `permission-gate.js` (`capabilityFor`, `requiredHosts`,
+     `PermissionManager`); the gate loop in `agent.js _executeToolBatch`.
+   - Point and focus input is charged to the document it reaches, not to the
+     top-level page. A coordinate click (a vision `click_at` runs as one),
+     `type_text` without a selector and `press_keys`
+     (`inputReachesReceivingFrame`) go to whatever is under the point or has
+     focus, which can be an embedded payment, identity or wallet frame on
+     another site. Chrome's CDP input reaches such frames, so before the gate
+     `cdp-client.js resolveInputFrame` finds the receiving document (hit test
+     or focus, descending into process-isolated frames) and reads its origin;
+     focus, scroll offsets and origin are read in an isolated world the page
+     cannot redefine. The gate charges that origin's host, so an about:blank
+     or srcdoc editor frame stays with the page. A frame it cannot identify
+     or attach to (another extension's frame, for example), or one with an
+     opaque origin (sandboxed, `data:`), fails closed instead of using the
+     page's grant. After a permission card it checks again, and does not send
+     the input if the page moved it to another document meanwhile. On Firefox
+     this input stays in the top document (or, for a vision click, a
+     same-origin frame): synthetic events cannot enter a cross-origin frame,
+     and trusted companion input on a frame element is refused (`content.js
+     prepareBidiTarget`, the companion's point check). The explicit
+     `iframe_click` / `iframe_type` tools charge the frame named by
+     `urlFilter`.
+   - User control: Settings → Permissions & privacy (review/revoke grants + the master
+     switch "Ask before consequential actions"). The warning button in the side panel's
+     composer toolbar toggles the same master switch; it never answers a pending
+     permission card.
+4. **Output sanitizer (Layer 4).** Model output is HTML-escaped. Markdown links
+   use an http/https/mailto allowlist; plain HTTP(S) URLs become links outside
+   code and existing anchors. Links open a new tab with `noopener noreferrer`.
+   Formatter placeholders use a source-collision-free namespace and are restored
+   in one pass, so source text cannot expand into generated HTML attributes.
+   Markdown images, including unfinished streaming syntax, never load an image
+   or trigger a favicon lookup. Chat link
+   icons come only from a fixed favicon service using a validated public
+   hostname, without URL paths, query strings, credentials or a referrer.
+   Responses are bounded raster images rendered through local blob URLs;
+   a link whose icon cannot load shows no icon.
+   - Code: `ui/markdown-link.js`, `ui/markdown-render.js`, `ui/chat-link-icons.js`.
+
+---
+
+## What counts as "page-derived" (i.e. UNTRUSTED)
+
+Treat **all** of the following as attacker-controllable:
+
+- DOM text and HTML — including **hidden / off-screen** text, ARIA labels, `alt`,
+  `title` attributes, HTML comments, and text styled invisible.
+- **OCR / vision-model transcriptions** of a screenshot (`desc.text`).
+- **Fetched / downloaded documents** — PDF extracted text, downloaded file
+  contents, `fetch_url`/`research_url` bodies.
+- **URLs and hosts the page controls** — `href`/`src`, an iframe's URL, a
+  redirect target. (These drive *permission* decisions, see Layer 3.)
+- **Tool results that embed page-derived verification/probe fields** — e.g. the
+  `done` result includes `pageTitle` / `pageState` (dialog titles, live-region
+  text). Non-obvious, easy to miss — `done` was mis-classified once for exactly
+  this reason.
+- **WebMCP catalogs and results** — page-registered tool names, descriptions,
+  schemas, frame URLs, annotations, outputs, and errors remain attacker-
+  controlled even though Chrome transports them through CDP.
+
+Model-authored text (a tool's own status string, the agent's `summary`) and the
+**user's** messages are trusted. `clarify` answers are also trusted when the
+generic tool is available in action modes. Ask handles ordinary clarification
+as conversation and does not receive that generic schema. If the user opts in
+to Research escalation, Ask receives a narrowed `clarify` schema that can only
+request explicit consent for one exact ChatGPT research prompt; timeout and
+automatic answers cannot authorize that third-party disclosure.
+
+---
+
+## Rules for contributors
+
+### Adding a tool that READS page content
+`recall_memcode` returns user-account content from an external service. It is
+classified as both fixed-host network egress and untrusted content in both
+browser builds; the returned memory never enters the trusted local-memory
+system prompt.
+
+Add its name to `UNTRUSTED_CONTENT_TOOLS` in `permission-gate.js` (both builds).
+The exhaustiveness test will fail until every act-mode tool is classified.
+
+For a dynamic skill tool, do not add the name to the static set. Declare
+`"resultPolicy": "untrusted"` in the skill's `webbrain-tools` manifest instead;
+`agent.js` consults the enabled-skill registry at runtime and applies the same
+wrapper/digest behavior.
+
+### Adding a tool that has a SIDE EFFECT (click/type/navigate/download/etc.)
+Map it in `permission-gate.js`:
+- add it to `TOOL_CAPABILITY` (or handle it in `capabilityFor` if the capability
+  depends on args — see `set_field`/`press_keys`/`fetch_url`);
+- make sure `hostForCapability` / `requiredHosts` resolves the **real target
+  host** (destination URL for navigate/network/download; current page for
+  click/type on an element WebBrain resolved; the **receiving document** for
+  point or focus input, see `inputReachesReceivingFrame`; the **frame** host
+  for iframe tools; **every** host for a multi-URL tool like
+  `download_files`);
+- if the host can't be determined, return `''` / `[]` so the gate **fails
+  closed** (see the iframe-without-`urlFilter` case).
+
+### Adding a place that RE-INJECTS page-derived bytes into a message
+Some page-derived text reaches the model **outside** the normal tool-result path
+— it's interpolated into a `role:'user'` or `role:'tool'` message the agent
+builds itself. Those must be wrapped **explicitly**:
+
+```js
+const wrapped = this._wrapUntrusted('screenshot', desc.text); // nonce + strip
+messages.push({ role: 'user', content: `[…]\n${wrapped}` });
+```
+
+> ⚠️ **A prose "this is untrusted" label is NOT the boundary.** The boundary is
+> the nonce-delimited `<untrusted_page_content>` markers that `_wrapUntrusted`
+> produces (and the breakout-stripping it does). Always route page-derived text
+> through `_wrapUntrusted`, not just a `[warning]` prefix.
+
+Known non-tool ingestion points (keep this list current):
+- auto-screenshot re-injection (vision description + interactive-elements list);
+- the current page URL and title in the `[Current page context …]` note of
+  `_enrichUserMessageWithCurrentPage`. That note shares the user-role message
+  with the task, so the two fields sit inside a `_wrapUntrusted` box, each
+  kept to one line without bracket or wrapper syntax so the note still strips
+  as one unit;
+- the "Initial viewport description" in `_enrichUserMessageWithCurrentPage`;
+- Plan before Act planner messages: sanitized page URL/title and recent-history
+  digest are sent under the planner's untrusted-page framing; non-text image
+  blocks are dropped before the planner call;
+- PDF passthrough: the raw PDF `document` block can't be text-wrapped, so its
+  accompanying note carries explicit untrusted framing **and** the attacker-
+  controlled `docTitle` is sanitized before interpolation;
+- the `done` tool-result push (special-cased before the normal wrap).
+
+### Aggregating `browser_batch` results
+
+`browser_batch` is classified as untrusted in both builds because its ordered
+results can carry page text. Its wrapper has no capability of its own: each
+expanded action must pass the normal capability and origin gates, including
+fresh submit checks, before dispatch. Validate the whole batch before running
+the first action; neither allowlist membership nor a valid earlier action
+authorizes a later malformed or unavailable tool.
+
+The page monitor permits a narrow continuation after verified `set_field`,
+`type_ax`, or `type_text` input into a native input/textarea, password fields
+included: only the completed control's value evidence changes, bound to the
+original snapshot and the same parent batch. The typed value is compared in the
+monitor's isolated world and never leaves it.
+Node identities, labels, ancestors, form/recipient identity, all other values
+and human-interaction authority remain checked. Other batches and top-level
+sibling calls cannot borrow that evidence. No new model snapshot is captured
+to silently accept unrelated page changes.
+
+Fold the already processed sub-results under the original parent tool-call ID.
+Keep each result's own `_wrapUntrusted` nonce boundary intact, including the
+stripping of attacker-supplied boundary markup. Do not unwrap/re-wrap the
+aggregate: that would erase the distinct boundaries. The aggregate digest must
+use only app-owned action names, execution status and stop reason, never page
+text; the generic unwrapper reads only the first block and cannot safely digest
+a multi-result aggregate. Context trimming must preserve complete nonce markers
+for every retained child, including the child whose content is cut; omit a child
+if its opening and closing markers cannot both fit. Persistence and cancellation
+must preserve the same folded representation without exposing internal sub-call
+IDs to providers.
+
+Completion verification reads a folded batch without unwrapping it: the
+app-written metadata line says which children ran, each child's result is read
+only between its own opening marker and the closing marker with the same nonce,
+and the next child is looked for only after that close, so page text inside one
+result cannot stand in for another. From each result it keeps only app-owned
+booleans (verified, failed, credential field) beside the child's tool name and
+`ref_N` target, never result text.
+
+### Don't weaken the boundary for "trusted sites"
+The master switch (Settings → Permissions & privacy) disables **Layer 3 only** (the
+prompts). Layers 1, 2, and 4 stay on always — they cost nothing and are what
+protect the user on the trusted sites where injected content actually lives
+(a reputable domain is *anti-correlated* with safe content). Never gate Layers
+1/2/4 behind a setting.
+
+---
+
+## Tests
+
+- `node test/run.js` — pure-logic unit tests, including:
+  - the **exhaustiveness guard**: every model-exposed action tool from
+    `getToolsForMode('act')` and `getToolsForMode('dev')` must be gated
+    (`capabilityFor`), untrusted-read (`UNTRUSTED_CONTENT_TOOLS`), or on the
+    `KNOWN_SAFE_TOOLS` allowlist (defined in `test/run.js`) — else CI fails.
+  - capability mapping, host resolution, `requiredHosts`, `frameHostMatches`,
+    grant storage / `hydrateFrom`, content-wrap breakout-stripping.
+  - planner prompt parity / boundary checks, and the main agent's current
+    page URL/title boundary, in `test/security/injection-corpus.mjs`.
+- `test/manual-permissions.md` — the in-browser checklist (the 3-option
+  permission card and Settings → Permissions & privacy) that the unit suite can't
+  cover.
+
+**The guard checks that tools are *listed*, not that they're listed
+*correctly*.** If a tool's result carries page-derived bytes, it belongs in
+`UNTRUSTED_CONTENT_TOOLS` even if it's "just a status tool" (see `done`). When in
+doubt, wrap it — wrapping a trusted field is harmless; leaving a page-derived
+field unwrapped is a hole.
+
+---
+
+## Known limitations (accepted)
+
+These are conscious trade-offs, not oversights.
+
+- **Element clicks stay charged to the top-level page host.** A click or
+  `type_text` on an element named by selector, text, index or ref is resolved
+  in the top document and charged to the page host. On Chrome two edge cases
+  can still reach a frame of another host: the CDP selector fallback for
+  closed shadow roots also searches same-process (same-site) child documents,
+  and a CDP click at the centre of an element that an embedded frame covers
+  lands in that frame. Point and focus input (Layer 3) is charged to the
+  frame it reaches.
+
+- **The receiving document is checked before dispatch, not at it.** On
+  Chrome, a page that moves a frame under the point, or focus into one, after
+  the gate's check (or its re-check after a permission card) and before the
+  CDP input is sent is not caught.
+
+- **`solve_captcha` is ungated** (on the `KNOWN_SAFE_TOOLS` allowlist). It
+  spends CapSolver quota and injects a token (firing the widget's
+  `data-callback`, which on some sites auto-submits). Accepted because the cost
+  is bounded, the consequential submit is otherwise gated, and gating it adds a
+  prompt to a precursor the user wants when blocked by a CAPTCHA. Revisit if
+  quota abuse becomes a real concern.
+
+- **`hover` is ungated** — hover reveals menus/tooltips and commits nothing.
+  It is Full Act only; Mid-tier Dev does not add it.
+
+- **An LLM is *not* used anywhere in the gate.** Intent is never inferred from
+  page or prompt text (that approach was tried and removed — it was English-only
+  and leaky). The gate is deterministic capability×origin with the human as the
+  trust anchor.
+
+  _Last update: 10/27/2026_

@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 54 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 55 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 54 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 55 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 54 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 55 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI, Motion & Video Production Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -123,6 +123,7 @@ Seluruh agen dapat memanfaatkan 54 skill terdaftar di `skills/` dan `~/.gemini/c
    - `antislop-code`: Higienitas komentar kode, penghapusan komentar AI redundan.
 6. **Core Software Engineering, Architecture, Reporting & Verification**:
    - `backend`, `frontend`, `pm`, `qa`, `playwright`, `playwright-skill`, `graphify`, `goal-tracker`, `tech-critic`, `agentic-ai`.
+   - `webbrain`: Delegasi tugas ke sesi browser Chrome/Edge nyata yang sudah login (cookies, SSO, MFA aktif) via ekstensi WebBrain & `@webbrain/mcp-server` (`webbrain_run`, `webbrain_extract` JSON Schema, HMAC pairing port `17374`, `/watch`, `/workflow`, `/teach`, Vision mode; melengkapi `playwright` yang khusus E2E test terisolasi).
    - `stack-diagram`: Diagram arsitektur cloud, monorepo, dan service topology engineering-drawing dengan logo resmi (AWS, GCP, Azure, K8s, svgl, devicon), orthogonal routing bebas tabrakan label, serta output multi-format (self-contained HTML offline, PNG light/dark, dan TSX React).
    - `archify`: Diagram interaktif mandiri (*standalone HTML*) dan One-Page Explainer (10 tipe: architecture, workflow, sequence, dataflow, lifecycle/state, ERD, class, tree, timeline, waterfall), penelusuran path tracing, visual inspection, dark/light theme, ekspor image/SVG/WebM, dan verifikasi automated gate CLI (`node bin/archify.mjs finalize`).
    - `excel-export`: Pipeline ekspor data tabular performa tinggi (FastExcel / FastXlsxWriter streaming vs PhpSpreadsheet, auto column sizing, number formatting, anti-OOM).
