@@ -65,7 +65,8 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 55 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 56 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/reelmimic/SKILL.md](./skills/reelmimic/SKILL.md)**: Suite kloning gaya video referensi & animasi 2D artistik berbasis kode (`video-clone` + Motion Score compiler, 6 engine 2D: cat air `painted-animation` p5.brush, `anime-cel`, `crayon-storybook`, `pixel-art`, `paper-cutout`, `whiteboard`, plus `music-to-video` beatgrid & `blender-product-film`).
 * **[skills/webbrain/SKILL.md](./skills/webbrain/SKILL.md)**: Delegasi tugas ke sesi browser Chrome/Edge nyata yang sudah login (cookies/SSO/MFA aktif) via `@webbrain/mcp-server` (`webbrain_run`, `webbrain_extract` JSON Schema, approval-gated `Act`, `/watch`, `/workflow`, `/teach`, dan Vision mode).
 * **[skills/openmotion/SKILL.md](./skills/openmotion/SKILL.md)**: Alternatif open-source Claude Motion & CapCut (Visual Timeline Studio + MCP `openmotion_*`, standar `Motion.md` & 300+ template brand film, Motion Package v0.2, BYOK Multimodal Gateway, dan import HyperFrames ZIP).
 * **[skills/showtime/SKILL.md](./skills/showtime/SKILL.md)**: Studio video 100% lokal tanpa cloud API key (voice-over Kokoro/Piper/Supertonic lokal, developer videos `pr-video`/`release-video`/`recap`/`repro`, data story CSV/PDF/Manim math, audio-synced `xray`, video kuis interaktif HTML offline, dan `showtime qa` visual + hearing pass).
