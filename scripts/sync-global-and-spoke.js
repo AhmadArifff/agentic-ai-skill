@@ -14,7 +14,7 @@ if (!fs.existsSync(globalConfigRules)) {
 // 2. Updated content for agentic-ai-orchestration.md
 const orchestrationContent = `# Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 48 katalog skill, serta protokol proteksi basis data, sesi state, dan rekayasa antarmuka visual-first.
+> **Universal Agentic Entry & Governance Rule**: Pedoman orkestrasi multi-agen, tata kelola arsitektur, 4-tier hirarki peran (24 spesialis), 16 Expert Personas DNA, 50 katalog skill, serta protokol proteksi basis data, sesi state, dan rekayasa antarmuka visual-first.
 
 ---
 
@@ -61,7 +61,7 @@ Framework ini mengadopsi siklus **OODA (Observe -> Orient -> Decide -> Act)** de
 2. **Reviewer Independence (No Self-Review)**: Builder tidak boleh mereview kodenya sendiri. Setiap artefak builder wajib melalui verifikasi independen oleh Reviewer (\`qa-engineer\` atau \`tech-critic\`).
 3. **Circuit Breaker Loop Pengerjaan Ulang**: Jika suatu task mengalami revisi >= 3 kali berturut-turut pada siklus QA-Builder, hentikan proses otomatis dan minta klarifikasi langsung kepada pengguna (*Human-in-the-Loop*).
 4. **Session State Consistency**: Selalu periksa dan sinkronkan status \`active_goal\` dan sub-tugas pada \`session-state.json\` agar percakapan panjang tidak mengalami *context drift*.
-5. **Katalog 48 Skill Global**: Seluruh agen dapat memanfaatkan 48 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`motlab\` & \`motlab-assets\` (studio produksi video canvas + viewer revisi visual + asset kit + render 4K WebCodecs), \`archify\` (interactive architecture diagrams & explainers), \`stack-diagram\` (architecture diagram with official logos), \`teardown\` (3D interactive machine simulator & exploded view) dan \`motionmaxxing\` (art direction motion graphics & viral video retention).
+5. **Katalog 50 Skill Global**: Seluruh agen dapat memanfaatkan 50 skill global yang terpasang di \`~/.gemini/config/skills/\` secara on-demand (*progressive disclosure*), termasuk \`herk-edit-kit\` & \`hyperframes\` (post-production rekaman kamera, potong hening/salah ucap, Reels/Shorts 9:16, BPM showreel & engine HTML+GSAP Studio), \`motlab\` & \`motlab-assets\` (studio produksi video canvas + viewer revisi visual + asset kit + render 4K WebCodecs), \`archify\` (interactive architecture diagrams & explainers), \`stack-diagram\` (architecture diagram with official logos), \`teardown\` (3D interactive machine simulator & exploded view) dan \`motionmaxxing\` (art direction motion graphics & viral video retention).
 6. **Proteksi Basis Data Lokal & Tata Kelola SP/View (Zero-Direct-CRUD)**:
    - Pada proyek berbasis MySQL / PostgreSQL / phpMyAdmin (seperti \`adminShuttleV3\` dan \`admin-sunjaya\`), agen **DILARANG KERAS** mengeksekusi kueri mutasi (\`INSERT\`, \`UPDATE\`, \`DELETE\`, \`ALTER\`) langsung ke database lokal secara otonom.
    - Agen hanya bertugas menyusun query SQL terverifikasi agar pengguna sendiri yang mengeksekusinya di phpMyAdmin.

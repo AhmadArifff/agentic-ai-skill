@@ -65,7 +65,9 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 48 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 50 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/herk-edit-kit/SKILL.md](./skills/herk-edit-kit/SKILL.md)**: Suite post-production rekaman *talking-head* & footage nyata (`cut-silences`, `cut-mistakes` review-gated, `edit-video`, Reels/Shorts 9:16 `short-form-edit`, `video-storytelling`, dan `motion-showreel` 120-130 BPM).
+* **[skills/hyperframes/SKILL.md](./skills/hyperframes/SKILL.md)**: Engine komposisi HTML+GSAP Studio (`npx hyperframes` CLI terpadu, 9 palet kurasi, 14 katalog transisi, *video-beats* talking-head, dan registry blok/komponen).
 * **[skills/motlab/SKILL.md](./skills/motlab/SKILL.md)**: Studio produksi video berbasis kode HTML `<canvas>` (`renderAt(t)`), web viewer frame-by-frame dengan catatan revisi visual (`selection.json`), manajemen versi, talking-head cutter, dan render cepat WebCodecs 4K MP4.
 * **[skills/motlab-assets/SKILL.md](./skills/motlab-assets/SKILL.md)**: Pabrik kit aset visual reusable berbasis kode (ikon, ilustrasi, karakter 2D rig, transisi, objek 3D PBR) berformat PNG transparan + SVG atau GLB/FBX/OBJ.
 * **[skills/archify/SKILL.md](./skills/archify/SKILL.md)**: Diagram interaktif mandiri (*standalone HTML*) dan One-Page Explainer (10 tipe diagram: architecture, workflow, sequence, dataflow, lifecycle, ERD, class, tree, timeline, waterfall), path tracing, dark/light theme, ekspor image/SVG/WebM, dan verifikasi CLI (`node bin/archify.mjs finalize`).
