@@ -27,6 +27,7 @@
     - [`skills/threejs-postprocessing/SKILL.md`](../../skills/threejs-postprocessing/SKILL.md) (EffectComposer, bloom, DOF, screen effects)
     - [`skills/threejs-interaction/SKILL.md`](../../skills/threejs-interaction/SKILL.md) (raycasting, camera controls, mouse/touch input)
     - [`skills/3d-configurator-simulator/SKILL.md`](../../skills/3d-configurator-simulator/SKILL.md) (3D WebGL Configurator & Prosthesis Simulator: DracoLoader, kinematics, exploded view, HTML HUD)
+    - [`skills/diorama/SKILL.md`](../../skills/diorama/SKILL.md) (Three.js Diorama Playbook & Code Kit v5.7.0: pixel/stroked-toon/pixel-stroke, research-first CC0 sourcing, deterministic `f(t)` animation, & 8-script Playwright QA harness)
 - **Tujuan**: Menerjemahkan spesifikasi UI/UX dan kontrak API backend menjadi komponen antarmuka yang interaktif, berkinerja tinggi, responsif, aksesibel, dan memiliki visual yang memukau (*wow factor*).
 
 ---

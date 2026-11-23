@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 56 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 57 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 56 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 57 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 56 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 57 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI, Motion & Video Production Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -103,6 +103,7 @@ Seluruh agen dapat memanfaatkan 56 skill terdaftar di `skills/` dan `~/.gemini/c
    - `openmotion`: Alternatif open-source Claude Motion & CapCut berbasis Visual Timeline Studio Editor (React + CodeMirror + Dockview + MCP `openmotion_*`), standar `Motion.md` & Motion Package v0.2 untuk reverse-engineering/remake brand film dari 300+ template, BYOK Multimodal Gateway (fal.ai, Atlas Cloud, Suno, Seedance, Eleven v4), serta import proyek HyperFrames ZIP.
    - `reelmimic`: Suite kloning gaya video referensi & animasi 2D artistik berbasis kode (ekstraksi ritme/kamera/BPM `video-clone` + Motion Score compiler tanpa menyalin footage sumber, 6 engine 2D murni: cat air `painted-animation` p5.brush, `anime-cel`, `crayon-storybook`, `pixel-art` 480x270, `paper-cutout` 12fps, `whiteboard` doodle, ditambah `music-to-video` beatgrid & `blender-product-film` Cycles).
 2. **Interactive 3D / WebGL Graphics & Game Studio Suite**:
+   - `diorama`: Playbook & code kit Three.js diorama miniatur interaktif (`@sloemo/diorama` v5.7.0, MIT): 3 preset visual (`pixel` 64-warna dither + ink contour, `stroked-toon`, `pixel-stroke`), 3 mode sourcing aset berlisensi komersial (`SOURCES.md` + `CREDITS.md`), mode narasi & edukasi dengan inspeksi part reversibel, animasi murni `f(t)`, serta 8 skrip QA Playwright (`shoot.mjs`, `audit.mjs`, `frames.mjs`, `strip.mjs`, `sweep.mjs`, `portrait.mjs`, `probe.py`, `tile.py`).
    - `ohmygame-studio`: Integrasi AI Game Studio via MCP `ohmygame-studio` (generasi aset 2D/3D/rig/audio via provider pengguna, validasi Design & Asset Canvas `canvas_check`, web game Phaser/Three.js/R3F, multiplayer rooms/saves/leaderboards, playable interactive story nodes, plugin SDK Godot/Unity/Unreal/Blender/Aseprite/Tiled, dan playtest otomatis `game_use`).
    - `3d-configurator-simulator`: WebGL 3D Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, Kinematics, HTML HUD).
    - `teardown`: Simulator 3D mesin & mekanikal interaktif offline single-page HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
