@@ -1,0 +1,12 @@
+{
+  "fps": 30,
+  "qp": 20,
+  "scenes": [
+    "scenes/01-hook.html",
+    "scenes/02-ooda-flow.html",
+    "scenes/03-verified-end.html"
+  ],
+  "audio": [
+    { "file": "audio/sfx-mix.mp3", "start": 0, "volume": 0.95 }
+  ]
+}

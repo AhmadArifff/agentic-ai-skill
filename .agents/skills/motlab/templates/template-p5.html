@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Ad (p5.js)</title>
+<style>
+  /* The brand's font files go next to the page; point Head at them (Poppins SemiBold as an example). */
+  @font-face { font-family: Head; src: url("fonts/Poppins-SemiBold.ttf") format("truetype"); }
+  html, body { margin: 0; height: 100%; background: #000; display: grid; place-items: center; }
+  canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+</style></head><body><canvas id="c"></canvas>
+<script src="https://cdn.jsdelivr.net/npm/p5@2.3.4/lib/p5.min.js"></script>
+<script>
+// p5.js starter for generative graphics: a field of strokes that follow drifting noise, and a title. p5 runs in
+// instance mode with noLoop(); renderAt(t) sets T and calls redraw(), then the p5 canvas is copied onto canvas #c.
+// The renderer asks for frames in any order, so draw() must be a function of T alone:
+//   - never frameCount, millis(), deltaTime, or state carried over from the previous frame (particles that move
+//     a little each frame); compute positions from T, or simulate from 0 to T inside draw
+//   - noise() and random() only after noiseSeed() and randomSeed() at the top of draw
+// Page contract: renderAt(t), TOTAL, ready, ?t=, ?scale=. p5 comes from the CDN, so a render needs the network.
+const W = 1920, H = 1080, END = 6, q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const cv = document.querySelector('#c'), ctx = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+const clamp01 = v => Math.max(0, Math.min(1, v)), prog = (t, a, b) => clamp01((t - a) / (b - a)), outCubic = k => 1 - Math.pow(1 - clamp01(k), 3);
+let T = 0, P = null;
+
+function paint(p, t) {   // in 1920x1080 units; SCALE is applied once here. Not named draw or setup: p5 would start a second, global sketch
+  p.noiseSeed(7); p.randomSeed(7);
+  p.push(); p.scale(SCALE);
+  p.background('#0e0f12');
+  const A = p.color('#1FE39A'), B = p.color('#4E3BFF'), G = 40;
+  p.strokeCap(p.ROUND); p.strokeWeight(4);
+  for (let y = G; y < H; y += G) for (let x = G; x < W; x += G) {
+    const k = outCubic(prog(t, 0.1 + 0.9 * x / W, 0.9 + 0.9 * x / W));   // a wave of strokes growing in from the left
+    if (k <= 0) continue;
+    const a = p.noise(x * 0.0025, y * 0.0025, t * 0.18) * p.TWO_PI * 2, len = 22 * k;
+    p.stroke(p.lerpColor(A, B, p.noise(x * 0.001, y * 0.001, 5 + t * 0.1)));
+    p.line(x, y, x + Math.cos(a) * len, y + Math.sin(a) * len);
+  }
+  const e = outCubic(prog(t, 1.2, 1.9));
+  p.noStroke(); p.fill(255, 255 * e); p.textFont('Head, system-ui, sans-serif'); p.textSize(110); p.textAlign(p.CENTER, p.CENTER);
+  p.text('Your idea, as a system.', W / 2, H / 2 + (1 - e) * 40);
+  p.pop();
+}
+
+async function render(t) {
+  T = t; await P.redraw();
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.drawImage(P.drawingContext.canvas, 0, 0);
+}
+
+window.TOTAL = END;
+window.renderAt = render;
+window.ready = new Promise(res => new p5(p => {
+  p.setup = () => { p.pixelDensity(1); p.createCanvas(cv.width, cv.height); p.drawingContext.canvas.style.display = 'none'; p.noLoop(); P = p; res(); };
+  p.draw = () => { if (P) paint(p, T); };
+})).then(() => document.fonts.load('600 110px Head').catch(() => {})).then(async () => {
+  // Opened by hand, the page plays on a loop. In the render and inside the viewer (an iframe), only renderAt draws.
+  if (q.has('t') || window.top !== window) await render(parseFloat(q.get('t') || '0')); else (function tick(n) { render((n / 1000) % END).then(() => requestAnimationFrame(tick)); })(0);
+  return true;
+});
+</script></body></html>

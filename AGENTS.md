@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 46 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 48 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,11 +80,11 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 46 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 48 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 46 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 48 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
-1. **Creative UI & Component Registry Suite**:
+1. **Creative UI, Motion & Video Production Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
    - `react-bits`: 100+ animasi kreatif React & GSAP (DecryptedText, ShinyText, Aurora/Hyperspeed, 3D card tilt via `npm install gsap @gsap/react`).
    - `animejs`: Engine animasi JavaScript ringan untuk SVG path drawing, morphing, dan timeline 120fps via `npm install animejs`.
@@ -93,7 +93,9 @@ Seluruh agen dapat memanfaatkan 46 skill terdaftar di `skills/` dan `~/.gemini/c
    - `shadcn-ui`: Arsitektur komponen enterprise berbasis Radix UI headless, CVA variant system, dan Tailwind tokens.
    - `magic-ui`: 50+ komponen animasi premium (Bento Grid, Marquee, Particles, Border Beam).
    - `motion`: Animasi GPU-accelerated micro-animations, layoutId transitions, dan gesture spring physics.
-   - `motionmaxxing`: Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas senior motion designer, seek-safe GSAP runtime, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg.
+   - `motionmaxxing`: Art direction & looksmaxxing for motion graphics (GSAP runtime seek-safe, kurva gerak terukur, Mog Check G0-G5, VO ElevenLabs, dan critique film agar bebas AI slop).
+   - `motlab`: Engine produksi video berbasis kode HTML `<canvas>` (`renderAt(t)`) tanpa AI video generator, lengkap dengan web viewer frame-by-frame, catatan revisi visual langsung di frame (`selection.json`), cut jeda talking-head, dan render cepat WebCodecs hingga 4K MP4 (saling melengkapi dengan `motionmaxxing` dan `teardown`).
+   - `motlab-assets`: Pembuatan kit aset visual reusable berbasis kode (ikon, ilustrasi, karakter 2D dengan rig, transisi, objek 3D PBR) dalam format PNG transparan + SVG atau GLB/FBX/OBJ agar seluruh video dalam satu brand konsisten.
 2. **Interactive 3D / WebGL Graphics Suite**:
    - `3d-configurator-simulator`: WebGL 3D Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, Kinematics, HTML HUD).
    - `teardown`: Simulator 3D mesin & mekanikal interaktif offline single-page HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
@@ -156,8 +158,8 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
-   - **34 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **46 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #47` di `knowledge/bug-cases.md`).
-   - Mencakup preseden arsitektur: diagram alur interaktif Archify, topologi cloud stack-diagram, financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.
+   - **35 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **46 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #47` di `knowledge/bug-cases.md`).
+   - Mencakup preseden arsitektur: produksi video berbasis kode & kit aset `motlab`/`motlab-assets`, diagram alur interaktif Archify, topologi cloud stack-diagram, financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.
 4. **Knowledge Blueprints & Hub-and-Spoke Protocol (`knowledge/` & `.agents/knowledge/`)**:
    - `team-alignment-framework.md`: Pola komunikasi 3 Kalimat Emas ke stakeholder, Contract-First JSON protocol untuk API eksternal, Pre-Development Sanity Gate, dan Kamus Zero-Jargon.
    - `financial-ledger-transactions.md`: Blueprint pemisahan tabel request vs disbursement penarikan insentif supir dengan atomic locking dan `width_code`.

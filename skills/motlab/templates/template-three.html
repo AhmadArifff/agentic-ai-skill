@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Ad (three.js)</title>
+<style>
+  /* The brand's font files go next to the page; point Head at them (Poppins SemiBold as an example). */
+  @font-face { font-family: Head; src: url("fonts/Poppins-SemiBold.ttf") format("truetype"); }
+  html, body { margin: 0; height: 100%; background: #000; display: grid; place-items: center; }
+  canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+</style>
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }</script>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+// three.js starter for real 3D: a model (GLB/glTF) or a placeholder box on a shadow floor, one continuous camera,
+// and a 2D title drawn over it. three.js draws into its own WebGL canvas, which is copied onto canvas #c, so #c is
+// an ordinary 2D canvas like in every other scene and 2D overlays use the same code as the 2D template.
+// Everything is a function of t: model animations go through mixer.setTime(t), never a THREE.Clock.
+// Page contract: renderAt(t), TOTAL, ready, ?t=, ?scale=. three.js comes from the CDN, so a render needs the network.
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+
+const W = 1920, H = 1080, END = 6, q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const MODEL = '';               // a .glb or .gltf next to the page, e.g. 'models/product.glb'; empty = the placeholder box
+const SUB = 1, SHUTTER = 0.5 / 30;   // sub-frames per frame; 8 to 12 average into motion blur on fast moves (costs SUB renders)
+const cv = document.querySelector('#c'), ctx = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+const clamp01 = v => Math.min(1, Math.max(0, v));
+const lerp = (a, b, k) => a + (b - a) * k;
+const prog = (t, from, to) => clamp01((t - from) / (to - from));
+const outExpo = k => (k = clamp01(k)) >= 1 ? 1 : 1 - Math.pow(2, -10 * k), outCubic = k => 1 - Math.pow(1 - clamp01(k), 3);
+const sine = k => 0.5 - 0.5 * Math.cos(Math.PI * clamp01(k));
+
+// ---- the 3D world ----
+const gl = new THREE.WebGLRenderer({ antialias: true });
+gl.setPixelRatio(1); gl.setSize(cv.width, cv.height, false);
+gl.toneMapping = THREE.ACESFilmicToneMapping; gl.outputColorSpace = THREE.SRGBColorSpace;
+gl.shadowMap.enabled = true; gl.shadowMap.type = THREE.PCFShadowMap;   // three 0.186 removed PCFSoftShadowMap and falls back to this with a warning
+const scene = new THREE.Scene(); scene.background = new THREE.Color('#0b0d10');
+scene.environment = new THREE.PMREMGenerator(gl).fromScene(new RoomEnvironment(), 0.04).texture;   // soft studio light
+const key = new THREE.DirectionalLight('#ffffff', 2.4); key.position.set(3, 6, 4); key.castShadow = true;
+key.shadow.mapSize.set(2048, 2048); Object.assign(key.shadow.camera, { left: -3, right: 3, top: 3, bottom: -3, near: 1, far: 20 }); key.shadow.radius = 6;
+scene.add(key);
+const floor = new THREE.Mesh(new THREE.PlaneGeometry(40, 40), new THREE.ShadowMaterial({ opacity: 0.32 }));
+floor.rotation.x = -Math.PI / 2; floor.receiveShadow = true; scene.add(floor);
+const cam = new THREE.PerspectiveCamera(30, W / H, 0.1, 100);
+const rig = new THREE.Group(); scene.add(rig);   // the hero turns and rises inside this; the model itself stays as loaded
+let mixer = null;
+
+async function load() {
+  let hero;
+  if (!MODEL) {
+    hero = new THREE.Mesh(new RoundedBoxGeometry(1.1, 1.6, 0.45, 6, 0.12), new THREE.MeshPhysicalMaterial({ color: '#4E3BFF', roughness: 0.28, clearcoat: 1, clearcoatRoughness: 0.15 }));
+  } else {
+    const gltf = await new GLTFLoader().loadAsync(MODEL);
+    hero = gltf.scene;
+    if (gltf.animations.length) { mixer = new THREE.AnimationMixer(hero); for (const clip of gltf.animations) mixer.clipAction(clip).play(); }
+  }
+  hero.traverse(o => { if (o.isMesh) o.castShadow = true; });
+  if (mixer) mixer.setTime(0);   // measure the model in its first pose
+  const box = new THREE.Box3().setFromObject(hero), size = box.getSize(new THREE.Vector3());   // fit to 1.6 units, standing on the floor
+  hero.scale.multiplyScalar(1.6 / Math.max(size.x, size.y, size.z)); box.setFromObject(hero);
+  hero.position.sub(new THREE.Vector3((box.min.x + box.max.x) / 2, box.min.y, (box.min.z + box.max.z) / 2));
+  rig.add(hero);
+}
+
+function pose(t) {   // ONE continuous camera: a push in that slows down, while the orbit only ever turns one way
+  rig.rotation.y = lerp(-0.7, 0.45, sine(prog(t, 0, END)));
+  rig.position.y = lerp(-0.25, 0, outExpo(prog(t, 0, 1.4)));
+  if (mixer) mixer.setTime(t);
+  const d = lerp(7.5, 5.2, outExpo(prog(t, 0, 2.2))), th = lerp(0.35, -0.15, sine(prog(t, 0, END)));
+  cam.position.set(d * Math.sin(th), lerp(1.9, 1.25, sine(prog(t, 0, END))), d * Math.cos(th));
+  cam.lookAt(0, 0.55, 0);   // below the hero's middle, so it sits high and leaves room for the title
+}
+
+// ---- 2D over the 3D, in frame pixels ----
+function swipeWords(text, t, at = 0.6, { y = 990, size = 84, colour = '#fff', gap = 0.08, rise = 0.34 } = {}) {   // words rise from behind a mask
+  ctx.save();
+  ctx.font = `600 ${size}px Head, system-ui, sans-serif`; ctx.letterSpacing = `${-0.03 * size}px`;
+  const words = text.split(' '), widths = words.map(w => ctx.measureText(w).width), space = ctx.measureText(' ').width;
+  let x = (W - widths.reduce((a, b) => a + b, 0) - space * (words.length - 1)) / 2;
+  words.forEach((word, n) => {
+    const k = outCubic(prog(t, at + n * gap, at + n * gap + rise));
+    if (k > 0) {
+      ctx.save(); ctx.beginPath(); ctx.rect(x - 10, y - size * 1.1, widths[n] + 20, size * 1.45); ctx.clip();
+      ctx.fillStyle = colour; ctx.fillText(word, x, y + (1 - k) * size * 1.25); ctx.restore();
+    }
+    x += widths[n] + space;
+  });
+  ctx.restore();
+}
+
+function render(t) {
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  for (let i = 0; i < SUB; i++) {   // with SUB 1 this is one plain render; more sub-frames are averaged with alpha 1/(i+1)
+    pose(SUB > 1 ? Math.max(0, Math.min(END, t + (i / (SUB - 1) - 0.5) * SHUTTER)) : t);
+    gl.render(scene, cam); ctx.globalAlpha = 1 / (i + 1); ctx.drawImage(gl.domElement, 0, 0);
+  }
+  ctx.globalAlpha = 1; ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  swipeWords('Your product, in 3D.', t);
+}
+
+window.TOTAL = END;
+window.renderAt = render;
+window.ready = Promise.all([load(), document.fonts.load('600 84px Head').catch(() => {})]).then(() => {
+  // Opened by hand, the page plays on a loop. In the render and inside the viewer (an iframe), only renderAt draws.
+  if (q.has('t') || window.top !== window) render(parseFloat(q.get('t') || '0')); else (function tick(n) { render((n / 1000) % END); requestAnimationFrame(tick); })(0);
+  return true;
+});
+</script></body></html>

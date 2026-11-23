@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>02 OODA Architecture - Separation of Duty</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111318; display: grid; place-items: center; overflow: hidden; }
+    canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="lib.js"></script>
+<script>
+// Scene 2: Separation of Duty visual proof + real workspace telemetry counters.
+// Ends by expanding the Emerald Verified Reviewer panel across the frame into Scene 3.
+const B = {
+  titleIn: 0.14,
+  leftCard: 0.42,
+  bridge: 0.92,
+  rightCard: 1.18,
+  metricsIn: 1.48,
+  anticipation: 2.38,
+  morphStart: 2.52,
+  END: 3.2
+};
+
+function drawCard(g, x, y, w, h, accent, tag, heading, lines, k) {
+  if (k <= 0.001) return;
+  g.save();
+  g.globalAlpha = clamp(k * 1.35);
+  const dy = (1 - k) * 38;
+  g.translate(0, dy);
+
+  g.fillStyle = PALETTE.surface;
+  g.beginPath();
+  g.roundRect(x, y, w, h, 24);
+  g.fill();
+
+  g.lineWidth = 3;
+  g.strokeStyle = accent;
+  g.stroke();
+
+  // Top accent strip
+  g.fillStyle = accent;
+  g.beginPath();
+  g.roundRect(x + 28, y + 28, 178, 38, 19);
+  g.fill();
+
+  g.fillStyle = '#0B0D12';
+  g.font = `700 18px ${FONT_MONO}`;
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  g.fillText(tag, x + 28 + 89, y + 48);
+
+  g.textAlign = 'left';
+  g.fillStyle = PALETTE.white;
+  g.font = `700 44px ${FONT_HEAD}`;
+  g.fillText(heading, x + 28, y + 122);
+
+  g.font = `500 26px ${FONT_HEAD}`;
+  g.fillStyle = PALETTE.mutedLight;
+  lines.forEach((line, idx) => {
+    g.fillText(line, x + 28, y + 186 + idx * 46);
+  });
+  g.restore();
+}
+
+mountScene({
+  total: B.END,
+  events: [
+    { name: 's2.builder', t: B.leftCard },
+    { name: 's2.bridge', t: B.bridge },
+    { name: 's2.reviewer', t: B.rightCard },
+    { name: 's2.metrics', t: B.metricsIn },
+    { name: 's2.morph', t: B.morphStart }
+  ],
+  draw(g, t) {
+    g.fillStyle = PALETTE.ink;
+    g.fillRect(0, 0, W, H);
+    drawSubtleGrid(g, t, 'rgba(248, 250, 252, 0.045)');
+
+    // Soft dual ambiance behind hero cards
+    const glowL = g.createRadialGradient(540, 480, 40, 540, 480, 480);
+    glowL.addColorStop(0, 'rgba(37, 99, 235, 0.16)');
+    glowL.addColorStop(1, 'rgba(37, 99, 235, 0)');
+    g.fillStyle = glowL;
+    g.fillRect(0, 0, W, H);
+
+    const glowR = g.createRadialGradient(1380, 480, 40, 1380, 480, 480);
+    glowR.addColorStop(0, 'rgba(16, 185, 129, 0.16)');
+    glowR.addColorStop(1, 'rgba(16, 185, 129, 0)');
+    g.fillStyle = glowR;
+    g.fillRect(0, 0, W, H);
+
+    const push = Math.exp(lerp(Math.log(0.97), Math.log(1.02), outCubic(prog(t, 0, B.END))));
+    g.save();
+    g.translate(W / 2, H / 2);
+    g.scale(push, push);
+    g.translate(-W / 2, -H / 2);
+
+    drawMaskedWords(g, 'Builders build. Reviewers verify.', t, {
+      at: B.titleIn,
+      y: 185,
+      size: 74,
+      weight: 700,
+      color: PALETTE.white,
+      gap: 0.07,
+      rise: 0.34
+    });
+
+    // Left Card: Builder Tier
+    const lk = outExpo(prog(t, B.leftCard, B.leftCard + 0.52));
+    drawCard(
+      g, 190, 280, 620, 355, PALETTE.primary,
+      'BUILDER TIER',
+      'Specialist Execution',
+      [
+        'Backend, Frontend, ML Vision, Video',
+        'Follows locked established constraints',
+        'Cannot approve its own output'
+      ],
+      lk
+    );
+
+    // Animated handoff beam between Builder and Reviewer
+    const bk = outCubic(prog(t, B.bridge, B.bridge + 0.4));
+    if (bk > 0.001) {
+      const x0 = 835, x1 = 1085, ym = 458;
+      const curX = lerp(x0, x1, bk);
+      g.save();
+      g.strokeStyle = PALETTE.amber;
+      g.lineWidth = 6;
+      g.lineCap = 'round';
+      g.beginPath();
+      g.moveTo(x0, ym);
+      g.lineTo(curX, ym);
+      g.stroke();
+
+      if (bk > 0.7) {
+        const ak = prog(bk, 0.7, 1);
+        g.fillStyle = PALETTE.amber;
+        g.globalAlpha = ak;
+        g.beginPath();
+        g.moveTo(x1 + 10, ym);
+        g.lineTo(x1 - 14, ym - 14);
+        g.lineTo(x1 - 14, ym + 14);
+        g.closePath();
+        g.fill();
+      }
+
+      g.fillStyle = PALETTE.amber;
+      g.font = `700 18px ${FONT_MONO}`;
+      g.textAlign = 'center';
+      g.fillText('HANDOFF GATE', (x0 + x1) / 2, ym - 24);
+      g.restore();
+    }
+
+    // Right Card: Independent Reviewer Tier
+    const rk = outExpo(prog(t, B.rightCard, B.rightCard + 0.52));
+    const ant = 1 - 0.05 * bump(prog(t, B.anticipation, B.morphStart + 0.04));
+    g.save();
+    g.translate(1420, 457);
+    g.scale(ant, ant);
+    g.translate(-1420, -457);
+    drawCard(
+      g, 1110, 280, 620, 355, PALETTE.verified,
+      'NO SELF-REVIEW',
+      'QA & Tech Critic',
+      [
+        'Independent boundary & fallacy audit',
+        'Dual-approval Case-Bank promotion',
+        'Circuit breaker stops >= 3 rework loops'
+      ],
+      rk
+    );
+    g.restore();
+
+    // Real verified workspace metrics strip (no invented stats)
+    const mk = outCubic(prog(t, B.metricsIn, B.metricsIn + 0.55));
+    const metrics = [
+      { target: 24, label: 'Specialist Roles', color: PALETTE.primary },
+      { target: 48, label: 'Integrated Skills', color: PALETTE.amber },
+      { target: 35, label: 'Verified Cases', color: PALETTE.verified }
+    ];
+    metrics.forEach((m, i) => {
+      const ik = outCubic(prog(t, B.metricsIn + i * 0.08, B.metricsIn + 0.44 + i * 0.08));
+      if (ik <= 0.001) return;
+      const bx = 250 + i * 500;
+      const by = lerp(770, 725, ik);
+      g.save();
+      g.globalAlpha = ik;
+      g.fillStyle = PALETTE.surface;
+      g.beginPath();
+      g.roundRect(bx, by, 420, 170, 22);
+      g.fill();
+      g.strokeStyle = PALETTE.border;
+      g.lineWidth = 2;
+      g.stroke();
+
+      const val = Math.round(m.target * ik);
+      g.fillStyle = m.color;
+      g.font = `800 68px ${FONT_HEAD}`;
+      g.textAlign = 'center';
+      g.fillText(String(val), bx + 210, by + 84);
+
+      g.fillStyle = PALETTE.mutedLight;
+      g.font = `600 24px ${FONT_HEAD}`;
+      g.fillText(m.label, bx + 210, by + 134);
+      g.restore();
+    });
+    g.restore();
+
+    // Shape carryover: Emerald reviewer card grows smoothly to fill frame for Scene 3
+    const tk = inOutCubic(prog(t, B.morphStart, B.END));
+    if (tk > 0.001) {
+      g.save();
+      const x = lerp(1110, -40, tk);
+      const y = lerp(280, -40, tk);
+      const w = lerp(620, W + 80, tk);
+      const h = lerp(355, H + 80, tk);
+      const rad = lerp(24, 0, tk);
+      g.fillStyle = PALETTE.verified;
+      g.beginPath();
+      g.roundRect(x, y, w, h, rad);
+      g.fill();
+      g.restore();
+    }
+  }
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240" width="240" height="240">
+  <g id="outer_ring" fill="none" stroke-width="14" stroke-linecap="round">
+    <path d="M 120 26 A 94 94 0 0 1 206 84" stroke="#2563EB"/>
+    <path d="M 214 120 A 94 94 0 0 1 156 206" stroke="#10B981"/>
+    <path d="M 120 214 A 94 94 0 0 1 34 156" stroke="#F59E0B"/>
+    <path d="M 26 120 A 94 94 0 0 1 84 34" stroke="#111318"/>
+  </g>
+  <g id="orbit_nodes">
+    <circle cx="120" cy="26" r="10" fill="#2563EB"/>
+    <circle cx="214" cy="120" r="10" fill="#10B981"/>
+    <circle cx="120" cy="214" r="10" fill="#F59E0B"/>
+    <circle cx="26" cy="120" r="10" fill="#111318"/>
+  </g>
+  <g id="core_disc">
+    <circle cx="120" cy="120" r="56" fill="#111318"/>
+    <circle cx="120" cy="120" r="34" fill="none" stroke="#F4F1EA" stroke-width="6"/>
+    <path d="M 107 120 L 116 129 L 135 110" fill="none" stroke="#10B981" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+  </g>
+</svg>

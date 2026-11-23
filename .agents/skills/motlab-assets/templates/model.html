@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Model turntable</title>
+<style>html,body{margin:0;height:100%;background:repeating-conic-gradient(#c8c8c8 0 25%,#aaa 0 50%) 0 0/32px 32px} body{display:flex;align-items:center;justify-content:center} canvas{max-width:100vw;max-height:100vh;display:block}</style>
+<script type="importmap">{ "imports": {
+  "three": "https://cdn.jsdelivr.net/npm/three@0.186.1/build/three.module.min.js",
+  "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.1/examples/jsm/"
+} }</script>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+// Turntable stills of a GLB on a transparent background, for the light 3D path and to check any GLB the way three.js
+// (and so a motlab scene) will show it. View i is at t = i:  motlab stills model.html <out> 0 1 2 3 4 5 6 7 --scale 2
+// Page contract: renderAt(t), TOTAL, ready, ?t=, ?scale=. three.js comes from the CDN, so it needs the network.
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+const MODEL = 'model.glb';        // path from this page
+const W = 1024, H = 1024, VIEWS = 8, ELEVATION = 12, LENS = 70;   // LENS in mm on a 36 mm film back, like Blender
+const q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const cv = document.querySelector('#c'), ctx = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+
+const gl = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+gl.setPixelRatio(1); gl.setSize(cv.width, cv.height, false); gl.setClearColor(0x000000, 0);
+gl.toneMapping = THREE.AgXToneMapping; gl.outputColorSpace = THREE.SRGBColorSpace;
+const scene = new THREE.Scene();
+scene.environment = new THREE.PMREMGenerator(gl).fromScene(new RoomEnvironment(), 0.04).texture; scene.environmentIntensity = 0.35;
+const cam = new THREE.PerspectiveCamera(2 * Math.atan(18 / LENS) * 180 / Math.PI, W / H, 0.01, 1000);
+const key = new THREE.DirectionalLight('#ffffff', 3); scene.add(key, key.target);
+let c = new THREE.Vector3(), d = 1, r = 1;
+
+async function load() {
+  const gltf = await new GLTFLoader().loadAsync(MODEL); scene.add(gltf.scene);
+  const box = new THREE.Box3().setFromObject(gltf.scene); c = box.getCenter(new THREE.Vector3()); r = box.getSize(new THREE.Vector3()).length() / 2;
+  d = r / Math.tan(cam.fov * Math.PI / 360) * 1.08; cam.near = d / 100; cam.far = d * 10; cam.updateProjectionMatrix();
+  key.target.position.copy(c);
+}
+
+function render(t) {
+  const a = (Math.floor(t) % VIEWS) / VIEWS * Math.PI * 2, e = ELEVATION * Math.PI / 180;   // view 0 looks at the model's front (+z)
+  cam.position.set(c.x + d * Math.cos(e) * Math.sin(a), c.y + d * Math.sin(e), c.z + d * Math.cos(e) * Math.cos(a)); cam.lookAt(c);
+  const l = new THREE.Vector3(-1, 1.1, 1).normalize().applyAxisAngle(new THREE.Vector3(0, 1, 0), a);   // upper left of the camera, turning with it
+  key.position.copy(c).addScaledVector(l, r * 6);
+  gl.render(scene, cam); ctx.clearRect(0, 0, cv.width, cv.height); ctx.drawImage(gl.domElement, 0, 0);
+}
+
+window.TOTAL = VIEWS; window.renderAt = t => render(t);
+window.ready = load().then(() => { render(parseFloat(q.get('t') || '0')); return true; });
+</script></body></html>

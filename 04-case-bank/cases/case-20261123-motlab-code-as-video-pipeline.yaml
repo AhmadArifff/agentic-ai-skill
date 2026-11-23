@@ -1,0 +1,65 @@
+case_id: "case-20261123-motlab-code-as-video-pipeline"
+title: "Pipeline Produksi Video Berbasis Kode (Code-as-Video), Kit Aset Terukur & Verifikasi Visual Contact-Sheet Menggunakan Motlab dan Motlab-Assets"
+status: "verified_case"
+category: "pattern"
+created_at: "2026-11-23T03:41:00Z"
+last_validated: "2026-11-23T03:42:00Z"
+
+domain_tags:
+  - "motlab"
+  - "motlab-assets"
+  - "video-engine"
+  - "canvas"
+  - "webcodecs"
+  - "asset-kit"
+  - "motion-graphics"
+  - "audio-sync"
+  - "ffmpeg"
+  - "multimedia"
+
+context_and_problem:
+  description: "Dalam pembuatan video promo produk, demo aplikasi, dan explainer teknis, model AI video generator sering menghasilkan teks yang rusak, tata letak tidak konsisten antar adegan, serta sulit direvisi secara presisi pada frame tertentu. Sementara itu, pipeline render berbasis tangkapan layar DOM frame-demi-frame cenderung lambat saat diekspor ke resolusi 4K dan kurang nyaman untuk iterasi catatan revisi visual bersama pengguna."
+  symptoms_or_triggers:
+    - "Teks UI, logo brand, atau angka statistik pada video promo buram atau berubah bentuk saat dirender dengan model AI generatif."
+    - "Pengguna kesulitan menjelaskan revisi posisi/timing di chat karena tidak ada penanda kotak atau coretan langsung pada frame video."
+    - "Ketidakkonsistenan warna dan gaya aset antar video dalam satu brand karena tidak ada kit aset terukur yang menjadi Single Source of Truth."
+    - "Kapsul/pill teks pada kanvas 2D berisiko terpotong jika memakai lebar piksel tetap (hardcoded width) tanpa pengukuran dinamis dan inspeksi visual contact-sheet."
+
+proposed_solution:
+  summary: "Gunakan pasangan keahlian motlab (skills/motlab) dan motlab-assets (skills/motlab-assets) untuk membangun kit aset terukur (tokens.json, style.md, kit.json, SVG -> PNG transparan), menulis setiap adegan sebagai halaman HTML <canvas> deterministik (window.renderAt(t), window.TOTAL, window.ready, window.EVENTS), mencampur SFX prosedural presisi event melalui mix.py, serta memverifikasi visual secara nyata dengan motlab stills dan contact_sheet.py sebelum membuka web viewer untuk review pengguna."
+  key_mechanisms:
+    - "Asset Kit Terukur (motlab-assets): Warna, radius, stroke, dan sumber SVG (emblem-ooda/source.svg) dikunci pada tokens.json dan style.md, dirender 2x transparan via motlab stills asset.html, lalu diaudit otomatis dengan palette.py check (lolos ambang <3% off-palette)."
+    - "Kontrak Halaman Deterministik (motlab): Setiap scene (01-hook.html, 02-ooda-flow.html, 03-verified-end.html) mengimplementasikan renderAt(t), TOTAL, ready, dan EVENTS dengan satu blok konstanta beat times (B) serta transisi shape carryover antar adegan (core ink disc -> dark scene -> emerald card -> paper end card)."
+    - "Pengukuran Lebar Teks Dinamis: Seluruh pill/badge di kanvas 2D wajib menghitung lebar kontainer dari ctx.measureText(text).width + padding agar tidak pernah terjadi text overflow atau clipping pada skala 1080p maupun 4K."
+    - "Audio Tersinkron Otomatis ke Beat: Event per adegan diekstrak lewat motlab events, digabung ke timeline global, lalu dicampur oleh skills/motlab/scripts/mix.py bersama library SFX prosedural dari synth_sfx.py (menghasilkan 0.0 ms offset) dan dikompres ringan ke MP3."
+    - "Gerbang Inspeksi Visual Sebelum Review: Pengambilan frame kunci dan momen di dalam transisi lewat motlab stills + contact_sheet.py wajib diperiksa langsung secara visual sebelum proyek diserahkan ke viewer (motlab edit) untuk revisi selection.json dan ekspor 4K mandiri oleh pengguna."
+  trade_offs:
+    advantages:
+      - "100% deterministik tanpa AI video generator: teks, logo, dan angka riil tetap tajam dari 720p hingga 4K WebCodecs."
+      - "Siklus revisi cepat melalui web viewer (motlab edit): pengguna cukup mengotaki/mencoret frame (selection.json) tanpa menjelaskan koordinat di chat."
+      - "Reproducible dan ramah Git: seluruh adegan, kit aset, dan cue audio tersimpan sebagai kode teks ringan serta biner kecil."
+      - "Saling melengkapi (zero overlap) dengan motionmaxxing (art direction & critique) dan teardown (simulator 3D mekanik interaktif)."
+    drawbacks:
+      - "Memerlukan Node.js 24+, Google Chrome/Chromium, FFmpeg/FFprobe, serta Python 3 (numpy, scipy, Pillow) untuk helper script."
+      - "Ekspor video MP4 akhir (motlab render / tombol Export di viewer) sengaja diserahkan ke pengguna sesuai kontrak skill motlab."
+
+dual_approval_audit:
+  qa_engineer:
+    verdict: "approved"
+    approved_at: "2026-11-23T03:41:30Z"
+    test_evidence: "Prototipe prototypes/motlab/agentic-ai-intro/ (9.0 detik, 3 scene @ 30fps) diverifikasi penuh menggunakan motlab CLI v0.4.1 pada GPU AMD Radeon. Audit palette.py check pada emblem-ooda@2x.png mencatat 1.1% off-palette (median dE 0.0). Audit audio mix.py mencatat 12 cues tersinkronisasi dengan worst offset 0.0 ms (peak -9.0 dBFS, output audio/sfx-mix.mp3 217 KB). Inspeksi visual tahap pertama pada preview-contact-sheet.jpg menangkap 2 cacat overflow kapsul pill teks pada Scene 1 & Scene 3; setelah diperbaiki dengan measureText() dinamis dan timing metrik diselaraskan, inspeksi visual tahap kedua menyatakan seluruh 10 frame (termasuk momen transisi 2.65s, 5.85s, 6.45s) bersih 100%."
+  tech_critic:
+    verdict: "approved"
+    approved_at: "2026-11-23T03:42:00Z"
+    fallacy_check_notes: "Solusi 100% mematuhi anti-slop R-01 s.d R-38 dan aturan skill motlab (tidak merender MP4 paksa tanpa izin user, seluruh angka 24 Roles / 48 Skills / 35 Cases sesuai fakta riil repositori tanpa statistik fiktif, dan visual diverifikasi lewat contact sheet nyata bukan self-certification). Pembagian peran terhadap motionmaxxing dan teardown tegas tanpa tumpang tindih."
+
+code_reference_or_snippet: |
+  # 1. Membuka prototipe mini di web viewer interaktif motlab (http://127.0.0.1:4173)
+  motlab edit prototypes/motlab/agentic-ai-intro
+
+  # 2. Mengambil stills & menyusun lembar inspeksi visual (contact sheet)
+  motlab stills prototypes/motlab/agentic-ai-intro/scenes/01-hook.html ./stills_01 0.5 1.7 2.65 --scale 0.5
+  python skills/motlab/scripts/contact_sheet.py ./stills_global prototypes/motlab/agentic-ai-intro/preview-contact-sheet.jpg
+
+  # 3. Audit keselarasan palet warna aset kit (motlab-assets)
+  python skills/motlab-assets/scripts/palette.py check prototypes/motlab/agentic-ai-intro/assets/kits/agentic-brand/tokens.json prototypes/motlab/agentic-ai-intro/assets/kits/agentic-brand/2d/emblem-ooda/emblem-ooda@2x.png

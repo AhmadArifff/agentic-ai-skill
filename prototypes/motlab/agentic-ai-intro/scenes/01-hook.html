@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>01 Hook - Agentic AI</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #111318; display: grid; place-items: center; overflow: hidden; }
+    canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="lib.js"></script>
+<script>
+// Scene 1: Emblem lands on warm paper, headline rises word by word,
+// then the core ink disc expands to fill the frame and hand over cleanly to Scene 2.
+const B = {
+  emblemIn: 0.12,
+  titleIn: 0.52,
+  subIn: 1.05,
+  anticipation: 2.18,
+  morphStart: 2.32,
+  END: 3.0
+};
+
+mountScene({
+  total: B.END,
+  preload: ['../assets/kits/agentic-brand/2d/emblem-ooda/emblem-ooda@2x.png'],
+  events: [
+    { name: 's1.emblem', t: B.emblemIn },
+    { name: 's1.title', t: B.titleIn },
+    { name: 's1.morph', t: B.morphStart }
+  ],
+  draw(g, t, [emblem]) {
+    g.fillStyle = PALETTE.paper;
+    g.fillRect(0, 0, W, H);
+    drawSubtleGrid(g, t, 'rgba(17, 19, 24, 0.05)');
+
+    // Gentle radial warmth from bottom center
+    const glow = g.createRadialGradient(W / 2, H * 1.05, 60, W / 2, H * 1.05, H * 0.9);
+    glow.addColorStop(0, 'rgba(37, 99, 235, 0.08)');
+    glow.addColorStop(1, 'rgba(37, 99, 235, 0)');
+    g.fillStyle = glow;
+    g.fillRect(0, 0, W, H);
+
+    // One-way gentle camera push
+    const push = Math.exp(lerp(Math.log(1.0), Math.log(1.045), outCubic(prog(t, 0, B.END))));
+    g.save();
+    g.translate(W / 2, H / 2);
+    g.scale(push, push);
+    g.translate(-W / 2, -H / 2);
+
+    // Emblem arrival with subtle rotation settle and anticipation squash before morph
+    const ek = outExpo(prog(t, B.emblemIn, B.emblemIn + 0.65));
+    const ant = 1 - 0.09 * bump(prog(t, B.anticipation, B.morphStart + 0.04));
+    const eSize = 220;
+    const ey = 340;
+    if (ek > 0.001) {
+      g.save();
+      g.translate(W / 2, ey);
+      g.rotate(lerp(-0.35, 0, ek) + t * 0.14);
+      const sc = lerp(0.72, 1, ek) * ant;
+      g.scale(sc, sc);
+      g.globalAlpha = clamp(ek * 1.3);
+      g.drawImage(emblem, -eSize / 2, -eSize / 2, eSize, eSize);
+      g.restore();
+    }
+
+    // Main title and subtitle
+    drawMaskedWords(g, 'Agentic AI.', t, {
+      at: B.titleIn,
+      y: 610,
+      size: 138,
+      weight: 800,
+      color: PALETTE.ink,
+      gap: 0.1,
+      rise: 0.42
+    });
+
+    drawMaskedWords(g, '4-Tier OODA Orchestration Engine.', t, {
+      at: B.subIn,
+      y: 705,
+      size: 46,
+      weight: 500,
+      color: PALETTE.muted,
+      gap: 0.06,
+      rise: 0.34,
+      tracking: -0.01
+    });
+
+    // Bottom pill indicator sized dynamically from measured text width
+    const pk = outCubic(prog(t, 1.35, 1.8));
+    if (pk > 0.001) {
+      g.save();
+      g.globalAlpha = pk;
+      const py = lerp(810, 785, pk);
+      const pillText = 'OBSERVE  ->  ORIENT  ->  DECIDE  ->  ACT';
+      g.font = `600 22px ${FONT_MONO}`;
+      const pw = Math.ceil(g.measureText(pillText).width) + 84;
+      const ph = 56;
+      g.fillStyle = PALETTE.ink;
+      g.beginPath();
+      g.roundRect((W - pw) / 2, py, pw, ph, ph / 2);
+      g.fill();
+      g.fillStyle = PALETTE.paper;
+      g.textAlign = 'center';
+      g.textBaseline = 'middle';
+      g.fillText(pillText, W / 2, py + ph / 2 + 1);
+      g.restore();
+    }
+    g.restore();
+
+    // Shape carryover: core ink disc grows smoothly to fill frame with Scene 2 dark ink background
+    const mk = inOutCubic(prog(t, B.morphStart, B.END));
+    if (mk > 0.001) {
+      const startR = 52 * push;
+      const maxR = Math.hypot(W, H) * 0.72;
+      const r = lerp(startR, maxR, mk * mk);
+      const cx = W / 2;
+      const cy = lerp(ey, H / 2, mk);
+      g.save();
+      g.fillStyle = PALETTE.ink;
+      g.beginPath();
+      g.arc(cx, cy, r, 0, TAU);
+      g.fill();
+      g.restore();
+    }
+  }
+});
+</script>
+</body>
+</html>

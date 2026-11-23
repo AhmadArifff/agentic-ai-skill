@@ -1,0 +1,19 @@
+{
+  "name": "agentic-brand",
+  "version": 1,
+  "refs": [
+    { "file": "AGENTS.md", "from": "Agentic AI Master Hub governance specification" }
+  ],
+  "assets": [
+    {
+      "id": "emblem-ooda",
+      "type": "svg",
+      "source": ["2d/emblem-ooda/source.svg", "2d/emblem-ooda/asset.html"],
+      "outputs": ["2d/emblem-ooda/emblem-ooda@2x.png"],
+      "size@1080": [240, 240]
+    }
+  ],
+  "credits": [
+    { "what": "OODA 4-tier emblem vector", "from": "Agentic AI workspace", "licence": "MIT" }
+  ]
+}

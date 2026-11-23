@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Scene (2D)</title>
+<style>
+  /* The brand's font files go next to the page; point Head at them (Poppins SemiBold as an example). */
+  @font-face { font-family: Head; src: url("fonts/Poppins-SemiBold.ttf") format("truetype"); }
+  html, body { margin: 0; height: 100%; background: #000; display: grid; place-items: center; }
+  canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+</style></head><body><canvas id="c"></canvas>
+<!-- puppet.js bends cut-out characters with pins; copy it next to the page when a shot uses it. -->
+<script src="puppet.js"></script>
+<script>
+// A 2D starter for flat, illustrated scenes. Each shot is a flat colour field with its own drawing. A shot ends by
+// growing one of its shapes (a circle or a rounded box) until it fills the frame: the shape fills with the next
+// shot's colour, and the next shot settles in inside it. Headlines rise word by word from behind a mask.
+// Optional feel: time held in poses (POSES per second), a pixel or two of jitter per pose, hard flat shadows.
+// Copy the page, rename it and replace SHOTS. Page contract: renderAt(t), TOTAL, ready, ?t=, ?scale=.
+const W = 1920, H = 1080, END = 8, POSES = 12;   // POSES 0 = smooth time; 12 or 8 held poses a second, render at 24 fps
+const params = new URLSearchParams(location.search), SCALE = parseFloat(params.get('scale') || '1');
+const cv = document.querySelector('#c'), ctx = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+const INK = '#141414', TAU = Math.PI * 2;
+
+// ---- timing helpers ----
+const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+const mix = (a, b, k) => a + (b - a) * k;
+const span = (t, from, to) => clamp((t - from) / (to - from));
+const easeOut = k => 1 - (1 - clamp(k)) ** 3;
+const easeInOut = k => (k = clamp(k), k < 0.5 ? 4 * k ** 3 : 1 - (2 - 2 * k) ** 3 / 2);
+const overshoot = (k, amount = 1.6) => (k = clamp(k) - 1, 1 + k * k * ((amount + 1) * k + amount));
+
+// ---- hand-made feel ----
+let pose = 0;
+const hash = n => { const s = Math.sin(n * 91.345 + pose * 47.853) * 24634.6345; return s - Math.floor(s); };
+const jitter = (id, px = 1.5) => [(hash(id) - 0.5) * 2 * px, (hash(id + 0.5) - 0.5) * 2 * px];   // same offset for a whole pose
+function flatShadow(g, on = true) {   // shadow offsets are in device pixels, so they are scaled here
+  g.shadowColor = on ? 'rgba(20, 20, 20, 0.25)' : 'transparent';
+  g.shadowBlur = 0; g.shadowOffsetX = 14 * SCALE; g.shadowOffsetY = 16 * SCALE;
+}
+
+function backdrop(g, colour, lt) {   // flat colour, a faint grid sliding slowly, light rising from the bottom
+  g.fillStyle = colour; g.fillRect(0, 0, W, H);
+  if (colour === '#000') return;
+  const cell = 120, shift = Math.round(lt * 20) % cell;   // whole-pixel steps and 3.5 px lines stay steady when scaled
+  g.save(); g.strokeStyle = 'rgba(255, 255, 255, 0.1)'; g.lineWidth = 3.5; g.beginPath();
+  for (let x = shift - cell; x < W + cell; x += cell) { g.moveTo(x, 0); g.lineTo(x, H); }
+  for (let y = Math.round(shift / 2) - cell; y < H + cell; y += cell) { g.moveTo(0, y); g.lineTo(W, y); }
+  g.stroke();
+  const glow = g.createRadialGradient(W / 2, H * 1.1, 0, W / 2, H * 1.1, H * 0.9);
+  glow.addColorStop(0, 'rgba(255, 255, 255, 0.22)'); glow.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  g.fillStyle = glow; g.fillRect(0, 0, W, H); g.restore();
+}
+
+function headline(g, text, lt, { at = 0.2, y = 170, size = 76, colour = INK, gap = 0.08, rise = 0.3 } = {}) {
+  g.save();
+  g.font = `600 ${size}px Head, system-ui, sans-serif`; g.letterSpacing = `${-0.03 * size}px`; g.textBaseline = 'alphabetic';
+  const words = text.split(' '), widths = words.map(w => g.measureText(w).width), space = g.measureText(' ').width;
+  let x = (W - widths.reduce((a, b) => a + b, 0) - space * (words.length - 1)) / 2;
+  words.forEach((word, n) => {
+    const k = easeOut(span(lt, at + n * gap, at + n * gap + rise));
+    if (k > 0) {
+      g.save(); g.beginPath(); g.rect(x - 10, y - size * 1.1, widths[n] + 20, size * 1.45); g.clip();   // the mask
+      g.fillStyle = colour; g.fillText(word, x, y + (1 - k) * size * 1.25); g.restore();
+    }
+    x += widths[n] + space;
+  });
+  g.restore();
+}
+
+// ---- shots: when each starts, its colour, what it draws (lt = seconds into the shot), and the shape it leaves
+// through (in the shot's own 1920x1080 space). A change takes CHANGE seconds from the next shot's start. ----
+const CHANGE = 0.5;
+const SHOTS = [
+  { at: 0, colour: '#2FD9A0',
+    draw(g, lt) {
+      backdrop(g, this.colour, lt); headline(g, 'Your first headline.', lt);
+      const [jx, jy] = jitter(1);
+      flatShadow(g); g.beginPath(); g.roundRect(770 + jx, 390 + jy, 380, 300, 30); g.fillStyle = '#fff'; g.fill();
+      flatShadow(g, false); g.lineWidth = 6; g.strokeStyle = INK; g.stroke();
+    },
+    exit: { box: [770, 390, 380, 300], radius: 30 } },
+  { at: 2.5, colour: '#F4CF4F',
+    draw(g, lt) {
+      backdrop(g, this.colour, lt); headline(g, 'The second beat.', lt);
+      const r = 140 * overshoot(span(lt, 0.3, 0.65));
+      if (r > 0) { g.beginPath(); g.arc(960, 560, r, 0, TAU); g.fillStyle = '#2AB5F7'; g.fill(); g.lineWidth = 6; g.strokeStyle = INK; g.stroke(); }
+    },
+    exit: { circle: [960, 560, 140] } },
+  { at: 5, colour: '#000',
+    draw(g, lt) { backdrop(g, this.colour, lt); headline(g, 'Brand. Tagline.', lt, { at: 0.3, y: 560, size: 90, colour: '#fff' }); } },
+];
+
+// The camera on each shot: a slow push in and a drift. The last shot holds still so the end card stays centred.
+const zoom = (n, lt) => n === SHOTS.length - 1 ? 1 : 1 + 0.045 * lt;
+const drift = (n, lt) => n === SHOTS.length - 1 ? 0 : -16 * lt;
+const layers = SHOTS.map(() => Object.assign(document.createElement('canvas'), { width: cv.width, height: cv.height }));
+
+function shotImage(n, lt) {
+  const g = layers[n].getContext('2d');
+  g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, cv.width, cv.height); g.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  SHOTS[n].draw(g, lt);
+  return layers[n];
+}
+function place(g, image, z, dx) {   // draw a shot layer with its camera, in device pixels
+  g.save(); g.setTransform(z, 0, 0, z, (cv.width / 2) * (1 - z) + dx * SCALE, (cv.height / 2) * (1 - z));
+  g.drawImage(image, 0, 0); g.restore();
+}
+const onScreen = (n, lt, x, y) => [W / 2 + drift(n, lt) + (x - W / 2) * zoom(n, lt), H / 2 + (y - H / 2) * zoom(n, lt)];
+
+function render(t) {
+  const time = POSES ? Math.floor(t * POSES + 1e-6) / POSES : t;
+  pose = Math.round(time * (POSES || 60));
+  let n = 0;
+  SHOTS.forEach((s, i) => { if (time >= s.at) n = i; });
+  const changing = n > 0 && time < SHOTS[n].at + CHANGE, shot = changing ? n - 1 : n, lt = time - SHOTS[shot].at;
+
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.fillStyle = '#000'; ctx.fillRect(0, 0, cv.width, cv.height);
+  place(ctx, shotImage(shot, lt), zoom(shot, lt), drift(shot, lt));
+  if (!changing) return;
+
+  const next = shot + 1, nlt = time - SHOTS[next].at, k = easeInOut(span(time, SHOTS[next].at, SHOTS[next].at + CHANGE));
+  const exit = SHOTS[shot].exit, z = zoom(shot, lt);
+  ctx.save(); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0); ctx.beginPath();
+  if (exit.circle) {
+    const [cx, cy, r] = exit.circle, [sx, sy] = onScreen(shot, lt, cx, cy);
+    ctx.arc(mix(sx, W / 2, k), mix(sy, H / 2, k), mix(r * z, Math.hypot(W, H) * 0.62, k), 0, TAU);
+  } else {
+    const [bx, by, bw, bh] = exit.box, [sx, sy] = onScreen(shot, lt, bx, by);
+    ctx.roundRect(mix(sx, -30, k), mix(sy, -30, k), mix(bw * z, W + 60, k), mix(bh * z, H + 60, k), mix(exit.radius * z, 0, k));
+  }
+  ctx.save(); ctx.clip();
+  ctx.fillStyle = SHOTS[next].colour; ctx.fillRect(0, 0, W, H);
+  if (k > 0.12) place(ctx, shotImage(next, nlt), zoom(next, nlt) * mix(0.93, 1, span(k, 0.12, 1)), drift(next, nlt));
+  ctx.restore();
+  ctx.globalAlpha = 1 - k; ctx.lineWidth = 6; ctx.strokeStyle = INK; ctx.stroke();
+  ctx.restore();
+}
+
+window.TOTAL = END;
+window.renderAt = render;
+window.ready = document.fonts.load('600 76px Head').catch(() => {}).then(() => {
+  // Opened on its own, the page loops. In a render or in the viewer (an iframe), only renderAt draws.
+  if (params.has('t') || window.top !== window) render(parseFloat(params.get('t') || '0'));
+  else requestAnimationFrame(function loop(ms) { render((ms / 1000) % END); requestAnimationFrame(loop); });
+  return true;
+});
+</script></body></html>

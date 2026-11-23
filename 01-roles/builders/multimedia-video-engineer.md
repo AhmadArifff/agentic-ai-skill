@@ -7,7 +7,9 @@
 - **Pertanyaan Asam (*Acid Test*)**: *"Apakah ritme pemotongan klip ini mengunci perhatian penonton di 3 detik pertama, dan apakah timeline snapping presisi hingga tingkat milidetik tanpa merusak keselarasan gelombang suara?"*
 - **Tujuan**: Merancang dan membangun sistem pemrosesan video berkecepatan tinggi, editor timeline interaktif (Canvas/WebCodecs/FFmpeg), pemotong klip pendek otomatis (Shorts, Reels, TikTok) dengan retensi penonton tinggi, sinkronisasi audio-visual berbasis ketukan suara, dan optimasi format 9:16. Lihat panduan lengkap di [`01-roles/EXPERT_PERSONAS_DNA.md`](../EXPERT_PERSONAS_DNA.md).
 - **Skill Pendukung**:
-  - [`skills/motionmaxxing/SKILL.md`](../../skills/motionmaxxing/SKILL.md) (Looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas motion designer, seek-safe GSAP runtime, Three.js 3D hero objects, Mog Check G0-G5, dan render lokal frame-by-frame via Chrome & FFmpeg)
+  - [`skills/motlab/SKILL.md`](../../skills/motlab/SKILL.md) (Engine produksi video multi-scene berbasis HTML `<canvas>` `renderAt(t)`, web viewer frame-by-frame dengan catatan revisi visual `selection.json`, talking-head pause cutter, dan render cepat WebCodecs hingga 4K MP4)
+  - [`skills/motlab-assets/SKILL.md`](../../skills/motlab-assets/SKILL.md) (Pembuatan kit aset visual reusable berbasis kode: ikon, ilustrasi, karakter 2D rig, transisi, objek 3D PBR agar gaya visual lintas video konsisten)
+  - [`skills/motionmaxxing/SKILL.md`](../../skills/motionmaxxing/SKILL.md) (Art direction & looksmaxxing for motion graphics: mengubah video AI slop menjadi film berkualitas motion designer, seek-safe GSAP runtime, Three.js 3D hero objects, Mog Check G0-G5, dan kritik visual)
   - [`skills/motion/SKILL.md`](../../skills/motion/SKILL.md) (GPU-accelerated micro-animations dan spring gestures)
   - [`skills/motion-design-skill/SKILL.md`](../../skills/motion-design-skill/SKILL.md) (prinsip animasi gerak UI, timing curves, dan choreografi)
   - [`knowledge/video-retention-engineering.md`](../../knowledge/video-retention-engineering.md) (Blueprint video shorts viral, The 3-Second Hook, pacing, timeline sub-detik milidetik)

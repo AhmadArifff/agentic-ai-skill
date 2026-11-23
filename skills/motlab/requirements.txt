@@ -1,0 +1,5 @@
+# Python packages for the skill's helper scripts (contact sheets, sound effects, mixing, keying, splitting).
+# The engine itself does not need Python.
+numpy
+scipy
+pillow

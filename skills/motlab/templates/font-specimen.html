@@ -1,0 +1,38 @@
+<!doctype html>
+<!-- Copy next to fonts.css (made by get_font.py) and look at it with:
+       motlab stills font-specimen.html <outDir> 0
+     Put the video's real words in `text` and its colours in `bg` and `fg`. -->
+<meta charset="utf-8">
+<link rel="stylesheet" href="fonts.css">
+<body style="margin:0"><canvas id="c"></canvas>
+<script>
+const text = 'The quick brown fox, 0123456789', bg = '#f4f3ef', fg = '#111';
+const S = parseFloat(new URLSearchParams(location.search).get('scale') || '1');
+const cv = document.getElementById('c'), ctx = cv.getContext('2d');
+window.TOTAL = 1;
+window.ready = (async () => {
+  const faces = [...document.fonts];
+  await Promise.all(faces.map(f => f.load().catch(() => {})));
+  // one row per family, style and weight; a variable range shows its two ends and the middle
+  const rows = new Map();
+  for (const f of faces) {
+    const fam = f.family.replace(/^["']|["']$/g, ''), w = String(f.weight).split(' ').map(Number);
+    const ws = w.length > 1 ? [w[0], Math.round((w[0] + w[1]) / 200) * 100, w[1]] : w;
+    for (const x of ws) rows.set(`${fam}|${f.style}|${x}`, { fam, style: f.style, w: x, failed: f.status === 'error' });
+  }
+  window.rows = [...rows.values()];
+  cv.width = 1920 * S; cv.height = Math.max(2, Math.ceil((80 + window.rows.length * 150) * S / 2) * 2);
+  render(0);
+})();
+function render() {
+  ctx.setTransform(S, 0, 0, S, 0, 0); ctx.fillStyle = bg; ctx.fillRect(0, 0, 1920, cv.height / S);
+  window.rows.forEach((r, i) => {
+    const y = 60 + i * 150;
+    ctx.fillStyle = r.failed ? '#d22' : '#888'; ctx.font = '500 22px system-ui, sans-serif';
+    ctx.fillText(`${r.fam}  ${r.w}${r.style === 'normal' ? '' : ' ' + r.style}${r.failed ? '  FAILED TO LOAD' : ''}`, 60, y + 20);
+    ctx.fillStyle = fg; ctx.font = `${r.style} ${r.w} 76px "${r.fam}"`;
+    ctx.fillText(text, 60, y + 110);
+  });
+}
+window.renderAt = render;
+</script>

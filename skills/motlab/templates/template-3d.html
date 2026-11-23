@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Scene (UI in 3D)</title>
+<style>
+  /* The UI font files go next to the page; point UI at them (Inter as an example). */
+  @font-face { font-family: UI; src: url("fonts/Inter-Variable.ttf") format("truetype"); font-weight: 100 900; }
+  html, body { margin: 0; height: 100%; background: #000; display: grid; place-items: center; }
+  canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+</style></head><body><canvas id="c"></canvas>
+<script src="gl3d.js"></script>
+<script>
+// A starter for UI in 3D space with gl3d.js. Every element is a flat panel: its picture is drawn with ordinary 2D
+// canvas code (at TEX times its size, so it stays sharp up close) and gl3d.js places it in 3D. One camera moves
+// through the whole scene. Motion blur averages SUBFRAMES renders across half a frame.
+// Page contract: renderAt(t), TOTAL, ready, ?t=, ?scale=. motlab renders with Chrome on the GPU, which WebGL needs.
+const W = 1920, H = 1080, END = 8, TEX = 2, SUBFRAMES = 12, SHUTTER = 0.5 / 60;
+const params = new URLSearchParams(location.search), SCALE = parseFloat(params.get('scale') || '1');
+const cv = document.querySelector('#c'), out = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+const blank = () => Object.assign(document.createElement('canvas'), { width: cv.width, height: cv.height });
+const stage = GL3D.create(cv.width, cv.height), frame = blank(), sum = blank();
+
+const clamp = (v, lo = 0, hi = 1) => Math.min(hi, Math.max(lo, v));
+const mix = (a, b, k) => a + (b - a) * k;
+const span = (t, from, to) => clamp((t - from) / (to - from));
+const expoOut = k => (k = clamp(k), k === 1 ? 1 : 1 - 2 ** (-10 * k));
+const sineInOut = k => (1 - Math.cos(Math.PI * clamp(k))) / 2;
+
+// A panel: its picture is drawn by paint(g, ...args) in panel units, with `pad` spare room round it for shadows.
+// panel.update(...args) redraws it, and does nothing when the arguments are the same as last time.
+function panel(w, h, pad, paint) {
+  const c = Object.assign(document.createElement('canvas'), { width: (w + 2 * pad) * TEX, height: (h + 2 * pad) * TEX });
+  const p = { w: w + 2 * pad, h: h + 2 * pad, tex: null, last: null };
+  p.update = (...args) => {
+    const key = JSON.stringify(args);
+    if (p.tex && key === p.last) return p;
+    p.last = key;
+    const g = c.getContext('2d');
+    g.setTransform(1, 0, 0, 1, 0, 0); g.clearRect(0, 0, c.width, c.height);
+    g.setTransform(TEX, 0, 0, TEX, pad * TEX, pad * TEX);
+    paint(g, ...args);
+    p.tex = p.tex ? p.tex.update() : stage.texture(c);
+    return p;
+  };
+  return p.update();
+}
+
+const card = panel(540, 760, 60, g => {
+  g.save(); g.shadowColor = 'rgba(0, 0, 0, 0.5)'; g.shadowBlur = 60 * TEX; g.shadowOffsetY = 24 * TEX;   // shadow sizes are device pixels
+  g.beginPath(); g.roundRect(0, 0, 540, 760, 32); g.fillStyle = '#131416'; g.fill(); g.restore();
+  g.font = '700 52px UI, system-ui, sans-serif'; g.textAlign = 'center'; g.fillStyle = '#fff';
+  g.fillText('Your product', 270, 650);
+});
+const art = panel(460, 460, 0, g => {
+  const fill = g.createLinearGradient(0, 0, 460, 460);
+  fill.addColorStop(0, '#22DFA0'); fill.addColorStop(1, '#5040F5');
+  g.beginPath(); g.roundRect(0, 0, 460, 460, 22); g.fillStyle = fill; g.fill();
+});
+
+// One camera for the whole scene: it pulls back fast and then slowly, then circles one way only.
+function camera(t) {
+  const distance = Math.exp(mix(Math.log(220), Math.log(1500), expoOut(span(t, 0, 1.8))));
+  const angle = 0.35 * sineInOut(span(t, 1.5, END)), target = [0, 0, 0];
+  return {
+    eye: [distance * Math.sin(angle), 110 * Math.sin(angle), distance * Math.cos(angle)], target,
+    fov: 34, focus: distance, aperture: 0.3, fog: { near: 2400, far: 6500, color: [0.025, 0.03, 0.035] },
+  };
+}
+// The panels at time t. bias lifts a panel in the draw order, for things stacked close together.
+const panels = t => [
+  { tex: card.tex, w: card.w, h: card.h, pos: [0, 0, 0] },
+  { tex: art.tex, w: art.w, h: art.h, pos: [0, 90, 30], bias: 8 },
+];
+
+function render(t) {
+  const acc = sum.getContext('2d'), f = frame.getContext('2d');
+  acc.setTransform(1, 0, 0, 1, 0, 0); acc.globalAlpha = 1; acc.clearRect(0, 0, sum.width, sum.height);
+  for (let i = 0; i < SUBFRAMES; i++) {
+    const ts = clamp(t + (SUBFRAMES > 1 ? i / (SUBFRAMES - 1) - 0.5 : 0) * SHUTTER, 0, END), view = camera(ts);
+    f.globalAlpha = 1; f.fillStyle = '#07080a'; f.fillRect(0, 0, frame.width, frame.height);
+    f.drawImage(stage.render(panels(ts), view), 0, 0);
+    acc.globalAlpha = 1 / (i + 1);   // a running average: each new sub-frame weighs 1/(i+1)
+    acc.drawImage(frame, 0, 0);
+  }
+  out.setTransform(1, 0, 0, 1, 0, 0); out.globalAlpha = 1; out.drawImage(sum, 0, 0);
+}
+
+window.TOTAL = END;
+window.renderAt = render;
+window.ready = document.fonts.load('700 52px UI').catch(() => {}).then(() => {
+  card.last = null; card.update();   // draw the card again now that its font is in
+  if (params.has('t') || window.top !== window) render(parseFloat(params.get('t') || '0'));
+  else requestAnimationFrame(function loop(ms) { render((ms / 1000) % END); requestAnimationFrame(loop); });
+  return true;
+});
+</script></body></html>

@@ -1,0 +1,15 @@
+[
+  { "type": "bed", "file": "air bed", "at": 0.0, "to": 8.9, "db": -30, "fade_in": 0.4, "fade_out": 0.8 },
+  { "event": "s1.emblem", "file": "pop", "role": "pop", "pitch": 1.0 },
+  { "event": "s1.title", "file": "tick", "role": "tick", "pitch": 1.05 },
+  { "event": "s1.morph", "file": "whoosh medium", "role": "whoosh", "offset": 0.25, "pitch": 1.0 },
+  { "event": "s2.builder", "file": "pop", "role": "pop", "pitch": 0.95, "pan": -0.35 },
+  { "event": "s2.bridge", "file": "whoosh short", "role": "whoosh", "offset": 0.12, "pitch": 1.15 },
+  { "event": "s2.reviewer", "file": "pop", "role": "pop", "pitch": 1.12, "pan": 0.35 },
+  { "event": "s2.metrics", "file": "tick", "role": "tick", "pitch": 0.95, "pan": -0.25 },
+  { "event": "s2.metrics", "file": "tick", "role": "tick", "offset": 0.09, "pitch": 1.05, "pan": 0.0 },
+  { "event": "s2.metrics", "file": "tick", "role": "tick", "offset": 0.18, "pitch": 1.15, "pan": 0.25 },
+  { "event": "s2.morph", "file": "whoosh medium", "role": "whoosh", "offset": 0.28, "pitch": 0.95 },
+  { "event": "s3.emblem", "file": "thud", "role": "ui", "pitch": 1.15 },
+  { "event": "s3.pill", "file": "shutter", "role": "click", "pitch": 1.0 }
+]

@@ -60,12 +60,14 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 * **[knowledge/payment-logistics-integrations.md](./knowledge/payment-logistics-integrations.md)**: Blueprint integrasi payment gateway Midtrans/QRIS dan agregator logistik Biteship.
 * **[knowledge/video-retention-engineering.md](./knowledge/video-retention-engineering.md)**: Blueprint video shorts viral (The 3-Second Hook & timeline snapping milidetik).
 * **[knowledge/web3-client-architecture.md](./knowledge/web3-client-architecture.md)**: Blueprint Pure Client-Side Web3 Terminal & anti SSR hydration mismatch.
-* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (34 kasus produksi terverifikasi).
+* **[04-case-bank/](../04-case-bank/)**: Long-term organizational memory (35 kasus produksi terverifikasi).
 
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 46 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 48 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/motlab/SKILL.md](./skills/motlab/SKILL.md)**: Studio produksi video berbasis kode HTML `<canvas>` (`renderAt(t)`), web viewer frame-by-frame dengan catatan revisi visual (`selection.json`), manajemen versi, talking-head cutter, dan render cepat WebCodecs 4K MP4.
+* **[skills/motlab-assets/SKILL.md](./skills/motlab-assets/SKILL.md)**: Pabrik kit aset visual reusable berbasis kode (ikon, ilustrasi, karakter 2D rig, transisi, objek 3D PBR) berformat PNG transparan + SVG atau GLB/FBX/OBJ.
 * **[skills/archify/SKILL.md](./skills/archify/SKILL.md)**: Diagram interaktif mandiri (*standalone HTML*) dan One-Page Explainer (10 tipe diagram: architecture, workflow, sequence, dataflow, lifecycle, ERD, class, tree, timeline, waterfall), path tracing, dark/light theme, ekspor image/SVG/WebM, dan verifikasi CLI (`node bin/archify.mjs finalize`).
 * **[skills/stack-diagram/SKILL.md](./skills/stack-diagram/SKILL.md)**: Diagram arsitektur cloud, monorepo, dan system layout dengan logo resmi vendor (AWS, GCP, Azure, K8s, svgl, devicon), orthogonal arrow routing, dan output self-contained HTML/PNG/TSX.
 * **[skills/teardown/SKILL.md](./skills/teardown/SKILL.md)**: Simulator 3D mesin interaktif offline single-file HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.

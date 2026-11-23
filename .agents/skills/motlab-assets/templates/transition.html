@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><title>Transition preview</title>
+<style>html,body{margin:0;height:100%;background:repeating-conic-gradient(#c8c8c8 0 25%,#aaa 0 50%) 0 0/32px 32px} body{display:flex;align-items:center;justify-content:center} canvas{max-width:100vw;max-height:100vh;display:block}</style>
+</head><body><canvas id="c"></canvas>
+<script type="module">
+// Plays a transition.js over a transparent frame, from p = 0 to 1 over its DURATION. Check it at the cut (t = DURATION / 2
+// must be fully covered) and write the frames as a PNG sequence with alpha:
+//   motlab stills transition.html <out> 0 0.1 0.2 0.3 0.4 0.5 0.6 --scale 1
+// With BEHIND on, scene A and scene B are drawn behind it as two flat cards, to judge the motion; turn it off for the PNGs.
+import { draw, DURATION } from './transition.js';
+const W = 1920, H = 1080, BEHIND = false;
+const q = new URLSearchParams(location.search), SCALE = parseFloat(q.get('scale') || '1');
+const cv = document.querySelector('#c'), ctx = cv.getContext('2d');
+cv.width = Math.round(W * SCALE); cv.height = Math.round(H * SCALE);
+function render(t) {
+  const p = Math.max(0, Math.min(1, t / DURATION));
+  ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, cv.width, cv.height); ctx.setTransform(SCALE, 0, 0, SCALE, 0, 0);
+  if (BEHIND) { ctx.fillStyle = p < 0.5 ? '#2b3a55' : '#e9e4d8'; ctx.fillRect(0, 0, W, H); ctx.fillStyle = p < 0.5 ? '#fff' : '#111'; ctx.font = '700 160px system-ui'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(p < 0.5 ? 'A' : 'B', W / 2, H / 2); }
+  draw(ctx, p, W, H);
+}
+window.TOTAL = DURATION; window.renderAt = t => render(t);
+window.ready = Promise.resolve().then(() => {
+  if (q.has('t') || window.top !== window) render(parseFloat(q.get('t') || '0')); else (function tick(n) { render((n / 1000) % (DURATION + 0.4)); requestAnimationFrame(tick); })(0);
+  return true;
+});
+</script></body></html>

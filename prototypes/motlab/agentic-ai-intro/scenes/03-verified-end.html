@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>03 Verified End Card - motlab x Agentic AI</title>
+  <style>
+    html, body { margin: 0; height: 100%; background: #F4F1EA; display: grid; place-items: center; overflow: hidden; }
+    canvas { display: block; width: min(100vw, 100vh * 16 / 9); aspect-ratio: 16 / 9; }
+  </style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<script src="lib.js"></script>
+<script>
+// Scene 3: Opens from Emerald Verified takeover into clean warm paper end card.
+// Settles dead still and centred for the final hold per craft.md checklist.
+const B = {
+  irisOpen: 0.0,
+  emblemIn: 0.28,
+  headlineIn: 0.62,
+  pillIn: 1.08,
+  settle: 1.75,
+  END: 2.8
+};
+
+mountScene({
+  total: B.END,
+  preload: ['../assets/kits/agentic-brand/2d/emblem-ooda/emblem-ooda@2x.png'],
+  events: [
+    { name: 's3.reveal', t: B.irisOpen },
+    { name: 's3.emblem', t: B.emblemIn },
+    { name: 's3.pill', t: B.pillIn }
+  ],
+  draw(g, t, [emblem]) {
+    // Base warm paper end frame
+    g.fillStyle = PALETTE.paper;
+    g.fillRect(0, 0, W, H);
+    drawSubtleGrid(g, Math.min(t, B.settle), 'rgba(17, 19, 24, 0.045)');
+
+    // Content scaled gently from 0.94 -> 1.00 during reveal, then dead still
+    const rk = outExpo(prog(t, 0.12, B.settle));
+    const sc = lerp(0.94, 1.0, rk);
+    g.save();
+    g.translate(W / 2, H / 2);
+    g.scale(sc, sc);
+    g.translate(-W / 2, -H / 2);
+
+    // Emblem centred at top
+    const ek = outExpo(prog(t, B.emblemIn, B.emblemIn + 0.55));
+    if (ek > 0.001) {
+      const sz = 180;
+      g.save();
+      g.globalAlpha = clamp(ek * 1.4);
+      g.translate(W / 2, 330);
+      g.scale(lerp(0.84, 1, ek), lerp(0.84, 1, ek));
+      g.drawImage(emblem, -sz / 2, -sz / 2, sz, sz);
+      g.restore();
+    }
+
+    drawMaskedWords(g, 'Built by Code. Verified by Gate.', t, {
+      at: B.headlineIn,
+      y: 555,
+      size: 86,
+      weight: 800,
+      color: PALETTE.ink,
+      gap: 0.07,
+      rise: 0.36
+    });
+
+    // Verified pill badge + repo command sized dynamically from measured text width
+    const pk = outCubic(prog(t, B.pillIn, B.pillIn + 0.45));
+    if (pk > 0.001) {
+      g.save();
+      g.globalAlpha = pk;
+      const py = lerp(675, 645, pk);
+      const cmdText = 'motlab edit prototypes/motlab/agentic-ai-intro';
+      g.font = `600 26px ${FONT_MONO}`;
+      const textW = Math.ceil(g.measureText(cmdText).width);
+      const pw = textW + 132;
+      const ph = 74;
+      const px = (W - pw) / 2;
+      // Flat editorial shadow per style.md
+      g.fillStyle = 'rgba(17, 19, 24, 0.18)';
+      g.beginPath();
+      g.roundRect(px + 12, py + 14, pw, ph, ph / 2);
+      g.fill();
+
+      g.fillStyle = PALETTE.ink;
+      g.beginPath();
+      g.roundRect(px, py, pw, ph, ph / 2);
+      g.fill();
+
+      // Emerald verified dot with generous clearance
+      g.fillStyle = PALETTE.verified;
+      g.beginPath();
+      g.arc(px + 42, py + ph / 2, 10, 0, TAU);
+      g.fill();
+
+      g.fillStyle = PALETTE.paper;
+      g.textAlign = 'left';
+      g.textBaseline = 'middle';
+      g.fillText(cmdText, px + 72, py + ph / 2 + 1);
+      g.restore();
+    }
+
+    const fk = outCubic(prog(t, 1.35, 1.75));
+    if (fk > 0.001) {
+      g.save();
+      g.globalAlpha = fk;
+      g.fillStyle = PALETTE.muted;
+      g.font = `500 24px ${FONT_HEAD}`;
+      g.textAlign = 'center';
+      g.fillText('Agentic AI Master Hub  |  Zero AI Video Model  |  Deterministic 4K WebCodecs', W / 2, 790);
+      g.restore();
+    }
+    g.restore();
+
+    // Incoming Emerald reveal curtain shrinking away cleanly from Scene 2
+    const ok = inOutCubic(prog(t, B.irisOpen, 0.48));
+    if (ok < 0.999) {
+      g.save();
+      g.fillStyle = PALETTE.verified;
+      const holeR = lerp(0, Math.hypot(W, H) * 0.65, ok);
+      g.beginPath();
+      g.rect(0, 0, W, H);
+      g.arc(W / 2, H / 2, holeR, 0, TAU, true);
+      g.fill('evenodd');
+      g.restore();
+    }
+  }
+});
+</script>
+</body>
+</html>
