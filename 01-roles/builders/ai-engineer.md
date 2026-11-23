@@ -4,6 +4,8 @@
 - **Nama Peran**: `ai-engineer`
 - **Klasifikasi**: Specific Tier — Builder (Eksekutor)
 - **Tujuan**: Merancang instruksi sistem (*system prompts*), arsitektur alur kerja LLM (*agentic pipelines*), skema pemanggilan fungsi (*function/tool calling*), parameter inferensi, dan strategi pemotongan token guna menghasilkan perilaku AI yang deterministik, andal, dan hemat biaya.
+- **Skill Pendukung**:
+  - [`skills/habblaud/SKILL.md`](../../skills/habblaud/SKILL.md) (Kantor virtual pixel-art lokal untuk pemantauan sesi Claude Code & Codex secara real-time, subagen, kuota 5h/mingguan, Day Timelapse, My Day analytics, dan plugin izin/pesan lokal)
 
 ---
 

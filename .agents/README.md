@@ -65,7 +65,8 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 57 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 58 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/habblaud/SKILL.md](./skills/habblaud/SKILL.md)**: Kantor virtual pixel-art lokal (`http://localhost:4747`) untuk memantau sesi Claude Code & Codex secara real-time via SSE (subagen, background shell timers, kuota 5h/mingguan, event GitHub PR/CI, Day Timelapse, My Day analytics, live terminal, mod/hook lokal; aplikasi standalone di `~/habblaud`).
 * **[skills/diorama/SKILL.md](./skills/diorama/SKILL.md)**: Playbook & code kit Three.js diorama miniatur interaktif (`@sloemo/diorama` v5.7.0): 3 preset visual (`pixel`, `stroked-toon`, `pixel-stroke`), riset & lisensi aset komersial (`DESIGN.md`, `SOURCES.md`, `CREDITS.md`), mode narasi & inspeksi edukasi, animasi deterministik `f(t)`, dan 8 skrip QA visual Playwright (`frames.mjs`, `audit.mjs`, `shoot.mjs`).
 * **[skills/reelmimic/SKILL.md](./skills/reelmimic/SKILL.md)**: Suite kloning gaya video referensi & animasi 2D artistik berbasis kode (`video-clone` + Motion Score compiler, 6 engine 2D: cat air `painted-animation` p5.brush, `anime-cel`, `crayon-storybook`, `pixel-art`, `paper-cutout`, `whiteboard`, plus `music-to-video` beatgrid & `blender-product-film`).
 * **[skills/webbrain/SKILL.md](./skills/webbrain/SKILL.md)**: Delegasi tugas ke sesi browser Chrome/Edge nyata yang sudah login (cookies/SSO/MFA aktif) via `@webbrain/mcp-server` (`webbrain_run`, `webbrain_extract` JSON Schema, approval-gated `Act`, `/watch`, `/workflow`, `/teach`, dan Vision mode).
