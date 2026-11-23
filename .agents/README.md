@@ -65,7 +65,8 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 51 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 52 skill terdaftar di `skills/` dan `.agents/skills/`:
+* **[skills/hypit/SKILL.md](./skills/hypit/SKILL.md)**: Sistem kloning & produksi video viral berbasis bahasa deklaratif SVML/SVS/SVRun tertambat kata (*word-anchored*) untuk multi-varian UGC/iklan, podcast split-screen, tierboard, dan street interview (`@hypit/hypit`).
 * **[skills/ohmygame-studio/SKILL.md](./skills/ohmygame-studio/SKILL.md)**: AI Game Studio MCP workflow (Design & Asset Canvas, generasi aset game 2D/3D/rig/audio, multiplayer rooms/saves/leaderboards, playable interactive stories, plugin SDK, dan playtest otomatis `game_use`).
 * **[skills/herk-edit-kit/SKILL.md](./skills/herk-edit-kit/SKILL.md)**: Suite post-production rekaman *talking-head* & footage nyata (`cut-silences`, `cut-mistakes` review-gated, `edit-video`, Reels/Shorts 9:16 `short-form-edit`, `video-storytelling`, dan `motion-showreel` 120-130 BPM).
 * **[skills/hyperframes/SKILL.md](./skills/hyperframes/SKILL.md)**: Engine komposisi HTML+GSAP Studio (`npx hyperframes` CLI terpadu, 9 palet kurasi, 14 katalog transisi, *video-beats* talking-head, dan registry blok/komponen).
