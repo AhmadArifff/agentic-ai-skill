@@ -1,0 +1,321 @@
+# External agents (OhMyGame as an MCP server)
+
+Coding agents running outside OhMyGame — Claude Code, Codex, DeepSeek Harness
+(`dsh`) and any other MCP client — use OhMyGame's capabilities through one MCP
+server, `ohmygame-studio`. This is the reverse of
+[coding agents](coding-agents.md), where OhMyGame starts a CLI and offers it
+OhMyGame's tools for one conversation.
+
+| Part               | Code                                                                                      | Tests                                       |
+| ------------------ | ----------------------------------------------------------------------------------------- | ------------------------------------------- |
+| Daemon MCP server  | `src/daemon/external-mcp.ts`                                                              | `test/external-mcp.test.ts`                 |
+| Launcher           | `src/desktop/external-mcp-launcher.ts`, `external-mcp-main.ts`, `external-mcp-install.ts` | `test/external-mcp-launcher.test.ts`        |
+| Settings           | `src/renderer/external-agents-settings.tsx`                                               | `test/external-agents-settings-ui.test.tsx` |
+| Skill              | `integrations/skills/ohmygame-studio/SKILL.md`                                            | Manual                                      |
+| Shared contract    | `src/shared/external-mcp.ts`                                                              |                                             |
+
+## Goal and scope
+
+People who already work in a coding agent have chosen and paid for its model.
+What they lack is what only OhMyGame has: the media providers configured in
+Providers, the Design and Asset Canvas, and the playtest window.
+OhMyGame offers exactly those as tools; the external agent plans and writes
+the code.
+
+Not in scope, and why:
+
+- **Delegating a task to OhMyGame's own agent.** It nests two agent loops,
+  hides progress, and bills two models for one task. It can be added later as
+  another tool on the same server.
+- **A record of external calls in the app.** Generated files already appear in
+  the workspace, the Asset Library and the canvas; a conversation record would
+  change the conversation model for little gain.
+- **Claude Code and Codex plugin packages.** Settings shows the command that
+  adds the server and the Skill folder to copy; packages would be a second
+  format to maintain.
+- **Connecting clients from Settings.** Running each CLI's `mcp add` for the
+  person, and copying and refreshing the Skill, was removed: one command per
+  client is shorter to follow than a connection state to trust, and it is the
+  same for every client.
+- **Progress notifications.** Generation jobs (below) already keep every call
+  under client timeouts.
+- **A user-configured HTTP entry.** It would need a fixed port that can
+  collide with other software and a long-lived token in dotfiles, where it
+  outlives revocation. Reconsider only for a client that cannot run local
+  processes, which also needs remote access design beyond this document.
+
+## Decisions
+
+1. **Three layers, one contract.** The MCP server is the only way to run
+   OhMyGame capabilities and is versioned. A Skill teaches the workflow, and
+   the person adds both to a client. A Skill alone cannot replace the
+   server: the daemon's port and token change with every launch and its HTTP
+   API is private.
+
+2. **A fixed public tool list.** External tools are a curated list with
+   stable names and schemas. Their handlers are the ones Pi uses
+   (`createAgentTools`), run through `ToolBridge`.
+
+3. **stdio for clients.** Claude Code, Codex and `dsh` all run stdio MCP
+   servers, and stdio keeps the daemon's port and token out of client
+   configuration. The `ohmygame-mcp` launcher speaks stdio to the client and
+   HTTP to the daemon.
+
+4. **Off by default.** Turning the feature on and adding the server to a
+   client is the person's consent. Each client applies its own tool permissions.
+   Active project plugins may additionally gate tools with `tool.beforeCall`.
+   A denial or hook failure blocks the call; `ask` is refused because an
+   external call has no active OhMyGame conversation for approval. The agent
+   receives an explanation. Completed calls emit read-only `tool.afterCall`.
+
+5. **Clients are configured with their own commands.** Settings shows
+   `claude mcp add` and `codex mcp add` rather than a configuration file
+   snippet, whose formats change between releases.
+
+6. **A name of its own.** Clients register the server as `ohmygame-studio`,
+   not `ohmygame`, which is the name of the server OhMyGame gives the coding
+   agents it runs. A CLI that loads both never confuses them.
+
+## Architecture
+
+```text
+Claude Code / Codex / dsh
+  │ stdio JSON-RPC
+  ▼
+ohmygame-mcp launcher        answers initialize and tools/list itself
+  │ HTTP POST /external-mcp
+  │ Authorization: Bearer <token from endpoint.json>
+  │ Mcp-Session-Id, X-OhMyGame-Roots
+  ▼
+Daemon: ExternalMcpService
+  ├── sessions: bound project, playtest windows
+  ├── public tools → ToolBridge → createAgentTools handlers
+  └── generation jobs that outlive the request
+```
+
+### Settings and files
+
+Settings → **MCP Server** has its own page, apart from Agents, which sets up
+the agents OhMyGame runs. Its **MCP Server** switch turns the feature on; **Connect** then shows the `mcp add` commands for Claude Code and
+Codex, the launcher's command, arguments and environment variables for every
+other client, each as a field of its own as those clients ask for them (one
+shell line would need quoting that PowerShell, cmd and POSIX shells read
+differently), and the folder of the Skill to copy, each with a copy button. **Recent connections** lists the
+clients that used the server since OhMyGame started, by the name each gives in
+`initialize`, with when it last called, how many tools it called, and whether
+its session is still open. The daemon keeps these in memory only, at most
+eight. See the [MCP Server page](assets/external-agents-settings.webp).
+The renderer uses:
+
+| Route                                              | Purpose                                        |
+| -------------------------------------------------- | ---------------------------------------------- |
+| `GET`, `PUT /settings/external-agents`             | `{ enabled }`, the launcher, the Skill folder, and recent connections |
+
+Files in `<dataDirectory>/external-mcp/`:
+
+| File            | Contents                                                                                      |
+| --------------- | --------------------------------------------------------------------------------------------- |
+| `settings.json` | Whether the feature is on.                                                                    |
+| `endpoint.json` | URL, token, contract version and daemon `pid`, POSIX mode `0600`; only while the daemon runs. |
+| `tools.json`    | The public tool list and instructions, kept so the launcher works while OhMyGame is closed.   |
+| `app.json`      | The desktop app's `pid` while it runs, written before its daemon starts.                      |
+
+- The token is random for each daemon launch and is never stored elsewhere.
+  Turning the feature off, or the daemon closing, deletes `endpoint.json`,
+  ends every session, and refuses the old token.
+- The token only authorizes `/external-mcp`. The daemon's own token never
+  leaves the desktop process, as described in the
+  [trust boundary](runtime.md#trust-boundary).
+- Any process of the same user can read `endpoint.json`. This matches the
+  existing local trust model, in which provider credentials are stored in the
+  same user's data directory.
+
+### Launcher
+
+- The desktop app writes `<userData>/bin/ohmygame-mcp` at every start. It runs
+  `dist/desktop/external-mcp-main.js` from the app archive with the app's own
+  executable as Node (`ELECTRON_RUN_AS_NODE=1`), so no Node.js installation is
+  needed, and keeps a stable path when the app moves. Windows clients start
+  the executable directly with that variable, because Node no longer runs
+  `.cmd` files without a shell; the installer keeps the executable's path
+  across updates, so a client keeps working after an update without being
+  added again. Earlier versions connected clients from Settings and left a
+  `clients.json`; it is no longer read, and those entries keep working.
+- It answers `initialize` and `tools/list` from `tools.json`. Clients start
+  every configured MCP server when a session opens, in any folder, so the app
+  must not start just because a client did.
+- The first tool call starts OhMyGame if `endpoint.json` is missing or its
+  `pid` is gone, and waits up to 30 seconds. An app whose `app.json` process
+  is alive is starting or restarting its daemon, so the launcher only waits:
+  the app has no single-instance lock, and a second copy would run a second
+  daemon on the same data. A packaged macOS app is started with `open`, so
+  it does not inherit the sandbox of a client such as Codex and crash at
+  launch. If the feature is off, the call instead explains where to turn it
+  on.
+- It sends the client's MCP roots in `X-OhMyGame-Roots`, or, for clients
+  without roots, `CLAUDE_PROJECT_DIR` and its working directory. Non-ASCII
+  characters are JSON-escaped so HTTP headers stay ASCII; the daemon restores
+  the original paths and URLs when parsing them, including non-English user
+  and project folder names. A restarted daemon or an expired session is
+  reconnected once. An explicit `open_project` selection is remembered by its
+  returned project ID and restored before any project tool runs in a
+  replacement session. If that project is gone, the
+  tool fails until the client selects another project; it never falls back
+  to the working folder silently. Closing stdin ends the daemon session.
+- A 401 or 404 rejects a call before execution, so it can be retried after
+  reconnecting. After a lost or unreadable response, only read-only tools are
+  retried. Generation, edits, playtesting and other mutating calls report that
+  execution status is unknown; check the project before starting them again.
+  This prevents a lost response from creating a second paid generation.
+
+### Inside OhMyGame
+
+A person who connected Claude Code or Codex may also run them inside OhMyGame
+with their own configuration. They already have OhMyGame's tools there, so
+the external server is kept out three ways:
+
+- Claude Code gets `--disallowedTools mcp__ohmygame-studio` when it uses the
+  person's configuration; isolated sessions load no user servers at all.
+- Codex gets `mcp_servers.ohmygame-studio.enabled = false` when the person's
+  configuration has it.
+- Every CLI OhMyGame runs has `OHMYGAME_EXTERNAL_MCP_DISABLED=1`, and the
+  launcher refuses to start with it.
+
+### The daemon endpoint
+
+`POST /external-mcp` takes MCP JSON-RPC messages in the Streamable HTTP style
+and answers with JSON; nothing is streamed, so `GET` returns 405.
+
+- `initialize` creates a session and returns it in `Mcp-Session-Id`. Later
+  requests without the header get 400; an unknown or expired session gets 404,
+  telling the client to initialize again. `DELETE` ends a session. Sessions
+  idle for six hours end.
+- `X-OhMyGame-Roots` carries a JSON array of absolute paths or `file:` URLs.
+  The first one inside a project's workspace binds the session to that
+  project until `open_project` chooses one explicitly.
+- `instructions` in the `initialize` result give a short usage guide, so
+  clients without the Skill still know about projects and jobs.
+
+## Public tools
+
+Every session lists the same tools, whichever project it uses. A tool the
+bound project does not have returns an error that says why.
+
+| Tool                                                                        | Notes                                                                       |
+| --------------------------------------------------------------------------- | --------------------------------------------------------------------------- |
+| `list_projects`, `open_project`, `get_project`                              | Project ID, name, type and workspace folder; `open_project` by ID or folder |
+| `get_job`, `wait_job`, `cancel_job`                                         | Generation jobs, see below                                                  |
+| `inspect_media_models` | Read the effective image, audio or video model and its capabilities. Pass `alternatives: true` or `search` to discover other connected models. For audio, pass the intended `kind`. |
+| `list_background_removal_models` | Read available processing models without submitting an image |
+| `generate_image`, `remove_image_background`, `generate_video`, `generate_3d_asset`, `animate_3d_asset` | Run as jobs                                                                 |
+| `generate_audio`                                                            | Run as jobs                                                                 |
+| `canvas_check`, `canvas_initialize`, `generate_canvas_media`                | `generate_canvas_media` runs as a job                                       |
+| `game_use`                                                                  | Needs the desktop app and a project with a game preview; opens a window     |
+| `browser_use` | Uses the selected project’s visible Browser panel in the desktop app; shared tabs remain open when the MCP session ends |
+| `panel_screenshot` | Captures one of the selected project’s plugin panels as the desktop app shows it; needs the project open there |
+| `web_fetch` | Reads HTTP(S) HTML or text without browser cookies or JavaScript |
+| `project_guide` | Read-only authoring contracts: `topic: "panels"` or `"scene-media"`; available in every project |
+| `library_search` | Read-only: the person's saved Library assets, or with `source` a turned-on plugin's Library source; see [runtime](runtime.md#library) |
+| `library_use` | Copies one of the person's saved Library assets into the project and records its credit; a source's result is added from the Library page instead |
+| `playable_add_node`, `playable_check`                                       | Interactive Story projects only                                             |
+
+OhMyGame and external agents can call `inspect_media_models` when they need
+the current model or its capabilities. It and generation choose the model the
+same way: the call's model override, then the project default, the global
+default, and the first connected model.
+For `generate_image`, an aspect ratio or a resolution alone is enough. The app
+fills in the other from the model and rejects unsupported dimensions before
+submitting, listing the supported ones. A model that sets its own dimensions,
+such as Codex Image, generates at its own size. `generate_audio` uses signed integer percentages for speed
+(`0` is normal, `8` is 8% faster) and accepts formats from the selected
+model's catalog. Saved canvas nodes use their own model and settings.
+
+When the selected model leaves out an option it doesn't take, such as `loop`
+or `pitch` for audio, or the dimensions for an image model that sets its own,
+the result says so in a `Not applied by the selected model:` line and lists
+the options in `ignored`. An argument a tool's schema doesn't name, such as
+`aspect_ratio` for `aspectRatio`, does not fail the call; the result adds an
+`Unrecognized arguments had no effect:` line and lists it in `unknownFields`.
+A failed call's error includes the same line.
+
+`game_use` lists every operation and input any runtime takes. A project's own
+tool accepts the subset its runtime supports: a story's player has no
+`setSeed` or `step`, and a plugin's game, such as a TapTap Maker project's,
+has only what its type declares, such as `captureFrame`.
+
+Not offered: Pi's file and shell tools (`read`, `write`, `edit`, `bash`,
+`grep`, `find`, `ls`, `recall_image`), which the client has; `questionnaire`
+and `update_plan`, since the client asks and plans itself; `install_plugin`,
+`web_search`, and the plugin `mcp` passthrough.
+
+Generated files are saved in the project workspace and its Asset Library.
+Results name each file's workspace-relative path; the agent reads it with its
+own tools. Files the agent edits with its own tools bypass OhMyGame
+checkpoints and cannot be undone from the app. A session's playtest windows
+close when the session ends, changes project, or its project is deleted.
+
+### Versioning
+
+- `serverInfo.version` and `contractVersion` are the contract version (`1`).
+- Adding tools or optional parameters is compatible. Renaming, removing, or
+  changing the meaning of a tool or parameter is not: add a new name and keep
+  the old one, marked deprecated in its description, for at least two
+  releases.
+- `test/external-mcp.test.ts` asserts the listed tool names, so a change to
+  the public list fails until it is made deliberately. Update the Skill with
+  it.
+
+### Generation jobs
+
+Video, 3D and music often take minutes, and Codex's default MCP tool timeout
+is 60 seconds.
+
+- A generation tool waits up to 45 seconds. If it has finished, it returns
+  the result; otherwise it returns a job ID and tells the agent to call
+  `wait_job`.
+- `wait_job` waits up to 45 seconds (`timeoutSeconds` shortens it) and follows
+  the same rule; `get_job` answers at once.
+- Jobs belong to the daemon, not the session. A disconnected client does not
+  stop a generation a provider may already be charging for; another session
+  can collect its result. Only `cancel_job` stops it. Finished jobs are kept
+  for six hours, and all jobs end when OhMyGame closes.
+- Quick tools, such as `canvas_check` and `game_use`, run in the request and
+  stop if the client disconnects.
+
+## Clients
+
+| Client      | Added with                                    | Skill folder        |
+| ----------- | --------------------------------------------- | ------------------- |
+| Claude Code | `claude mcp add --scope user ohmygame-studio` | `~/.claude/skills`  |
+| Codex       | `codex mcp add ohmygame-studio`               | `~/.agents/skills`  |
+| dsh, others | Hand configuration with the launcher shown    | `~/.agents/skills` for `dsh` |
+
+The Skill is optional: `initialize` returns short instructions for clients
+without it. People copy the folder Settings shows; `mcp remove
+ohmygame-studio` removes the server again.
+
+For `dsh`, add a `@deepseek-ai/dsh-mcp-client` entry to the profile's
+`cordis.patch.yml`, where `<launcher>` is the command shown in Settings:
+
+```yaml
+- insert:
+    - id: mcp-ohmygame-studio
+      name: "@deepseek-ai/dsh-mcp-client"
+      config:
+        serverName: ohmygame-studio
+        transport: stdio
+        command: "<launcher>"
+```
+
+## Validation
+
+Automated tests cover the contract, sessions, project binding, jobs, token
+revocation, the launcher against the service, the launcher script, the
+Settings commands, and the guards inside
+OhMyGame. The packaged app check (`scripts/check-packaged-desktop.mjs`) runs
+the launcher from the app archive with the app's executable and checks the
+Skill is shipped.
+
+Manual acceptance for each client: run the command from Settings, open a
+project folder in the client, generate an image and a 3D model through
+`wait_job`, playtest with `game_use`, then run `mcp remove ohmygame-studio`.

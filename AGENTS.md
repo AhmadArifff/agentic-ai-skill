@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 50 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 51 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 50 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 51 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 50 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 51 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI, Motion & Video Production Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -98,7 +98,8 @@ Seluruh agen dapat memanfaatkan 50 skill terdaftar di `skills/` dan `~/.gemini/c
    - `motlab-assets`: Pembuatan kit aset visual reusable berbasis kode (ikon, ilustrasi, karakter 2D dengan rig, transisi, objek 3D PBR) dalam format PNG transparan + SVG atau GLB/FBX/OBJ agar seluruh video dalam satu brand konsisten.
    - `herk-edit-kit`: Suite post-production rekaman kamera / *talking-head* (potong hening `cut-silences`, hapus salah ucap/gagap/retake secara review-gated `cut-mistakes`, editing YouTube panjang `edit-video`, Reels/Shorts 9:16 dengan validator `short-form-edit`, visual storytelling `video-storytelling`, dan showreel 120-130 BPM `motion-showreel`).
    - `hyperframes`: Engine komposisi HTML+GSAP Studio (`npx hyperframes` CLI terpadu, palet warna, katalog transisi CSS/shader, timing *video-beats* talking-head, serta registry blok & komponen reusable).
-2. **Interactive 3D / WebGL Graphics Suite**:
+2. **Interactive 3D / WebGL Graphics & Game Studio Suite**:
+   - `ohmygame-studio`: Integrasi AI Game Studio via MCP `ohmygame-studio` (generasi aset 2D/3D/rig/audio via provider pengguna, validasi Design & Asset Canvas `canvas_check`, web game Phaser/Three.js/R3F, multiplayer rooms/saves/leaderboards, playable interactive story nodes, plugin SDK Godot/Unity/Unreal/Blender/Aseprite/Tiled, dan playtest otomatis `game_use`).
    - `3d-configurator-simulator`: WebGL 3D Configurator & Biomechanical Prosthesis Simulator (Three.js, DracoLoader, Kinematics, HTML HUD).
    - `teardown`: Simulator 3D mesin & mekanikal interaktif offline single-page HTML, exploded view / cutaways, kinematic linkages, live telemetry HUD panels, dan 60fps video capture via Playwright & Three.js.
    - `threejs-fundamentals`, `threejs-geometry`, `threejs-materials`, `threejs-lighting`, `threejs-textures`, `threejs-animation`, `threejs-loaders`, `threejs-shaders`, `threejs-postprocessing`, `threejs-interaction`: 10 modul modular rekayasa WebGL Three.js.
