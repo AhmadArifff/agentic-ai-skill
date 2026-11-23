@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenMotion Media"
+  short_description: "Generate and verify image, video, speech, and music assets via configured multimodal providers"
+  default_prompt: "Use OpenMotion $openmotion-media to discover models via openmotion_media_use, then generate and verify needed image, video, speech, or music assets via openmotion_assets_use."

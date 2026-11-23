@@ -1,0 +1,3 @@
+interface:
+  display_name: "OpenMotion Recreate"
+  short_description: "Recreate a reference video as an editable project in OpenMotion"

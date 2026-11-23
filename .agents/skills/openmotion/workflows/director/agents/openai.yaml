@@ -1,0 +1,4 @@
+interface:
+  display_name: "OpenMotion Director"
+  short_description: "Design original motion narratives, choreography, and shot transitions in OpenMotion"
+  default_prompt: "Use OpenMotion $openmotion-director to create or substantially re-direct an original motion video from product material, validating key motion and transitions before exporting."
