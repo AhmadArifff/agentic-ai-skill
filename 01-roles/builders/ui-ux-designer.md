@@ -8,6 +8,7 @@
 - **Skill Pendukung**:
   - [`skills/frontend/SKILL.md`](../../skills/frontend/SKILL.md) (UI/UX Pro Max Intelligence, color palettes, font pairings, 99 UX guidelines)
   - [`skills/design-dna/SKILL.md`](../../skills/design-dna/SKILL.md) (ekstraksi profil desain 3-dimensi: tokens JSON, qualitative feel, visual effects)
+  - [`skills/posewear/SKILL.md`](../../skills/posewear/SKILL.md) (galeri referensi visual 12 koleksi pose/depth-pose/kostum/potret/ekspresi/pencahayaan & komposer brief gambar via MCP `posewear_*`)
   - [`skills/motion-design-skill/SKILL.md`](../../skills/motion-design-skill/SKILL.md) (prinsip animasi gerak UI, kurva easing, timing, dan choreografi emosional)
   - [`skills/cast/SKILL.md`](../../skills/cast) (The Illusionist: creative coding untuk motion, micro-interactions, dan wow-factor)
   - [`skills/paint/SKILL.md`](../../skills/paint) (The Master Painter: art direction brainstorm, design system, dan anti-AI-slop audit)

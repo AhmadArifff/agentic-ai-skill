@@ -1,6 +1,6 @@
 # AGENTS.md: Multi-Agent Orchestration & Governance System (Agentic AI)
 
-> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 59 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
+> **Universal Agentic Entry File**: File ini dibaca secara otomatis pada setiap prompt baru dan awal sesi percakapan (*session start*) di lingkungan Antigravity, Claude Code, Codex, dan Cursor untuk memastikan seluruh agen mematuhi tata kelola arsitektur, 4-tier hirarki peran, 60 katalog skill, serta basis pengetahuan 3D WebGL Configurator & Prosthesis Simulator.
 
 ---
 
@@ -80,9 +80,9 @@ Sistem ini diperkaya secara bawaan dengan pengetahuan rekayasa 3D WebGL tingkat 
 
 ---
 
-## 4. Katalog 59 Skill Terdaftar (Workspace & Global Config)
+## 4. Katalog 60 Skill Terdaftar (Workspace & Global Config)
 
-Seluruh agen dapat memanfaatkan 59 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
+Seluruh agen dapat memanfaatkan 60 skill terdaftar di `skills/` dan `~/.gemini/config/skills/` secara *on-demand (progressive disclosure)*:
 
 1. **Creative UI, Motion & Video Production Suite**:
    - `21st-dev`: Registry komponen Design Engineers (spotlight cards, magnetic buttons, dock bar via `npx shadcn add "https://21st.dev/r/..."`).
@@ -112,6 +112,7 @@ Seluruh agen dapat memanfaatkan 59 skill terdaftar di `skills/` dan `~/.gemini/c
 3. **Machine Learning, Vision & Data**:
    - `ml-vision`: Clustering (K-Means, DBSCAN), Classification (LightGBM, XGBoost), PyTorch, YOLOv8/v11, ONNX INT8 quantization, FastAPI backend, dan in-browser WebGPU.
 4. **Art Direction & Design Intelligence**:
+   - `posewear`: Galeri referensi visual 12 koleksi & komposer brief gambar (`v1.3.2`, kode MIT): pose + depth-pose berpasangan, pakaian, kostum anime/sejarah, potret, ekspresi, gaya rambut, latar, pencahayaan, properti, dan furnitur via MCP server `posewear_*` (`C:\Users\ASUS\posewear\mcp\server.mjs`) serta local workbench ComfyUI/`stable-diffusion.cpp` (`http://127.0.0.1:8787/`).
    - `design-dna`: Ekstraksi 3 dimensi desain (tokens, style, visual effects).
    - `paint`: Art direction visual universe, design system, dan audit desain.
    - `cast`: Genjutsu creative coding untuk motion, micro-interactions, dan wow-factor.
