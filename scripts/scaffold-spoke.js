@@ -164,7 +164,7 @@ async function run() {
     'video-ai': {
       techStack: 'Multimedia & Video Automation (Canvas, WebCodecs, FFmpeg, Audio Waveform API), TypeScript, Next.js',
       primaryBuilder: 'multimedia-video-engineer & frontend-engineer',
-      adoptedSkills: ['motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'code-animation-prompts', 'antislop', 'qa', 'tech-critic', 'goal-tracker'],
+      adoptedSkills: ['motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'code-animation-prompts', 'mocha', 'antislop', 'qa', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -189,7 +189,7 @@ async function run() {
     'video-studio': {
       techStack: 'Multi-Engine Video Production (Code-as-Video Canvas, 2D Artistic Animation, Offline TTS, SVML, Motion.md)',
       primaryBuilder: 'multimedia-video-engineer & ui-ux-designer',
-      adoptedSkills: ['code-animation-prompts', 'reelmimic', 'openmotion', 'showtime', 'hypit', 'motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'posewear', 'antislop', 'qa', 'goal-tracker'],
+      adoptedSkills: ['code-animation-prompts', 'reelmimic', 'openmotion', 'showtime', 'hypit', 'motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'posewear', 'mocha', 'antislop', 'qa', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',

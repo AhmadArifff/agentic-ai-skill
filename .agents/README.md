@@ -66,8 +66,9 @@ Setiap temuan bug produksi, akar masalah, dan perbaikan teruji dicatat secara pe
 ---
 
 ## 5. Keahlian Khusus (*On-Demand Skills*)
-Framework ini diperkuat oleh 60 skill terdaftar di `skills/` dan `.agents/skills/`:
+Framework ini diperkuat oleh 61 skill terdaftar di `skills/` dan `.agents/skills/`:
 * **[skills/posewear/SKILL.md](./skills/posewear/SKILL.md)**: Galeri referensi visual 12 koleksi (pose, depth-pose berpasangan, kostum, potret, ekspresi, gaya rambut, latar, pencahayaan, properti, furnitur) & komposer brief gambar via MCP `posewear_*` + local workbench ComfyUI/`sd-cpp` di `~/posewear`.
+* **[skills/mocha/SKILL.md](./skills/mocha/SKILL.md)**: Penggantian karakter video AI end-to-end tanpa pose/depth per-frame (CVPR 2026, Wan2.1-T2V-14B): 1 mask frame-0 + 1-2 foto referensi via ComfyUI `WanVideoWrapper` / Cloud GPU CLI + helper persiapan lokal `prepare_mocha_job.py`.
 * **[skills/code-animation-prompts/SKILL.md](./skills/code-animation-prompts/SKILL.md)**: Pustaka 341 prompt gaya animasi kode (10 seri A-G/M/K/Z/H/L/V/X/R/O) dengan skrip pencarian `styles.py`, eksportir deterministik `window.renderAt(t)` (`render_video.py`), serta arsip visual 196 stills & picker HTML offline di `~/code-animation-prompts`.
 * **[skills/habblaud/SKILL.md](./skills/habblaud/SKILL.md)**: Kantor virtual pixel-art lokal (`http://localhost:4747`) untuk memantau sesi Claude Code & Codex secara real-time via SSE (subagen, background shell timers, kuota 5h/mingguan, event GitHub PR/CI, Day Timelapse, My Day analytics, live terminal, mod/hook lokal; aplikasi standalone di `~/habblaud`).
 * **[skills/diorama/SKILL.md](./skills/diorama/SKILL.md)**: Playbook & code kit Three.js diorama miniatur interaktif (`@sloemo/diorama` v5.7.0): 3 preset visual (`pixel`, `stroked-toon`, `pixel-stroke`), riset & lisensi aset komersial (`DESIGN.md`, `SOURCES.md`, `CREDITS.md`), mode narasi & inspeksi edukasi, animasi deterministik `f(t)`, dan 8 skrip QA visual Playwright (`frames.mjs`, `audit.mjs`, `shoot.mjs`).

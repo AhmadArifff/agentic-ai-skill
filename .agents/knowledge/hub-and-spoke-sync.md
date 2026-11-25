@@ -8,7 +8,7 @@
 
 ```mermaid
 flowchart TD
-    HUB["🏛️ MASTER HUB (agentic AI)<br/>• 24 Roles & 16 Expert Personas<br/>• 60 Skills & Anti-Slop Filter<br/>• 35 Verified Production Cases<br/>• Enterprise Rules & Workflows"]
+    HUB["🏛️ MASTER HUB (agentic AI)<br/>• 24 Roles & 16 Expert Personas<br/>• 61 Skills & Anti-Slop Filter<br/>• 35 Verified Production Cases<br/>• Enterprise Rules & Workflows"]
     
     HUB -->|"Downstream (Pewarisan Arsitektur)"| SPOKE1["🌱 Child Spoke 1: E-Comerce-BucketFlowers<br/>(Next.js, Supabase, Midtrans, Biteship)"]
     HUB -->|"Downstream (Pewarisan Arsitektur)"| SPOKE2["🌱 Child Spoke 2: adminShuttleV3<br/>(Laravel 4-Layer, DataTables, FastXlsxWriter)"]
@@ -22,7 +22,7 @@ flowchart TD
 ### Identitas & Peran:
 - **Pusat / Induk (`Master Hub`)**:
   - Repositori: `c:\Users\ASUS\Documents\Web Dev\improving\agentic AI`
-  - Peran: *Single Source of Truth* arsitektur multi-agen, tata kelola OODA Loop, katalog 60 skill, basis pengetahuan Case-Bank terpusat, dan panduan rekayasa enterprise.
+  - Peran: *Single Source of Truth* arsitektur multi-agen, tata kelola OODA Loop, katalog 61 skill, basis pengetahuan Case-Bank terpusat, dan panduan rekayasa enterprise.
 - **Cabang / Anak (`Child Spokes`)**:
   - Repositori: Proyek-proyek aplikasi nyata yang dikembangkan oleh pengguna dan agen.
   - Peran: Implementasi spesifikasi bisnis lokal (PRD toko online, sistem pemesanan tiket, configurator 3D, studio video, game, dll).

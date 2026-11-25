@@ -10,7 +10,7 @@ Ketika sebuah proyek baru mengadopsi Master Hub, sistem tidak menyalin seluruh r
 
 ```mermaid
 flowchart TD
-    MASTER["🏛️ Master Hub (agentic AI)<br/>• 24 Roles & 16 Personas<br/>• 60 Skills Global<br/>• 35 Case Bank"]
+    MASTER["🏛️ Master Hub (agentic AI)<br/>• 24 Roles & 16 Personas<br/>• 61 Skills Global<br/>• 35 Case Bank"]
     
     MASTER --> AUDIT["1. domain-retriever<br/>Audit Tech Stack (PRD, package.json, Cargo.toml)"]
     AUDIT --> PRUNE["2. policy-schema-enforcer / tech-critic<br/>Pruning bloat & tailoring constraints"]
@@ -80,7 +80,7 @@ Setelah kuesioner dijawab, seluruh proyek anak wajib mematuhi 4 alur kerja ini:
   * Clean / Hexagonal Architecture.
 
 ### 4. Skill Mapping (`adopted_skills`) & Skill Activation Gate
-- Agen wajib memetakan subset skill yang relevan dari **60 skill global** ke dalam `AGENTS.md` dan array `adopted_skills` pada `session-state.json` proyek tersebut (tersedia 10 preset otomatis di `scripts/scaffold-spoke.js`: `web3-solana`, `laravel`, `nextjs`, `video-ai`, `video-studio`, `3d-diorama`, `game-studio`, `service-pos`, `ai-agent-ops`, `general`, atau kustom lewat flag `--skills`).
+- Agen wajib memetakan subset skill yang relevan dari **61 skill global** ke dalam `AGENTS.md` dan array `adopted_skills` pada `session-state.json` proyek tersebut (tersedia 10 preset otomatis di `scripts/scaffold-spoke.js`: `web3-solana`, `laravel`, `nextjs`, `video-ai`, `video-studio`, `3d-diorama`, `game-studio`, `service-pos`, `ai-agent-ops`, `general`, atau kustom lewat flag `--skills`).
 - Pada setiap fase Planning/Review dan sebelum menulis baris kode pertama, agen wajib menjalankan **Skill Activation Gate** (membaca `SKILL.md` skill terkait dan mencatatnya di `skill_activation_log`) agar bebas dari *Passive Skill Syndrome*.
 
 ---

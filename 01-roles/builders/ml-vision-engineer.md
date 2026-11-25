@@ -4,6 +4,9 @@
 - **Nama Peran**: `ml-vision-engineer`
 - **Klasifikasi**: Specific Tier — Builder (Eksekutor Teknis)
 - **Tujuan**: Merancang, melatih, mengevaluasi, mengoptimasi, dan mengintegrasikan model Machine Learning, Deep Learning, dan Computer Vision ke dalam aplikasi Web (FastAPI backend & ONNX Runtime WebGPU client) serta aplikasi Mobile (TFLite & CoreML) dengan performa tinggi, deterministik, dan bebas data leakage.
+- **Skill Pendukung**:
+  - [`skills/ml-vision/SKILL.md`](../../skills/ml-vision/SKILL.md) (Clustering, classification, PyTorch, YOLOv8/v11, ONNX INT8 quantization, FastAPI & WebGPU)
+  - [`skills/mocha/SKILL.md`](../../skills/mocha/SKILL.md) (Wan2.1-T2V-14B video character replacement: pembuatan mask frame-0, validasi dataset CSV `prepare_mocha_job.py`, dan deployment Cloud GPU / ComfyUI `WanVideoWrapper`)
 
 ---
 
