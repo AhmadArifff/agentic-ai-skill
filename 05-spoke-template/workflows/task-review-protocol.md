@@ -1,6 +1,11 @@
 # Workflow: Protokol Wajib Review Sebelum Development & Fix Bug
 
-SOP ini wajib dijalankan oleh AI Agent **sebelum menulis atau mengubah kode apapun** pada setiap sesi pengembangan fitur baru, penambahan menu acuan (seperti `schedule`), maupun perbaikan bug.
+SOP ini wajib dijalankan oleh AI Agent **sebelum menulis atau mengubah kode apapun** pada setiap sesi pengembangan fitur baru, penambahan menu, maupun perbaikan bug.
+
+> [!IMPORTANT]
+> **Pemisahan Cakupan (Universal Spoke Core vs Add-on Laravel/MySQL)**:
+> - **Universal (Wajib di SEMUA Proyek Anak)**: Deklarasi **Skill Activation Gate** (`adopted_skills`), Analogi Dunia Nyata + Before/After, Matriks Target Perubahan Eksplisit (`3A`), Audit Skenario Celah (`3B`), Optimization Gate Multi-Domain, Visual Planning Gate (`Rule 32`), dan Human-in-the-Loop Approval Gate.
+> - **Add-on Khusus Laravel / MySQL (`adminShuttleV3`)**: Bagian dump `transport_system-*.sql`, komparasi 4-dimensi `admin-sunjaya` / `sunjaya_dev`, query manual phpMyAdmin, dan `qa-kernel.php` **HANYA aktif** jika proyek menggunakan Laravel/MySQL legacy tersebut; lewati bagian spesifik Laravel tersebut pada proyek Next.js, 3D WebGL, Video, Game, atau AI Agent.
 
 ---
 
@@ -52,6 +57,10 @@ SOP ini wajib dijalankan oleh AI Agent **sebelum menulis atau mengubah kode apap
 Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan format review terstruktur berikut:
 
 ```markdown
+### 0. Skill Activation Gate (WAJIB untuk Semua Domain - Anti Passive Skill Syndrome)
+* **Skill Teradopsi yang Diaktifkan**: Sebutkan daftar skill dari `adopted_skills` (`session-state.json`) atau katalog 60 skill global yang relevan untuk tugas ini (mencakup Backend, Frontend/UI, 3D/WebGL, Video/Motion, ML, Browser, atau Observabilitas).
+* **Status Pembacaan `SKILL.md`**: Konfirmasikan bahwa `SKILL.md` masing-masing skill aktif sudah dibaca sebelum menyusun desain/kode, serta aturan routing Zero-Overlap sudah dipatuhi.
+
 ### 1. Status & Temuan Awal
 * Menjelaskan kondisi fitur/bug pada basis kode saat ini.
 * **Basis Data Operasional**: `transport_system` (skema dipelajari dari berkas `transport_system-*.sql` di root).
@@ -119,10 +128,11 @@ Ketika pengguna memberikan instruksi fitur/bug baru, AI wajib merespon dengan fo
   - **Jika BELUM ADA / KOSONG**: Berikan **Fallback Feedback** transparan dan siapkan query SQL `INSERT` khusus registrasi menu/permission untuk dieksekusi manual di phpMyAdmin (Zero-Direct-CRUD).
 * **Kesiapan Berkas Migrasi Statis (`Schema::create`)**:
   - Pastikan tabel modul memiliki berkas migrasi `Schema::create` (bukan alter) yang presisi sesuai SQL dump terbaru di `database/migrations/` (tanpa menjalankan CLI `migrate`).
-* **Konsultasi Stored Procedure / Database View (Optimization Gate)**:
-  - *Jika tugas memuat join multi-tabel berat atau mutasi transaksi atomik*: AI **WAJIB menawarkan secara proaktif**:
-    > *"Untuk modul ini, apakah Anda ingin kita implementasikan menggunakan **Stored Procedure (`sp_...`)** atau **Database View (`v_...`)** agar lebih optimal? Keuntungannya: kueri pre-compiled di database lebih cepat, logic reusable tanpa membuat fungsi berulang di controller, serta transaksi atomik terlindungi."*
-  - Jelaskan aspek keamanan: `SQL SECURITY INVOKER` (MySQL) atau `SET search_path = public, pg_temp` (Postgres/Supabase), error rollback handler, dan parameter sanitization.
+* **Konsultasi Optimization Gate Multi-Domain (Sesuai Stack Proyek)**:
+  - **Database / Backend** (*jika memuat join multi-tabel berat atau mutasi transaksi atomik*): AI **WAJIB menawarkan secara proaktif** Stored Procedure (`sp_...`) atau Database View (`v_...`) lengkap dengan `SQL SECURITY INVOKER` / `SET search_path = public, pg_temp`, error rollback handler, parameter sanitization, dan pencegahan N+1 query.
+  - **Frontend / UI**: audit ukuran bundle/lazy-loading, penghindaran re-render berlebih, dan kepatuhan WCAG AA / mobile reflow.
+  - **3D WebGL / Diorama**: batasi `devicePixelRatio <= 2.0`, kontrol jumlah draw calls, wajib `.dispose()` pada geometry/material/texture saat swap aset, serta render deterministik `f(t)`.
+  - **Video & Motion**: pantau anggaran `ms/frame`, pekerja paralel, sinkronisasi audio-visual, dan cek contact sheet sebelum encode akhir.
 * **Kueri SQL Siap Pakai**:
   ```sql
   -- DDL/DML untuk dieksekusi manual oleh pengguna di phpMyAdmin / database console

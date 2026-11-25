@@ -169,6 +169,7 @@ Seluruh agen wajib mengintegrasikan standar enterprise yang terakumulasi di `rul
    - `fix-403.md`: Root cause analysis dan resolusi izin/akses ditolak (RBAC/Policy audit).
    - `multi-device-collaboration.md`: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
    - `playwright-testing.md`: Pengujian visual & interaksi E2E otomatis sebelum rilis ke staging/production.
+   - `add-new-skill.md`: SOP penambahan skill baru (inspeksi aman anti-hang, audit Zero-Overlap & Hybrid, pendaftaran preset `scaffold-spoke.js`, sinkronisasi 3-arah, dan validasi otomatis `test:system`).
 3. **Enterprise Case-Bank (`04-case-bank/cases/` & `knowledge/bug-cases.md`)**:
    - **35 Kasus Produksi Terverifikasi** (`04-case-bank/`) dengan Dual-Approval Gate (`qa-engineer` & `tech-critic`) serta **46 Kasus Bug Tervalidasi** (`Kasus #01` s.d `Kasus #47` di `knowledge/bug-cases.md`).
    - Mencakup preseden arsitektur: produksi video berbasis kode & kit aset `motlab`/`motlab-assets`, diagram alur interaktif Archify, topologi cloud stack-diagram, financial ledger driver withdrawal, Web3 SSR hydration mismatch, video shorts millisecond retention, production SQL schema sync, real-time ETD state-machine guard, JsonResource resolve, MySQL Error 1364, Select2 optgroup CSS isolation, stacked profile UI & `validateWithBag`, dan reactive studio customization.

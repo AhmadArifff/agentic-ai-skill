@@ -31,6 +31,19 @@ Sistem ini mewarisi siklus **OODA (Observe -> Orient -> Decide -> Act)** dan pri
 
 ---
 
+## 2B. Skill Teradopsi & Skill Activation Gate (Anti Passive Skill Syndrome)
+
+Proyek ini mengadopsi subset skill terarah dari **60 skill global** (`~/.gemini/config/skills/`) sesuai domain proyek agar agen tidak mengalami *Passive Skill Syndrome* (skill terpasang tapi tidak dibaca/dipakai):
+
+{{ADOPTED_SKILLS_BLOCK}}
+
+### Aturan Aktivasi Wajib di Setiap Siklus Kerja:
+1. **Planning & Review**: Agen wajib mendeklarasikan skill aktif dari `adopted_skills` di [session-state.json](./session-state.json) yang relevan dengan tugas (bukan hanya untuk UI, melainkan juga Backend, 3D/WebGL, Video/Motion, ML, atau Browser Automation).
+2. **Sebelum Coding (*Progressive Disclosure*)**: Agen **WAJIB membaca `SKILL.md`** dari setiap skill yang dideklarasikan sebelum menulis baris kode pertama, lalu mencatatnya pada `skill_activation_log`.
+3. **Evaluasi & Optimize**: Jalankan checklist optimasi lintas-domain serta **Mandatory Delivery Gate 4-Blok** (`antislop`) sebelum serah terima ke reviewer/pengguna.
+
+---
+
 ## 3. Kedaulatan Aturan Lokal (*Local Rules Precedence*)
 
 1. **Aturan Domain Proyek Ini adalah Prioritas Utama**:

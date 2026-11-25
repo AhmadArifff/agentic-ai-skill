@@ -1,16 +1,17 @@
-# SOP: Post-Development QA (On-Demand - Mode A Hemat Token)
+# SOP: Post-Development QA (Multi-Stack Universal + Mode A Hemat Token)
 
-Dokumen ini mengatur pelaksanaan **Quality Assurance (QA) terstruktur pasca-development** pada sistem **adminShuttleV3** secara cepat, akurat, dan hemat token tanpa tumpang tindih dengan aturan yang sudah ada.
+Dokumen ini mengatur pelaksanaan **Quality Assurance (QA) terstruktur pasca-development** secara cepat, akurat, dan hemat token untuk **seluruh proyek anak (*Child Spokes*)**, sekaligus mempertahankan jalur enterprise khusus **Laravel / MySQL (`adminShuttleV3`)** tanpa tumpang tindih dengan aturan lain.
 
 ---
 
-## 🚨 1. Activation Gate & Pemisahan Peran (Zero-Overlap)
+## 🚨 1. Activation Gate & Pemisahan Peran (Zero-Overlap, Selaras dengan Rule 32)
 
-* **ON-DEMAND ONLY**: Workflow ini **HANYA dijalankan ketika pengguna secara eksplisit meminta pengujian/QA** (misal: *"tolong QA modul ini"*, *"tes fitur ini"*, *"cek bug pake testing"*). AI **TIDAK BOLEH** menjalankannya otomatis tiap selesai coding agar hemat token.
+* **Tier 0 (Selalu Wajib Otomatis Tiap Selesai Coding)**: Verifikasi dasar ringan seperti syntax lint (`php -l`, `node --check`, `tsc --noEmit`), build/compile check, Anti-Slop Delivery Gate, Co-Developer Non-Regression Guard, dan audit kueri View/DB tetap dijalankan otomatis per [`01-workflow-discipline.md`](../rules/01-workflow-discipline.md) Tahap 4.
+* **Tier 1 & Tier 2 Deep QA (ON-DEMAND + Approval Gate)**: Workflow pengujian mendalam ini **HANYA dieksekusi ketika pengguna secara eksplisit meminta pengujian/QA** (misal: *"tolong QA modul ini"*, *"tes fitur ini"*, *"cek bug pake testing"*) ATAU setelah pengguna menyetujui penawaran uji visual pada rilis UI/3D/Video baru ([`32-visual-first-engineering.md`](../rules/32-visual-first-engineering.md) Bagian 4). AI **TIDAK BOLEH** menjalankan deep QA / Playwright otomatis secara diam-diam tiap selesai edit kecil agar hemat token.
 * **Batas Tanggung Jawab (Tidak Tumpang Tindih)**:
-  * **Verifikasi Dasar Wajib Tiap Selesai Coding** (`php -l`, `node -c`, `optimize:clear`, Hendris guard, audit kueri Database View bebas double-join & bebas filter kaku penyensor data baru, sinkronisasi `.agents/menu-docs/`) ➔ tetap berada di [01-workflow-discipline.md](../rules/01-workflow-discipline.md) Tahap 4.
-  * **QA Menyeluruh Tier 1 (Backend, Route, View, JSON Contract, Excel, Mutasi Rollback-Safe)** ➔ dikelola di dokumen ini via `.agents/scripts/qa-kernel.php`.
-  * **QA Visual & Interaksi Browser Tier 2 (Playwright)** ➔ merujuk ke [playwright-testing.md](./playwright-testing.md) sebagai SSOT kredensial (`superahmad` / `password123`) dan checklist visual.
+  * **Tier 0 (Verifikasi Dasar Wajib)** -> [`01-workflow-discipline.md`](../rules/01-workflow-discipline.md) Tahap 4.
+  * **Tier 1 (Fast Kernel / Unit / Contract / Asset QA)** -> dikelola di dokumen ini (Laravel via `.agents/scripts/qa-kernel.php`, atau runner domain masing-masing pada Bagian `3C`).
+  * **Tier 2 (QA Visual & Interaksi Browser via Playwright)** -> merujuk ke [`playwright-testing.md`](./playwright-testing.md) sebagai SSOT checklist visual & single-shot script.
 
 ---
 
@@ -67,6 +68,17 @@ Jika pengguna meminta uji alur mutasi (*create, update, approve, reject, double-
 1. Buat 1 skrip PHP sementara di `.agents/scratch/qa-mutation.php` yang **WAJIB membungkus seluruh simulasi dalam `DB::beginTransaction()` ... `finally { DB::rollBack(); }`**.
 2. Uji minimal: - *Happy path* (data valid ➔ perubahan state/saldo akurat). - *Guard / Edge case* (double-submit / saldo kurang / status tidak valid ➔ tertolak `422` atau `ServiceResult::failed`). - *Input validation* (payload kosong/tidak valid ➔ ditolak `FormRequest`).
 3. Jalankan 1 kali, cetak ringkasan `PASS/FAIL`, lalu **wajib hapus** `.agents/scratch/qa-mutation.php` setelah selesai.
+
+### C. Jalur Tier 1 & Tier 2 Multi-Stack (Untuk Proyek Anak Non-Laravel)
+Jika proyek anak **bukan** Laravel/MySQL (`adminShuttleV3`), lewati `qa-kernel.php` dan phpMyAdmin, lalu jalankan runner yang sesuai dengan domain proyek:
+
+| Domain Proyek Anak | Tier 1 (Fast Automated / Contract QA) | Tier 2 (Visual / Perceptual QA) |
+| :--- | :--- | :--- |
+| **Next.js / Vue / Nuxt / Node TS** | `npm run typecheck`, `npm run lint`, `npm run build`, unit/integration test (`vitest` / `jest`), validasi kontrak API JSON | Single-shot Playwright (`console.error` = 0, mobile 390px zero horizontal overflow, WCAG AA contrast) |
+| **3D WebGL & Diorama (`diorama`, `teardown`, `3d-configurator-simulator`)** | `node --check`, `mechanism-contract.test.mjs`, validasi lisensi aset `SOURCES.md`/`CREDITS.md`, audit `.dispose()` anti-memory-leak | `diorama` QA harness (`shoot.mjs`, `audit.mjs`, `frames.mjs`, `sweep.mjs`) atau tangkapan orbit desktop/ponsel |
+| **Video & Motion (`motlab`, `reelmimic`, `showtime`, `herk-edit-kit`, `code-animation-prompts`)** | `validate-plan.mjs`, `motion_check.py`, `py_compile`, cek resolusi/fps/durasi/audio stream via `ffprobe` | Inspeksi visual contact sheet (`preview-contact-sheet.jpg` / `clip_strip.py --vs`), `showtime qa` (visual + hearing pass), Mog Check G0-G5 |
+| **Game Studio (`ohmygame-studio`)** | `canvas_check` validasi Design & Asset Canvas, build/syntax check | Automated playtest via `game_use` & verifikasi frame/interaksi input |
+| **AI Agent / MCP Tools (`habblaud`, `posewear`, `webbrain`)** | Smoke test `/api/health` atau JSON-RPC stdio `initialize` + `tools/list`, cek masking secret & batas akses lokal | Uji interaksi UI lokal / verifikasi ekstraksi JSON Schema `webbrain_extract` |
 
 ---
 

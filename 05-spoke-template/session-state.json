@@ -2,9 +2,12 @@
   "project_name": "{{PROJECT_NAME}}",
   "primary_goal": "{{PRIMARY_GOAL}}",
   "current_stage": "INITIALIZATION",
+  "qa_policy": "tier0-auto_tier12-ondemand",
+  "adopted_skills": [],
+  "skill_activation_log": [],
   "active_subtask": {
     "id": "T-01",
-    "task": "Inisialisasi arsitektur proyek dan tinjauan kebutuhan PRD",
+    "task": "Inisialisasi arsitektur proyek, pemetaan adopted_skills, dan tinjauan kebutuhan",
     "owner_role": "problem-decomposer",
     "status": "in_progress",
     "rework_iteration_count": 0
@@ -12,7 +15,7 @@
   "subtasks": [
     {
       "id": "T-01",
-      "task": "Inisialisasi arsitektur proyek dan tinjauan kebutuhan PRD",
+      "task": "Inisialisasi arsitektur proyek, pemetaan adopted_skills, dan tinjauan kebutuhan",
       "owner_role": "problem-decomposer",
       "status": "in_progress",
       "rework_iteration_count": 0
@@ -28,7 +31,7 @@
     {
       "id": "C-02",
       "category": "governance",
-      "constraint": "Setiap fitur baru wajib melalui evaluasi 7 pilar task review dan verifikasi reviewer (No Self-Review)",
+      "constraint": "Setiap fitur baru wajib melalui evaluasi 7 pilar task review, Skill Activation Gate (baca SKILL.md sebelum coding), dan verifikasi reviewer (No Self-Review)",
       "locked": true
     }
   ],

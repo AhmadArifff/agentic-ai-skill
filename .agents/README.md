@@ -44,6 +44,7 @@ Saat menjalankan skenario pekerjaan tertentu, ikuti alur langkah-demi-langkah be
 * **[workflows/fix-403.md](./workflows/fix-403.md)**: Panduan diagnosis cepat dan resolusi izin/otorisasi 403 Forbidden.
 * **[workflows/multi-device-collaboration.md](./workflows/multi-device-collaboration.md)**: Protokol kolaborasi multi-perangkat (`git pull --rebase origin main`, linear history, zero conflict).
 * **[workflows/playwright-testing.md](./workflows/playwright-testing.md)**: SOP Pengujian Browser Playwright otomatis (Hanya jika diminta eksplisit oleh pengguna).
+* **[workflows/add-new-skill.md](./workflows/add-new-skill.md)**: SOP baku penambahan skill baru (inspeksi aman, audit Zero-Overlap/Hybrid, pemetaan `adoptedSkills` scaffolder, sinkronisasi 3-arah, dan validasi otomatis).
 
 ---
 

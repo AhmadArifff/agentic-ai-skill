@@ -8,7 +8,7 @@
 
 ```mermaid
 flowchart TD
-    HUB["🏛️ MASTER HUB (agentic AI)<br/>• 22 Roles & 14 Expert Personas<br/>• 42 Skills & Anti-Slop Filter<br/>• 27 Verified Production Cases<br/>• Enterprise Rules & Workflows"]
+    HUB["🏛️ MASTER HUB (agentic AI)<br/>• 24 Roles & 16 Expert Personas<br/>• 60 Skills & Anti-Slop Filter<br/>• 35 Verified Production Cases<br/>• Enterprise Rules & Workflows"]
     
     HUB -->|"Downstream (Pewarisan Arsitektur)"| SPOKE1["🌱 Child Spoke 1: E-Comerce-BucketFlowers<br/>(Next.js, Supabase, Midtrans, Biteship)"]
     HUB -->|"Downstream (Pewarisan Arsitektur)"| SPOKE2["🌱 Child Spoke 2: adminShuttleV3<br/>(Laravel 4-Layer, DataTables, FastXlsxWriter)"]
@@ -22,10 +22,10 @@ flowchart TD
 ### Identitas & Peran:
 - **Pusat / Induk (`Master Hub`)**:
   - Repositori: `c:\Users\ASUS\Documents\Web Dev\improving\agentic AI`
-  - Peran: *Single Source of Truth* arsitektur multi-agen, tata kelola OODA Loop, katalog 42 skill, basis pengetahuan Case-Bank terpusat, dan panduan rekayasa enterprise.
+  - Peran: *Single Source of Truth* arsitektur multi-agen, tata kelola OODA Loop, katalog 60 skill, basis pengetahuan Case-Bank terpusat, dan panduan rekayasa enterprise.
 - **Cabang / Anak (`Child Spokes`)**:
   - Repositori: Proyek-proyek aplikasi nyata yang dikembangkan oleh pengguna dan agen.
-  - Peran: Implementasi spesifikasi bisnis lokal (PRD toko online, sistem pemesanan tiket, configurator 3D, dll).
+  - Peran: Implementasi spesifikasi bisnis lokal (PRD toko online, sistem pemesanan tiket, configurator 3D, studio video, game, dll).
 
 ---
 
@@ -34,15 +34,15 @@ flowchart TD
 ### A. Downstream Flow (Master -> Child / Inisialisasi Proyek Baru)
 Ketika proyek baru dibuat atau di-bootstrap:
 1. Proyek anak menyalin arsitektur inti dari Master Hub:
-   - 4-Tier Hirarki Peran (22 Spesialis) & 14 Expert Personas DNA.
-   - Core Guardrails (`00-core-guardrails.md`) dan Workflow Discipline (`01-workflow-discipline.md`).
-   - Anti-Slop Mandatory Delivery Gate (R-01 s.d R-38).
+   - 4-Tier Hirarki Peran (24 Spesialis) & 16 Expert Personas DNA.
+   - Core Guardrails (`00-core-guardrails.md`), Workflow Discipline (`01-workflow-discipline.md`), dan pemetaan `adopted_skills` pada `session-state.json`.
+   - Anti-Slop Mandatory Delivery Gate (R-01 s.d R-38) serta Optimization Gate multi-domain.
    - Scaffolding Stubs (Controller, Service, Repository).
 2. Proyek anak menyesuaikan aturan lokal (*local rules precedence*) sesuai kebutuhan domain dan PRD spesifik proyek.
 
 ### B. Upstream Flow (Child -> Master / Penyerapan Solusi Produksi)
 Ketika proyek anak menemukan bug kritis dan menyelesaikannya secara elegan di lingkungan produksi:
-1. Kasus dicatat di `.agents/04-case-bank/cases/` proyek anak dengan status `VERIFIED`.
+1. Kasus dicatat di `.agents/knowledge/cases/` proyek anak (`case-YYYYMMDD-slug.yaml`) dengan status `VERIFIED`.
 2. Solusi bernilai umum (tanpa kredensial rahasia) disinkronkan kembali (*upstream*) ke `04-case-bank/cases/` Master Hub.
 3. Master Hub mendaftarkan kasus tersebut ke `04-case-bank/index.json` dan memutakhirkan `AGENTS.md`.
 

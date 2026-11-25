@@ -10,11 +10,11 @@ Ketika sebuah proyek baru mengadopsi Master Hub, sistem tidak menyalin seluruh r
 
 ```mermaid
 flowchart TD
-    MASTER["🏛️ Master Hub (agentic AI)<br/>• 24 Roles & 16 Personas<br/>• 42 Skills Global<br/>• 31 Case Bank"]
+    MASTER["🏛️ Master Hub (agentic AI)<br/>• 24 Roles & 16 Personas<br/>• 60 Skills Global<br/>• 35 Case Bank"]
     
     MASTER --> AUDIT["1. domain-retriever<br/>Audit Tech Stack (PRD, package.json, Cargo.toml)"]
     AUDIT --> PRUNE["2. policy-schema-enforcer / tech-critic<br/>Pruning bloat & tailoring constraints"]
-    PRUNE --> INIT["3. goal-tracker<br/>Inisialisasi session-state.json lokal"]
+    PRUNE --> INIT["3. goal-tracker<br/>Inisialisasi session-state.json & adopted_skills lokal"]
     INIT --> SPOKE["🌱 Child Spoke (.agents/)<br/>Ramping, cepat, bebas context drift"]
 ```
 
@@ -79,8 +79,9 @@ Setelah kuesioner dijawab, seluruh proyek anak wajib mematuhi 4 alur kerja ini:
   * Repository Pattern (isolasi kueri dari presentasi).
   * Clean / Hexagonal Architecture.
 
-### 4. Skill Mapping yang Relevan & Terpasang
-- Agen wajib memetakan skill yang relevan dari 42 skill global ke dalam file `AGENTS.md` proyek tersebut (contoh: skill Motion/Tailwind jika UI interaktif, Excel export jika ada modul laporan tabular, Three.js jika 3D, Supabase jika database Supabase).
+### 4. Skill Mapping (`adopted_skills`) & Skill Activation Gate
+- Agen wajib memetakan subset skill yang relevan dari **60 skill global** ke dalam `AGENTS.md` dan array `adopted_skills` pada `session-state.json` proyek tersebut (tersedia 10 preset otomatis di `scripts/scaffold-spoke.js`: `web3-solana`, `laravel`, `nextjs`, `video-ai`, `video-studio`, `3d-diorama`, `game-studio`, `service-pos`, `ai-agent-ops`, `general`, atau kustom lewat flag `--skills`).
+- Pada setiap fase Planning/Review dan sebelum menulis baris kode pertama, agen wajib menjalankan **Skill Activation Gate** (membaca `SKILL.md` skill terkait dan mencatatnya di `skill_activation_log`) agar bebas dari *Passive Skill Syndrome*.
 
 ---
 
@@ -89,14 +90,15 @@ Setelah kuesioner dijawab, seluruh proyek anak wajib mematuhi 4 alur kerja ini:
 Master Hub menyediakan skrip otomatis untuk menghasilkan starter pack `.agents` yang sudah disesuaikan:
 
 ```bash
-# Mode Interaktif (Menjawab 2 Pertanyaan Onboarding Secara Langsung):
+# Mode Interaktif (Menjawab Kuesioner Onboarding Secara Langsung):
 npm run spoke:scaffold -- --interactive
 
-# Mode CLI dengan Argumen Lengkap:
+# Mode CLI dengan Argumen Lengkap (termasuk --skills opsional):
 npm run spoke:scaffold -- \
   --target "c:\Users\ASUS\Documents\Web Dev\improving\SolanaTradeMemes" \
   --name "SolanaTradeMemes" \
   --type "web3-solana" \
+  --skills "frontend,shadcn-ui,antislop,qa,tech-critic" \
   --git-autopush yes \
   --db supabase \
   --arch clean

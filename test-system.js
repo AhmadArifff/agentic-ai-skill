@@ -1,15 +1,21 @@
 #!/usr/bin/env node
 /**
  * System Sanity Verification Script for Agentic AI
- * 
- * Verifies that all 21 roles, 12 skills, session state schemas,
- * and pipeline handoff protocols are structurally sound.
+ *
+ * Verifies roles, session state engine, pipeline protocols, Case-Bank cases,
+ * 3-way workspace skills parity, spoke scaffolder presets, and governance count drift.
  */
 
 const fs = require('node:fs');
 const path = require('node:path');
 
 console.log('=== Agentic AI System Sanity Verification ===\n');
+
+const listSkillDirs = dir =>
+  fs.readdirSync(dir, { withFileTypes: true })
+    .filter(e => e.isDirectory())
+    .map(e => e.name)
+    .sort();
 
 const checks = [
   {
@@ -74,14 +80,75 @@ const checks = [
     }
   },
   {
-    name: 'Workspace Skills Catalog',
+    name: 'Workspace Skills & Parity',
     validate: () => {
-      const skillsDir = path.join(__dirname, '.agents', 'skills');
-      const skills = fs.readdirSync(skillsDir, { withFileTypes: true })
-        .filter(e => e.isDirectory())
-        .map(e => e.name);
-      if (skills.length < 12) throw new Error(`Expected at least 12 skills, found ${skills.length}`);
-      return `${skills.length} workspace skills verified (${skills.join(', ')})`;
+      const rootSkillsDir = path.join(__dirname, 'skills');
+      const agentSkillsDir = path.join(__dirname, '.agents', 'skills');
+      const rootSkills = listSkillDirs(rootSkillsDir);
+      const agentSkills = listSkillDirs(agentSkillsDir);
+      if (rootSkills.length < 12) throw new Error(`Expected at least 12 skills, found ${rootSkills.length}`);
+
+      const missingInAgents = rootSkills.filter(s => !agentSkills.includes(s));
+      const extraInAgents = agentSkills.filter(s => !rootSkills.includes(s));
+      if (missingInAgents.length || extraInAgents.length) {
+        throw new Error(`Parity mismatch between skills/ and .agents/skills/ (missingInAgents=[${missingInAgents.join(',')}], extraInAgents=[${extraInAgents.join(',')}])`);
+      }
+
+      const missingSkillMd = rootSkills.filter(s => s !== '_jutsu' && !fs.existsSync(path.join(rootSkillsDir, s, 'SKILL.md')));
+      if (missingSkillMd.length) {
+        throw new Error(`Missing SKILL.md in: ${missingSkillMd.join(', ')}`);
+      }
+      return `${rootSkills.length} workspace skills verified with 100% skills/ <-> .agents/skills/ parity`;
+    }
+  },
+  {
+    name: 'Spoke Scaffolder & Template',
+    validate: () => {
+      const realSkills = new Set(listSkillDirs(path.join(__dirname, 'skills')));
+      const scaffoldSrc = fs.readFileSync(path.join(__dirname, 'scripts', 'scaffold-spoke.js'), 'utf-8');
+      const matches = [...scaffoldSrc.matchAll(/adoptedSkills:\s*\[([^\]]+)\]/g)];
+      if (matches.length === 0) throw new Error('No adoptedSkills presets found in scripts/scaffold-spoke.js');
+      let refCount = 0;
+      const missing = [];
+      for (const m of matches) {
+        for (const s of m[1].matchAll(/'([^']+)'/g)) {
+          refCount++;
+          if (!realSkills.has(s[1])) missing.push(s[1]);
+        }
+      }
+      if (missing.length) {
+        throw new Error(`Unknown skill IDs in scaffold-spoke.js presets: ${[...new Set(missing)].join(', ')}`);
+      }
+
+      const spokeState = JSON.parse(fs.readFileSync(path.join(__dirname, '05-spoke-template', 'session-state.json'), 'utf-8'));
+      for (const field of ['adopted_skills', 'skill_activation_log', 'qa_policy']) {
+        if (!(field in spokeState)) {
+          throw new Error(`Missing required field "${field}" in 05-spoke-template/session-state.json`);
+        }
+      }
+      return `${matches.length} presets (${refCount} skill refs) & spoke session-state schema verified`;
+    }
+  },
+  {
+    name: 'Governance Count Drift Guard',
+    validate: () => {
+      const n = listSkillDirs(path.join(__dirname, 'skills')).length;
+      const checksToRun = [
+        { file: 'AGENTS.md', pattern: new RegExp(`## 4\\. Katalog ${n} Skill Terdaftar`) },
+        { file: path.join('.agents', 'README.md'), pattern: new RegExp(`diperkuat oleh ${n} skill terdaftar`) },
+        { file: path.join('05-spoke-template', 'AGENTS.md'), pattern: new RegExp(`dan ${n} skill global`) },
+        { file: path.join('knowledge', 'spoke-adoption-guide.md'), pattern: new RegExp(`• ${n} Skills Global`) },
+        { file: path.join('knowledge', 'hub-and-spoke-sync.md'), pattern: new RegExp(`• ${n} Skills &`) }
+      ];
+      const drifted = [];
+      for (const item of checksToRun) {
+        const text = fs.readFileSync(path.join(__dirname, item.file), 'utf-8');
+        if (!item.pattern.test(text)) drifted.push(item.file);
+      }
+      if (drifted.length) {
+        throw new Error(`Skill count (${n}) out of sync in: ${drifted.join(', ')}. Run: node scripts/sync-global-and-spoke.js`);
+      }
+      return `All 5 core governance docs match live count (${n} skills) with 0 drift`;
     }
   }
 ];

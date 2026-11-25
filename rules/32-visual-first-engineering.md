@@ -82,10 +82,13 @@ Seluruh kode frontend yang diproduksi agen wajib mematuhi 4 invarian ini:
 
 ---
 
-## 4. Visual Verification Gate Sebelum Serah Terima
+## 4. Visual Verification Gate Sebelum Serah Terima (Selaras dengan `post-dev-qa.md`)
 
-Sebelum menyatakan tugas selesai (*done*):
-1. Reviewer (`qa-engineer` atau subagent) wajib melakukan verifikasi visual menggunakan Playwright browser testing:
-   - Buka halaman lokal dan ambil screenshot tampilan render aktual.
-   - Periksa apakah ada elemen bertabrakan, teks terpotong, atau layout kaku.
-2. Jika ditemukan cacat visual, agen builder wajib memperbaikinya secara otonom **sebelum** menyerahkan hasil akhir kepada pengguna.
+Untuk menjaga efisiensi token sekaligus menjamin kualitas visual tanpa konflik aturan dengan [`workflows/post-dev-qa.md`](../workflows/post-dev-qa.md):
+
+1. **Tier 0 (Wajib Otomatis Tiap Selesai Coding)**:
+   - Verifikasi sintaks/build/typecheck (`npm run build`, `php -l`, `node --check`), audit Anti-Slop Hard Gate (0 em dash, kontras WCAG AA, zero mobile overflow, tanpa tombol/link mati), dan Co-Developer Non-Regression Guard (`git diff`).
+2. **Tier 2 Visual Browser Verification via Playwright (Mengikuti Kebijakan `post-dev-qa.md`)**:
+   - **Perubahan Rutin / Minor**: Bersifat **on-demand** (dijalankan ketika pengguna meminta QA/tes visual) agar hemat token.
+   - **Halaman Baru / Rilis UI Kritis / Diorama 3D / Video Render**: Agen wajib menawarkan verifikasi visual (Playwright single-shot screenshot, `diorama` `shoot.mjs`/`audit.mjs`, atau contact sheet video) dan memaparkan rencana singkat sebelum eksekusi.
+   - Ketika dijalankan, buka halaman lokal, tangkap screenshot render aktual, pastikan tidak ada elemen bertabrakan, teks terpotong, atau layout kaku. Jika ditemukan cacat visual, agen builder wajib memperbaikinya sebelum serah terima akhir.

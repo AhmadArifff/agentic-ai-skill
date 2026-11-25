@@ -12,15 +12,11 @@ Dokumen ini mengatur tata kelola pengerjaan tugas oleh AI Agent agar setiap fitu
 ## 1. Protokol Wajib Review Sebelum Development (Review Gate)
 Setiap permintaan pengembangan fitur baru, perbaikan bug tampilan, bug logika, maupun adopsi menu baru (seperti `schedule` / jadwal perjalanan) **WAJIB melalui 4 tahapan OODA**:
 
-### Tahap 1: Analisis & Komparasi Sistem (Observe & Orient)
-* **Fokus Database**: Periksa skema database `transport_system`. Gunakan file dump SQL (`*.sql`) sebagai sumber referensi.
-* **Komparasi Mendalam**: Bandingkan sistem saat ini (`adminShuttleV3`) dengan sistem referensi legacy (`admin-sunjaya`) pada 4 dimensi:
-  1. **Data Database**: Nama tabel, tipe kolom, dan relasi.
-  2. **Logika Bisnis (Logic)**: Alur proses, formula hitungan, dan validasi.
-  3. **Metode & Service**: Struktur method di Controller/Service/Repository.
-  4. **Tampilan & UX**: Tata letak, kartu summary, filter, tabel, dan warna.
-* **Prinsip Utama Adopsi**:
-  * Utamakan mengadopsi styling, komponen, dan konvensi yang **SUDAH ADA di `adminShuttleV3`** (seperti Laporan CSO, layout card seragam, ReportExporter) daripada menjiplak mentah-mentah kode lama yang sudah usang.
+### Tahap 1: Analisis, Aktivasi Skill & Komparasi Sistem (Observe & Orient)
+* **Skill Activation Gate (Universal)**: Cek daftar `adopted_skills` di `session-state.json` (atau `AGENTS.md` lokal), tentukan skill yang relevan untuk tugas ini, dan baca `SKILL.md`-nya sebelum menyusun desain agar bebas *Passive Skill Syndrome*.
+* **Add-on Proyek Laravel / MySQL (`adminShuttleV3` - Lewati di Proyek Non-Laravel)**:
+  * **Fokus Database**: Periksa skema database `transport_system`. Gunakan file dump SQL (`*.sql`) sebagai sumber referensi.
+  * **Komparasi Mendalam**: Bandingkan sistem saat ini (`adminShuttleV3`) dengan sistem referensi legacy (`admin-sunjaya`) pada 4 dimensi: Data Database, Logika Bisnis, Metode & Service, serta Tampilan & UX. Utamakan pola eksisting `adminShuttleV3` (Laporan CSO, layout card seragam, ReportExporter).
 
 ### Tahap 2: Penyusunan Dokumen Review & Analisis Dampak (Decide)
 Sebelum menyentuh kode aplikasi, AI menyajikan dokumen review kepada pengguna yang berisi:
@@ -43,12 +39,14 @@ Sebelum menyentuh kode aplikasi, AI menyajikan dokumen review kepada pengguna ya
 ### Tahap 3: Menunggu Konfirmasi Pengguna (Approval Gate)
 * **DILARANG KERAS** mulai memodifikasi atau membuat file sebelum pengguna menyatakan persetujuan secara eksplisit terhadap hasil review dan alur yang diajukan.
 
-### Tahap 4: Eksekusi Terarah, Evaluasi Celah & Pengujian (Act)
-* Terapkan perubahan sesuai cakupan yang disepakati (*laser-focused*).
-* Lakukan **Evaluasi Celah Lintas-Menu (*Post-Fix Field Gap Check*)**: pastikan perubahan/fix bug tidak meninggalkan inkonsistensi di menu lain (list/detail/modal/checkin/manifest) maupun hardcode timezone statis.
-* Uji coba render view, validasi kueri, atau syntax lint.
+### Tahap 4: Eksekusi Terarah, Evaluasi Celah & Verifikasi Tier 0 (Act)
+* Terapkan perubahan sesuai cakupan yang disepakati (*laser-focused*) dengan mematuhi best practice dari `SKILL.md` yang diaktifkan.
+* Lakukan **Evaluasi Celah Lintas-Menu (*Post-Fix Field Gap Check*)**: pastikan perubahan/fix bug tidak meninggalkan inkonsistensi di menu/halaman lain maupun hardcode timezone statis.
+* Jalankan **Verifikasi Tier 0 (Wajib Otomatis sesuai Stack)**:
+  * Syntax lint / typecheck / build (`npm run build` / `tsc --noEmit` / `node --check` / `python -m py_compile` atau `php -l` + `php artisan optimize:clear` khusus Laravel).
+  * Mandatory Delivery Gate 4-Blok (`antislop`: 0 em dash, kontras WCAG AA, zero mobile overflow, data riil, tanpa link mati) dan Co-Developer Non-Regression Guard (`git diff`).
+  * Pengujian mendalam Tier 1/Tier 2 (Playwright / `qa-kernel.php` / `diorama` QA harness) mengikuti kebijakan [`workflows/post-dev-qa.md`](../workflows/post-dev-qa.md).
 * Hapus seluruh berkas sementara di `scratch/`.
-* Segarkan cache: `php artisan optimize:clear`.
 
 ---
 

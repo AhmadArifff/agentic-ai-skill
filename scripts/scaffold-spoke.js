@@ -3,7 +3,7 @@
  * Autonomous Child Spoke Scaffolding & Alignment Tool for Agentic AI
  * 
  * Usage:
- *   node scripts/scaffold-spoke.js --target <target-path> [--name <name>] [--type <type>] [--goal <goal>] [--git-autopush <yes|no>] [--db <supabase|mysql|postgres|sqlite|none>] [--arch <existing|oop|repository|clean>]
+ *   node scripts/scaffold-spoke.js --target <target-path> [--name <name>] [--type <type>] [--goal <goal>] [--skills <csv>] [--git-autopush <yes|no>] [--db <supabase|mysql|postgres|sqlite|none>] [--arch <existing|oop|repository|clean>]
  * 
  * Interactive Mode:
  *   npm run spoke:scaffold
@@ -35,6 +35,7 @@ async function run() {
   let projectName = getArg('--name');
   let projectType = getArg('--type', 'general');
   let primaryGoal = getArg('--goal');
+  let customSkillsArg = getArg('--skills');
   let gitAutoPush = getArg('--git-autopush');
   let databaseChoice = getArg('--db');
   let architectureChoice = getArg('--arch');
@@ -54,7 +55,7 @@ async function run() {
     console.log('Silakan lengkapi kuesioner kustomisasi untuk mengadopsi .agents:\n');
     targetPath = await ask('1. Masukkan path folder target proyek', targetPath || './child-spoke');
     projectName = await ask('2. Nama proyek', projectName || path.basename(path.resolve(targetPath)));
-    projectType = await ask('3. Tipe proyek (web3-solana | laravel | nextjs | video-ai | service-pos | general)', projectType);
+    projectType = await ask('3. Tipe proyek (web3-solana | laravel | nextjs | video-ai | video-studio | 3d-diorama | game-studio | service-pos | ai-agent-ops | general)', projectType);
     primaryGoal = await ask('4. Tujuan utama proyek', primaryGoal || `Pengembangan dan penyempurnaan sistem aplikasi ${projectName}`);
     
     console.log('\n--- KUESIONER WORKFLOW & INFRASTRUKTUR WAJIB ---');
@@ -95,11 +96,12 @@ async function run() {
   console.log(`Standar Arsitektur: ${architectureChoice.toUpperCase()}`);
   console.log('------------------------------------------------------\n');
 
-  // Presets by project type
+  // Presets by project type (including curated adoptedSkills mapped to 60 global skills)
   const PRESETS = {
     'web3-solana': {
       techStack: 'Solana Blockchain (Web3.js, Anchor Framework), Next.js App Router, TypeScript, Tailwind CSS',
-      primaryBuilder: 'smart-contract-engineer & frontend-engineer',
+      primaryBuilder: 'web3-blockchain-architect & frontend-engineer',
+      adoptedSkills: ['frontend', 'shadcn-ui', 'antislop', 'antislop-ui', 'qa', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -123,7 +125,8 @@ async function run() {
     },
     'laravel': {
       techStack: 'Laravel 11 (4-Layer: Controller -> Service -> Repository -> Model), MySQL/PostgreSQL, Tailwind CSS',
-      primaryBuilder: 'backend-engineer & laravel-architect',
+      primaryBuilder: 'backend-engineer & frontend-engineer',
+      adoptedSkills: ['backend', 'frontend', 'excel-export', 'antislop', 'antislop-ui', 'qa', 'playwright', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -141,7 +144,8 @@ async function run() {
     },
     'nextjs': {
       techStack: 'Next.js App Router (React 19), TypeScript, Tailwind CSS, Server Actions',
-      primaryBuilder: 'frontend-engineer & fullstack-engineer',
+      primaryBuilder: 'frontend-engineer & backend-engineer',
+      adoptedSkills: ['frontend', 'backend', 'shadcn-ui', 'untitled-ui', 'motion', 'antislop', 'antislop-ui', 'antislop-human', 'qa', 'playwright-skill', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -160,6 +164,7 @@ async function run() {
     'video-ai': {
       techStack: 'Multimedia & Video Automation (Canvas, WebCodecs, FFmpeg, Audio Waveform API), TypeScript, Next.js',
       primaryBuilder: 'multimedia-video-engineer & frontend-engineer',
+      adoptedSkills: ['motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'code-animation-prompts', 'antislop', 'qa', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -181,9 +186,74 @@ async function run() {
         }
       ]
     },
+    'video-studio': {
+      techStack: 'Multi-Engine Video Production (Code-as-Video Canvas, 2D Artistic Animation, Offline TTS, SVML, Motion.md)',
+      primaryBuilder: 'multimedia-video-engineer & ui-ux-designer',
+      adoptedSkills: ['code-animation-prompts', 'reelmimic', 'openmotion', 'showtime', 'hypit', 'motlab', 'motlab-assets', 'herk-edit-kit', 'hyperframes', 'motionmaxxing', 'posewear', 'antislop', 'qa', 'goal-tracker'],
+      constraints: [
+        {
+          id: 'C-01',
+          category: 'routing',
+          constraint: 'Pilih tepat 1 engine video utama sesuai Zero-Overlap Routing di SKILL.md sebelum menulis kode adegan',
+          locked: true
+        },
+        {
+          id: 'C-02',
+          category: 'visual_qa',
+          constraint: 'Wajib menginspeksi contact sheet / motion strip secara visual sebelum final MP4 encode',
+          locked: true
+        }
+      ]
+    },
+    '3d-diorama': {
+      techStack: 'Three.js WebGL Interactive 3D (Diorama Slab / Mechanical Teardown / Draco Configurator), Playwright QA',
+      primaryBuilder: 'frontend-engineer & ui-ux-designer',
+      adoptedSkills: ['diorama', 'teardown', '3d-configurator-simulator', 'threejs-fundamentals', 'threejs-materials', 'threejs-lighting', 'threejs-animation', 'threejs-interaction', 'antislop', 'qa', 'goal-tracker'],
+      constraints: [
+        {
+          id: 'C-01',
+          category: 'webgl_hygiene',
+          constraint: 'Batasi devicePixelRatio <= 2.0, panggil .dispose() saat swap resource, dan pastikan fungsi render deterministik f(t)',
+          locked: true
+        },
+        {
+          id: 'C-02',
+          category: 'licensing',
+          constraint: 'Setiap aset 3D eksternal wajib tercatat di SOURCES.md & CREDITS.md dengan izin komersial/redistribusi (CC0/CC-BY)',
+          locked: true
+        }
+      ]
+    },
+    'game-studio': {
+      techStack: 'Interactive Web / Engine Game (Phaser / Three.js / Godot / Unity) + OhMyGame Studio MCP & Visual References',
+      primaryBuilder: 'frontend-engineer & ui-ux-designer',
+      adoptedSkills: ['ohmygame-studio', 'diorama', 'posewear', 'threejs-fundamentals', 'threejs-animation', 'qa', 'tech-critic', 'goal-tracker'],
+      constraints: [
+        {
+          id: 'C-01',
+          category: 'game_qa',
+          constraint: 'Validasi Design & Asset Canvas (canvas_check) dan jalankan playtest otomatis sebelum rilis',
+          locked: true
+        }
+      ]
+    },
+    'ai-agent-ops': {
+      techStack: 'Multi-Agent Governance, Authenticated Browser Automation, Architecture Visualization & Local Observability',
+      primaryBuilder: 'ai-engineer & backend-engineer',
+      adoptedSkills: ['agentic-ai', 'goal-tracker', 'tech-critic', 'habblaud', 'webbrain', 'archify', 'stack-diagram', 'graphify', 'qa'],
+      constraints: [
+        {
+          id: 'C-01',
+          category: 'security',
+          constraint: 'Pertahankan local-only safeguard untuk bridge browser/agent dan larangan hardcode API key atau token',
+          locked: true
+        }
+      ]
+    },
     'service-pos': {
       techStack: 'Point of Sale & Multi-Stage Service Fulfillment (Next.js/Laravel, PostgreSQL, Thermal Printing)',
       primaryBuilder: 'backend-engineer & ui-ux-designer',
+      adoptedSkills: ['backend', 'frontend', 'untitled-ui', 'excel-export', 'antislop', 'antislop-ui', 'qa', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -201,7 +271,8 @@ async function run() {
     },
     'general': {
       techStack: 'Fullstack Modern Web Application',
-      primaryBuilder: 'software-engineer & frontend-engineer',
+      primaryBuilder: 'backend-engineer & frontend-engineer',
+      adoptedSkills: ['backend', 'frontend', 'antislop', 'antislop-ui', 'antislop-code', 'qa', 'tech-critic', 'goal-tracker'],
       constraints: [
         {
           id: 'C-01',
@@ -212,7 +283,7 @@ async function run() {
         {
           id: 'C-02',
           category: 'quality',
-          constraint: 'Wajib menerapkan evaluasi 7 pilar task review dan prinsip No Self-Review',
+          constraint: 'Wajib menerapkan evaluasi 7 pilar task review, Skill Activation Gate, dan prinsip No Self-Review',
           locked: true
         }
       ]
@@ -220,6 +291,12 @@ async function run() {
   };
 
   const preset = PRESETS[projectType] || PRESETS['general'];
+  const adoptedSkills = customSkillsArg
+    ? customSkillsArg.split(',').map(s => s.trim()).filter(Boolean)
+    : [...preset.adoptedSkills];
+  const adoptedSkillsBlock = adoptedSkills.length > 0
+    ? adoptedSkills.map(s => `- \`${s}\` (\`~/.gemini/config/skills/${s}/SKILL.md\`)`).join('\n')
+    : '- Gunakan skill relevan dari katalog global (`~/.gemini/config/skills/`)';
   const compiledConstraints = [...preset.constraints];
 
   // Inject Git Workflow constraint if enabled
@@ -309,13 +386,15 @@ async function run() {
       content = content.replace(/\{\{TECH_STACK\}\}/g, preset.techStack);
       content = content.replace(/\{\{PRIMARY_BUILDER_ROLE\}\}/g, preset.primaryBuilder);
       content = content.replace(/\{\{PRIMARY_GOAL\}\}/g, primaryGoal);
+      content = content.replace(/\{\{ADOPTED_SKILLS_BLOCK\}\}/g, adoptedSkillsBlock);
 
-      // If session-state.json, replace constraints with compiled constraints
+      // If session-state.json, replace constraints and adopted skills
       if (path.basename(destination) === 'session-state.json') {
         try {
           const parsed = JSON.parse(content);
           parsed.project_name = projectName;
           parsed.primary_goal = primaryGoal;
+          parsed.adopted_skills = adoptedSkills;
           parsed.established_constraints = compiledConstraints;
           parsed.git_autopush_enabled = gitAutoPush;
           parsed.database = databaseChoice;
@@ -352,6 +431,7 @@ async function run() {
   console.log(`Entry File       : ${path.join(resolvedTarget, 'AGENTS.md')}`);
   console.log(`Git Protocol     : ${gitAutoPush ? 'Pull-Before-Build & Pull-Before-Push AKTIF' : 'Manual Push'}`);
   console.log(`Database Adapter : ${databaseChoice.toUpperCase()}`);
+  console.log(`Adopted Skills   : ${adoptedSkills.join(', ')}`);
   console.log('\nSistem siap untuk development. Agen AI otomatis membaca aturan ini saat workspace dibuka.');
 }
 
